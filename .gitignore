@@ -1,0 +1,13 @@
+__pycache__/
+*.egg-info/
+.pytest_cache/
+build/
+dist/
+# per-figure renders are rebuilt by examples/build_gallery.py; the contact sheets and gallery.pdf are kept
+gallery/field/
+gallery/folio/
+gallery/*.aux
+gallery/*.log
+examples/*_field.*
+examples/*_folio.*
+.ruff_cache/

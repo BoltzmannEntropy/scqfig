@@ -1,0 +1,316 @@
+\documentclass[10pt]{article}
+\usepackage[a4paper,margin=16mm]{geometry}
+\usepackage{graphicx}
+\usepackage{pgfplots}\pgfplotsset{compat=1.16}
+\usepackage[field,figdir=.]{scqfig}
+\usepackage[T1]{fontenc}\usepackage{helvet}\renewcommand{\familydefault}{\sfdefault}
+\setlength{\parindent}{0pt}
+\begin{document}
+{\LARGE\bfseries scqfig gallery}\par\medskip
+Every example in both styles: \textcolor{scqBlue}{\textbf{field}} (left) and \textbf{folio} (right). Build with \texttt{python examples/build\_gallery.py}; each panel comes from \texttt{examples/NN\_name.py}.\par\bigskip
+\section*{\color{scqPurple}The LaTeX package}
+\texttt{\textbackslash usepackage[field]\{scqfig\}} or \texttt{[folio]} defines the palette, both styles' roles (\texttt{scqFieldAccent}, \texttt{scqFolioAccent}) and the active style's roles under plain names (\texttt{scqAccent}). \texttt{\textbackslash scqgraphics\{t1\_decay\}} loads the figure of the active style, and the pgfplots styles \texttt{scqfig}, \texttt{scqfig data}, \texttt{scqfig model} and \texttt{scqfig ref} match the matplotlib output.\par\medskip
+{\small
+\begin{tabular}[t]{lcc}
+\textbf{colour} & field & folio \\[2pt]
+\texttt{scqInk} & \fcolorbox{scqLight}{scqFieldInk}{\rule{0pt}{7pt}\hspace{16pt}} & \fcolorbox{scqLight}{scqFolioInk}{\rule{0pt}{7pt}\hspace{16pt}} \\
+\texttt{scqData} & \fcolorbox{scqLight}{scqFieldData}{\rule{0pt}{7pt}\hspace{16pt}} & \fcolorbox{scqLight}{scqFolioData}{\rule{0pt}{7pt}\hspace{16pt}} \\
+\texttt{scqModel} & \fcolorbox{scqLight}{scqFieldModel}{\rule{0pt}{7pt}\hspace{16pt}} & \fcolorbox{scqLight}{scqFolioModel}{\rule{0pt}{7pt}\hspace{16pt}} \\
+\texttt{scqSim} & \fcolorbox{scqLight}{scqFieldSim}{\rule{0pt}{7pt}\hspace{16pt}} & \fcolorbox{scqLight}{scqFolioSim}{\rule{0pt}{7pt}\hspace{16pt}} \\
+\texttt{scqReference} & \fcolorbox{scqLight}{scqFieldReference}{\rule{0pt}{7pt}\hspace{16pt}} & \fcolorbox{scqLight}{scqFolioReference}{\rule{0pt}{7pt}\hspace{16pt}} \\
+\texttt{scqAccent} & \fcolorbox{scqLight}{scqFieldAccent}{\rule{0pt}{7pt}\hspace{16pt}} & \fcolorbox{scqLight}{scqFolioAccent}{\rule{0pt}{7pt}\hspace{16pt}} \\
+\texttt{scqSignal} & \fcolorbox{scqLight}{scqFieldSignal}{\rule{0pt}{7pt}\hspace{16pt}} & \fcolorbox{scqLight}{scqFolioSignal}{\rule{0pt}{7pt}\hspace{16pt}} \\
+\texttt{scqBus} & \fcolorbox{scqLight}{scqFieldBus}{\rule{0pt}{7pt}\hspace{16pt}} & \fcolorbox{scqLight}{scqFolioBus}{\rule{0pt}{7pt}\hspace{16pt}} \\
+\texttt{scqWash} & \fcolorbox{scqLight}{scqFieldWash}{\rule{0pt}{7pt}\hspace{16pt}} & \fcolorbox{scqLight}{scqFolioWash}{\rule{0pt}{7pt}\hspace{16pt}} \\
+\texttt{scqOverlay} & \fcolorbox{scqLight}{scqFieldOverlay}{\rule{0pt}{7pt}\hspace{16pt}} & \fcolorbox{scqLight}{scqFolioOverlay}{\rule{0pt}{7pt}\hspace{16pt}} \\
+\texttt{scqQubitA} & \fcolorbox{scqLight}{scqFieldQubitA}{\rule{0pt}{7pt}\hspace{16pt}} & \fcolorbox{scqLight}{scqFolioQubitA}{\rule{0pt}{7pt}\hspace{16pt}} \\
+\texttt{scqQubitB} & \fcolorbox{scqLight}{scqFieldQubitB}{\rule{0pt}{7pt}\hspace{16pt}} & \fcolorbox{scqLight}{scqFolioQubitB}{\rule{0pt}{7pt}\hspace{16pt}} \\
+\texttt{scqQubitC} & \fcolorbox{scqLight}{scqFieldQubitC}{\rule{0pt}{7pt}\hspace{16pt}} & \fcolorbox{scqLight}{scqFolioQubitC}{\rule{0pt}{7pt}\hspace{16pt}} \\
+\end{tabular}
+\hfill
+\begin{tabular}[t]{lcc}
+\textbf{colour} & field & folio \\[2pt]
+\texttt{scqQubitD} & \fcolorbox{scqLight}{scqFieldQubitD}{\rule{0pt}{7pt}\hspace{16pt}} & \fcolorbox{scqLight}{scqFolioQubitD}{\rule{0pt}{7pt}\hspace{16pt}} \\
+\texttt{scqLevel0} & \fcolorbox{scqLight}{scqFieldLevel0}{\rule{0pt}{7pt}\hspace{16pt}} & \fcolorbox{scqLight}{scqFolioLevel0}{\rule{0pt}{7pt}\hspace{16pt}} \\
+\texttt{scqLevel1} & \fcolorbox{scqLight}{scqFieldLevel1}{\rule{0pt}{7pt}\hspace{16pt}} & \fcolorbox{scqLight}{scqFolioLevel1}{\rule{0pt}{7pt}\hspace{16pt}} \\
+\texttt{scqLevel2} & \fcolorbox{scqLight}{scqFieldLevel2}{\rule{0pt}{7pt}\hspace{16pt}} & \fcolorbox{scqLight}{scqFolioLevel2}{\rule{0pt}{7pt}\hspace{16pt}} \\
+\texttt{scqLevel3} & \fcolorbox{scqLight}{scqFieldLevel3}{\rule{0pt}{7pt}\hspace{16pt}} & \fcolorbox{scqLight}{scqFolioLevel3}{\rule{0pt}{7pt}\hspace{16pt}} \\
+\texttt{scqTileNonlinear} & \fcolorbox{scqLight}{scqFieldTileNonlinear}{\rule{0pt}{7pt}\hspace{16pt}} & \fcolorbox{scqLight}{scqFolioTileNonlinear}{\rule{0pt}{7pt}\hspace{16pt}} \\
+\texttt{scqTileCapacitive} & \fcolorbox{scqLight}{scqFieldTileCapacitive}{\rule{0pt}{7pt}\hspace{16pt}} & \fcolorbox{scqLight}{scqFolioTileCapacitive}{\rule{0pt}{7pt}\hspace{16pt}} \\
+\texttt{scqTileInductive} & \fcolorbox{scqLight}{scqFieldTileInductive}{\rule{0pt}{7pt}\hspace{16pt}} & \fcolorbox{scqLight}{scqFolioTileInductive}{\rule{0pt}{7pt}\hspace{16pt}} \\
+\texttt{scqChipPad} & \fcolorbox{scqLight}{scqFieldChipPad}{\rule{0pt}{7pt}\hspace{16pt}} & \fcolorbox{scqLight}{scqFolioChipPad}{\rule{0pt}{7pt}\hspace{16pt}} \\
+\texttt{scqChipResonator} & \fcolorbox{scqLight}{scqFieldChipResonator}{\rule{0pt}{7pt}\hspace{16pt}} & \fcolorbox{scqLight}{scqFolioChipResonator}{\rule{0pt}{7pt}\hspace{16pt}} \\
+\texttt{scqChipDrive} & \fcolorbox{scqLight}{scqFieldChipDrive}{\rule{0pt}{7pt}\hspace{16pt}} & \fcolorbox{scqLight}{scqFolioChipDrive}{\rule{0pt}{7pt}\hspace{16pt}} \\
+\texttt{scqChipFlux} & \fcolorbox{scqLight}{scqFieldChipFlux}{\rule{0pt}{7pt}\hspace{16pt}} & \fcolorbox{scqLight}{scqFolioChipFlux}{\rule{0pt}{7pt}\hspace{16pt}} \\
+\end{tabular}
+}\par\bigskip
+\noindent\begin{tikzpicture}\begin{axis}[scqfig field,width=7.4cm,height=4.6cm,xlabel={free evolution ($\mu$s)},ylabel={$P_1$},ymin=0,ymax=1,xmin=0,xmax=10,legend pos=north east]\addplot+[scqfig field data,samples=41,domain=0:10]{0.5+0.42*exp(-x/4)*cos(deg(2*pi*0.6*x))+0.02*sin(deg(37*x))};\addlegendentry{data}\addplot+[scqfig field model,samples=300,domain=0:10]{0.5+0.42*exp(-x/4)*cos(deg(2*pi*0.6*x))};\addlegendentry{fit}\end{axis}\end{tikzpicture}\hfill\begin{tikzpicture}\begin{axis}[scqfig folio,width=7.4cm,height=4.6cm,xlabel={free evolution ($\mu$s)},ylabel={$P_1$},ymin=0,ymax=1,xmin=0,xmax=10,legend pos=north east]\addplot+[scqfig folio data,samples=41,domain=0:10]{0.5+0.42*exp(-x/4)*cos(deg(2*pi*0.6*x))+0.02*sin(deg(37*x))};\addlegendentry{data}\addplot+[scqfig folio model,samples=300,domain=0:10]{0.5+0.42*exp(-x/4)*cos(deg(2*pi*0.6*x))};\addlegendentry{fit}\end{axis}\end{tikzpicture}\par
+{\small pgfplots axes drawn natively by LaTeX with \texttt{[scqfig field]} (left) and \texttt{[scqfig folio]} (right).}\par\bigskip
+\clearpage
+\section*{\color{scqPurple}Spectrum}
+\begin{minipage}{\textwidth}
+\textbf{01\quad Potential well and wavefunctions}\hfill\texttt{01\_potential\_well.py}\par
+{\small Transmon potential with the four lowest levels and their computed $|\psi(\varphi)|^2$ (charge basis, E\_J/E\_C = 80).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/01_potential_well.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/01_potential_well.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{02\quad Charge dispersion}\hfill\texttt{02\_charge\_dispersion.py}\par
+{\small Charge dispersion of the three lowest levels as E\_J/E\_C grows from the Cooper-pair box to the transmon.}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/02_charge_dispersion.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/02_charge_dispersion.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{03\quad Flux-tuned spectroscopy}\hfill\texttt{03\_flux\_spectroscopy.py}\par
+{\small Two-tone spectroscopy of a SQUID transmon against flux, with the exact f01 and f02/2 drawn over the data (synthetic data).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/03_flux_spectroscopy.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/03_flux_spectroscopy.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{04\quad Avoided crossing}\hfill\texttt{04\_avoided\_crossing.py}\par
+{\small Vacuum-Rabi splitting: resonator transmission as a tunable qubit crosses it, with the bare modes dashed and 2g marked (synthetic data).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/04_avoided_crossing.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/04_avoided_crossing.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\section*{\color{scqPurple}Design}
+\begin{minipage}{\textwidth}
+\textbf{10\quad Frequency plan}\hfill\texttt{10\_frequency\_plan.py}\par
+{\small Frequency plan of a three-qubit chain: each transmon's f01 and f12, the readout resonators inside the Purcell-filter passband, and the collision windows each qubit's f01 must avoid (designed values).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/10_frequency_plan.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/10_frequency_plan.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{11\quad Collision map}\hfill\texttt{11\_collision\_map.py}\par
+{\small Collision map of two coupled transmons: forbidden bands of the f\_q2 against f\_q1 plane, with three design points and their 20 MHz fabrication scatter; one point sits on a two-photon band (designed values).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/11_collision_map.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/11_collision_map.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{12\quad Capacitance matrix}\hfill\texttt{12\_capacitance\_matrix.py}\par
+{\small Maxwell capacitance matrix of two transmons, their readout resonators and the feedline, coloured by \textbar{}C\textbar{} on a log scale (simulated values).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/12_capacitance_matrix.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/12_capacitance_matrix.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{13\quad Participation budget}\hfill\texttt{13\_participation.py}\par
+{\small Surface-participation loss budget of a transmon: participation and loss tangent of each region, the quality factor each allows, and the total (simulated participation, assumed loss tangents).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/13_participation.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/13_participation.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{14\quad Dispersive shift}\hfill\texttt{14\_dispersive\_shift.py}\par
+{\small Dispersive shift of a transmon against its frequency for a 7.15 GHz resonator, g = 85 MHz and alpha = -233 MHz, with the straddling regime shaded and the design point marked (computed).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/14_dispersive_shift.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/14_dispersive_shift.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{15\quad Purcell limit}\hfill\texttt{15\_purcell\_limit.py}\par
+{\small Purcell limit on T1 against qubit frequency for a 7.15 GHz readout resonator (kappa = 1.5 MHz, g = 85 MHz), without and with a Q = 25 bandpass filter (computed).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/15_purcell_limit.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/15_purcell_limit.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{16\quad Convergence}\hfill\texttt{16\_convergence.py}\par
+{\small Eigenmode frequency of a readout resonator against adaptive mesh pass, with the relative change per pass and a 0.02 \% target (synthetic data).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/16_convergence.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/16_convergence.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\section*{\color{scqPurple}Readout}
+\begin{minipage}{\textwidth}
+\textbf{20\quad S21 of a resonator}\hfill\texttt{20\_s21\_resonator.py}\par
+{\small Notch-resonator transmission as magnitude, phase and circle, with one complex fit and the cable delay, amplitude and phase calibrated out (synthetic data).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/20_s21_resonator.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/20_s21_resonator.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{21\quad Quality factor vs power}\hfill\texttt{21\_quality\_vs\_power.py}\par
+{\small Internal quality factor of a resonator against mean photon number, with a fit of the saturable two-level-system model (synthetic data).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/21_quality_vs_power.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/21_quality_vs_power.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{22\quad Dispersive readout}\hfill\texttt{22\_dispersive\_readout.py}\par
+{\small Dispersive readout: resonator transmission with the qubit in \textbar{}0\textgreater{} and in \textbar{}1\textgreater{}, the 2chi shift computed for g = 85 MHz and Delta = -2.09 GHz, and the readout frequency between the two dips (synthetic data).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/22_dispersive_readout.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/22_dispersive_readout.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{23\quad IQ blobs}\hfill\texttt{23\_iq\_blobs.py}\par
+{\small Single-shot readout in the IQ plane: 4000 shots per prepared state with 1 and 2 sigma contours and the discrimination line; the \textbar{}1\textgreater{} shots include T1 decay during the 1.5 us integration (synthetic data).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/23_iq_blobs.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/23_iq_blobs.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{24\quad Readout histogram}\hfill\texttt{24\_readout\_histogram.py}\par
+{\small Single-shot histograms projected on the discrimination axis, with Gaussian fits to each peak and the assignment fidelity; the tail between the peaks is T1 decay during readout (synthetic data).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/24_readout_histogram.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/24_readout_histogram.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{25\quad Assignment matrix}\hfill\texttt{25\_assignment\_matrix.py}\par
+{\small Three-state assignment matrix from 5000 simulated shots per prepared state, assigned to the nearest IQ centre; decay during readout fills the lower triangle (synthetic data).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/25_assignment_matrix.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/25_assignment_matrix.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\section*{\color{scqPurple}Time domain}
+\begin{minipage}{\textwidth}
+\textbf{30\quad T1 decay}\hfill\texttt{30\_t1\_decay.py}\par
+{\small Energy relaxation: excited-state population against delay with an exponential fit (synthetic data, T1 = 48 us).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/30_t1_decay.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/30_t1_decay.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{31\quad Power Rabi}\hfill\texttt{31\_rabi.py}\par
+{\small Power Rabi: excited population against drive amplitude for a 40 ns pulse, with a cosine fit and the pi-pulse amplitude (synthetic data).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/31_rabi.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/31_rabi.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{32\quad Rabi chevron}\hfill\texttt{32\_chevron.py}\par
+{\small Rabi chevron: excited population against drive detuning and pulse duration at a 10 MHz Rabi rate, with the first two population maxima of the model drawn over the left half (synthetic data).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/32_chevron.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/32_chevron.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{33\quad Ramsey fringes}\hfill\texttt{33\_ramsey.py}\par
+{\small Ramsey fringes at 0.8 MHz detuning with a damped-cosine fit and its envelope (synthetic data, T2* = 4.2 us).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/33_ramsey.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/33_ramsey.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{34\quad Coherence decays}\hfill\texttt{34\_coherence\_decays.py}\par
+{\small Ramsey envelope, Hahn echo and CPMG-16 decays of one qubit on one axis, each with its exponential fit and time constant (synthetic data).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/34_coherence_decays.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/34_coherence_decays.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{35\quad Randomized benchmarking}\hfill\texttt{35\_rb.py}\par
+{\small Standard and interleaved randomized benchmarking of an X gate, 30 random sequences per length, with the error per Clifford and the interleaved gate error (synthetic data).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/35_rb.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/35_rb.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{36\quad Coherence over time}\hfill\texttt{36\_coherence\_timeseries.py}\par
+{\small T1 and echo T2 measured every 10 minutes for 48 hours, with their histograms; T1 drops whenever a wandering defect drifts onto the qubit frequency (synthetic data).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/36_coherence_timeseries.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/36_coherence_timeseries.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{37\quad TLS spectral diffusion}\hfill\texttt{37\_tls\_map.py}\par
+{\small T1 against qubit frequency over 24 hours; five defects show as Lorentzian T1 dips whose frequencies wander, and one switches between two frequencies (synthetic data).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/37_tls_map.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/37_tls_map.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\section*{\color{scqPurple}States}
+\begin{minipage}{\textwidth}
+\textbf{40\quad Bloch sphere}\hfill\texttt{40\_bloch\_sphere.py}\par
+{\small Bloch sphere: (a) a detuned Rabi drive (Delta = 0.6 Omega) tilts the precession cone off the pole; (b) free precession from \textbar{}+\textgreater{} spirals to \textbar{}0\textgreater{} as T2 and T1 shrink the vector (computed).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/40_bloch_sphere.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/40_bloch_sphere.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{41\quad Wigner functions}\hfill\texttt{41\_wigner.py}\par
+{\small Wigner functions of (a) the Fock state \textbar{}1\textgreater{} and (b) an even cat state with alpha = 2, on one colour scale of +-2/pi (computed).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/41_wigner.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/41_wigner.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{42\quad Density matrix}\hfill\texttt{42\_density\_matrix.py}\par
+{\small Two-qubit tomography of the Bell state (\textbar{}00\textgreater{} + \textbar{}11\textgreater{})/sqrt(2): real and imaginary parts of the reconstructed density matrix (synthetic data).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/42_density_matrix.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/42_density_matrix.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{43\quad Density matrix in 3D}\hfill\texttt{43\_density\_bars3d.py}\par
+{\small Real part of the reconstructed Bell-state density matrix as 3D bars, with the ideal state as wireframe outlines (synthetic data).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/43_density_bars3d.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/43_density_bars3d.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\section*{\color{scqPurple}Noise and errors}
+\begin{minipage}{\textwidth}
+\textbf{50\quad Noise spectral density}\hfill\texttt{50\_noise\_psd.py}\par
+{\small Flux-noise spectral density with a power-law fit, amplitude at 1 Hz and a white floor (synthetic data).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/50_noise_psd.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/50_noise_psd.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{51\quad Error budget}\hfill\texttt{51\_error\_budget.py}\par
+{\small CZ-gate error budget: contributions, their sum, and the measured error with the unexplained part hatched.}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/51_error_budget.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/51_error_budget.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{52\quad Correlated error bursts}\hfill\texttt{52\_burst\_raster.py}\par
+{\small Correlated error bursts: detections per qubit over time, with the flagged fraction and burst marks above (synthetic data from a toy burst model).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/52_burst_raster.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/52_burst_raster.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{53\quad Error correlations}\hfill\texttt{53\_error\_correlation.py}\par
+{\small Pairwise correlation of error detections across a 24-qubit chain; bursts correlate neighbours (synthetic data from a toy burst model).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/53_error_correlation.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/53_error_correlation.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\section*{\color{scqPurple}Processor}
+\begin{minipage}{\textwidth}
+\textbf{60\quad Device map}\hfill\texttt{60\_device\_map.py}\par
+{\small Device map of a 3 x 4 qubit grid with T1 on the qubits and CZ error on the couplers (synthetic data).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/60_device_map.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/60_device_map.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{61\quad Error distributions}\hfill\texttt{61\_error\_cdf.py}\par
+{\small Cumulative distributions of single-qubit, CZ and readout errors across a 54-qubit processor, medians marked (synthetic data).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/61_error_cdf.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/61_error_cdf.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\section*{\color{scqPurple}Schematics}
+\begin{minipage}{\textwidth}
+\textbf{70\quad Chip plan}\hfill\texttt{70\_chip\_plan.py}\par
+{\small Plan view of a two-qubit chip: Xmons joined by a tunable coupler, readout resonators on a feedline, drive and flux lines, airbridges.}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/70_chip_plan.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/70_chip_plan.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{71\quad Chip on a slab}\hfill\texttt{71\_chip\_oblique.py}\par
+{\small The two-qubit chip of example 70 laid on a slab by one rigid oblique map, with a plan-view zoom on the SQUID of Q1.}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/71_chip_oblique.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/71_chip_oblique.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{72\quad Transmon and readout circuit}\hfill\texttt{72\_lumped\_circuit.py}\par
+{\small Lumped circuit of a transmon coupled to a quarter-wave readout resonator on a feedline, each Hamiltonian term on the tile of the element that produces it.}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/72_lumped_circuit.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/72_lumped_circuit.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{73\quad Cryostat wiring}\hfill\texttt{73\_cryostat\_wiring.py}\par
+{\small Wiring of a dilution refrigerator: attenuated and filtered XY, Z and readout-input lines, and a readout output through isolators, a TWPA and a HEMT.}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/73_cryostat_wiring.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/73_cryostat_wiring.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{74\quad Pulse sequence}\hfill\texttt{74\_pulse\_sequence.py}\par
+{\small Pulse sequence of a conditional-phase measurement: DRAG pulses on two qubits, a CZ flux pulse and a dispersive readout with its integration window.}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/74_pulse_sequence.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/74_pulse_sequence.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{75\quad Level ladder and transitions}\hfill\texttt{75\_level\_ladder.py}\par
+{\small Transmon ladder (E\_J/E\_C = 40) to scale, with drive photons for f01, f12 and the two-photon f02/2, and the parity-forbidden single-photon 0-2 transition.}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/75_level_ladder.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/75_level_ladder.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{76\quad Film stack}\hfill\texttt{76\_film\_stack.py}\par
+{\small Cross-section of a tantalum CPW on silicon with its metal-air, metal-substrate and substrate-air interfaces marked.}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/76_film_stack.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/76_film_stack.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{77\quad Qubit array in a uniform field}\hfill\texttt{77\_spin\_array.py}\par
+{\small A 3 x 4 qubit array drawn as spins in a uniform field (the wash), with photons arriving from several directions and three qubits excited.}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/77_spin_array.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/77_spin_array.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\end{document}
