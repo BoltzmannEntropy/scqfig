@@ -1,6 +1,6 @@
 {
  "version": "0.1.0",
- "build": "836f06a1f8",
+ "build": "eb97d88093",
  "families": [
   {
    "name": "Spectrum",
@@ -385,6 +385,38 @@
    },
    "page": false,
    "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure}[t]\n  \\centering\n  \\scqgraphics[width=\\columnwidth]{16_convergence}   % figures/<style>/16_convergence.pdf\n  \\caption{Eigenmode frequency of a readout resonator against adaptive mesh pass, with the relative change per pass and a 0.02 \\% target (synthetic data).}\n  \\label{fig:convergence}\n\\end{figure}\n"
+  },
+  {
+   "id": "17_black_box",
+   "num": "17",
+   "title": "Black-box quantization",
+   "family": "Design",
+   "caption": "Black-box quantization of the transmon and readout resonator of example 72: (a) the susceptance the junction sees, whose rising zeros are the modes and whose slopes set their impedances; (b) the first-order Kerr matrix, with exact diagonalization of the same circuit in brackets (computed).",
+   "code": "\"\"\"Black-box quantization of the transmon and readout resonator of example 72: (a) the susceptance the junction sees, whose rising zeros are the modes and whose slopes set their impedances; (b) the first-order Kerr matrix, with exact diagonalization of the same circuit in brackets (computed).\"\"\"\nimport numpy as np\n\nimport scqfig as sq\nfrom scqfig import physics as ph\n\nTITLE = \"Black-box quantization\"\nFAMILY = \"Design\"\n\n# example 72's device; the 50 ohm feedline is small beside the 2.8 kohm of C_kappa, so it counts as ground\nC_SIGMA, C_G, C_R, C_K, L_J, F_R = 85e-15, 5e-15, 400e-15, 8e-15, 10e-9, 7.0e9\nL_R = 1 / ((2 * np.pi * F_R) ** 2 * C_R)\n\n\ndef build():\n    C = np.array([[C_SIGMA, -C_G], [-C_G, C_R + C_K + C_G]])         # transmon node, resonator node\n    Linv = np.diag([1 / L_J, 1 / L_R])                                 # the junction as its linear inductance\n    B = lambda f: ph.port_susceptance(f, C, Linv)\n    bb = ph.black_box(B, ph.ej_from_lj(L_J), np.linspace(1, 20, 2001))\n    exact = ph.transmon_resonator(C_SIGMA - C_G, C_G, C_R + C_K, L_J, L_R)\n    f = np.linspace(4.0, 8.0, 2001)\n    fig, (a, b) = sq.figure(\"page\", aspect=0.3, ncols=2, gridspec_kw={\"width_ratios\": [2.4, 1]})\n    sq.plots.admittance(a, f, B(f), modes=bb, labels=[\"q\", \"r\"])\n    sq.plots.kerr_matrix(b, bb[\"K\"], [\"q\", \"r\"], exact=exact[\"K\"], cbar=False)\n    b.set_xlabel(\"MHz, exact in brackets\")\n    sq.panel(a, \"a\")\n    sq.panel(b, \"b\")\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "admittance",
+    "kerr_matrix"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/17_black_box.png",
+     "pdf": "figures/field/17_black_box.pdf",
+     "thumb": "thumbs/field/17_black_box.jpg",
+     "w": 1360,
+     "h": 411,
+     "width_in": 6.8
+    },
+    "folio": {
+     "png": "figures/folio/17_black_box.png",
+     "pdf": "figures/folio/17_black_box.pdf",
+     "thumb": "thumbs/folio/17_black_box.jpg",
+     "w": 1357,
+     "h": 411,
+     "width_in": 6.79
+    }
+   },
+   "page": true,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure*}[t]\n  \\centering\n  \\scqgraphics[width=\\textwidth]{17_black_box}   % figures/<style>/17_black_box.pdf\n  \\caption{Black-box quantization of the transmon and readout resonator of example 72: (a) the susceptance the junction sees, whose rising zeros are the modes and whose slopes set their impedances; (b) the first-order Kerr matrix, with exact diagonalization of the same circuit in brackets (computed).}\n  \\label{fig:black-box}\n\\end{figure*}\n"
   },
   {
    "id": "20_s21_resonator",
@@ -1477,6 +1509,49 @@
    },
    "page": false,
    "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure}[t]\n  \\centering\n  \\scqgraphics[width=\\columnwidth]{79_teleportation}   % figures/<style>/79_teleportation.pdf\n  \\caption{(a) Teleportation: a Bell pair, a Bell measurement and classically controlled X and Z corrections. (b) The other gate glyphs: rotation, controlled-U with an open control, CZ, SWAP and a three-qubit box.}\n  \\label{fig:teleportation}\n\\end{figure}\n"
+  },
+  {
+   "id": "80_black_box_circuit",
+   "num": "80",
+   "title": "Black-box circuit",
+   "family": "Schematics",
+   "caption": "Black-box quantization in four steps for the device of example 72: (a) the transmon coupled to its readout resonator; (b) the junction split into its linear inductance and its nonlinear remainder; (c) the linear part as one admittance, probed by a swept current source; (d) that admittance beside the nonlinear element, whose zero-point phase each mode sets (computed).",
+   "code": "\"\"\"Black-box quantization in four steps for the device of example 72: (a) the transmon coupled to its readout resonator; (b) the junction split into its linear inductance and its nonlinear remainder; (c) the linear part as one admittance, probed by a swept current source; (d) that admittance beside the nonlinear element, whose zero-point phase each mode sets (computed).\"\"\"\nimport numpy as np\n\nimport scqfig as sq\nfrom scqfig import physics as ph\nfrom scqfig.schematics import symbols as S\n\nTITLE = \"Black-box circuit\"\nFAMILY = \"Schematics\"\n\nC_SIGMA, C_G, C_R, C_K, L_J, F_R = 85e-15, 5e-15, 400e-15, 8e-15, 10e-9, 7.0e9   # example 72's device\nL_R = 1 / ((2 * np.pi * F_R) ** 2 * C_R)\nYT, YM, YB = 1.75, 1.1, 0.45                                     # top rail, element centres, ground rail\n\n\ndef branch(ax, x, draw, color=None):\n    \"\"\"A vertical branch from the top rail to the ground rail with an element drawn at YM.\"\"\"\n    S.wire(ax, [x, x], [YT, YM + 0.3], color=color)\n    S.wire(ax, [x, x], [YM - 0.3, YB], color=color)\n    draw(x)\n\n\ndef capacitor(ax, x, color=None):\n    S.wire(ax, [x, x], [YT, YM + 0.035], color=color)\n    S.capacitor_v(ax, x, YM, color=color)\n    S.wire(ax, [x, x], [YM - 0.035, YB], color=color)\n\n\ndef network(ax, t, fs, split):\n    \"\"\"Resonator, coupling capacitor and transmon; split replaces the junction by L_J and the\n    nonlinear element.\"\"\"\n    rc, qc = t.bus, t.qubits[0]\n    branch(ax, 0.35, lambda x: S.inductor_v(ax, x, YM + 0.3, YM - 0.3, color=rc), rc)\n    capacitor(ax, 0.85, rc)\n    for y in (YT, YB):\n        S.wire(ax, [0.35, 0.85], [y, y], color=rc)\n    S.wire(ax, [0.85, 1.315], [YT, YT])\n    S.capacitor_h(ax, 1.35, YT, tile_kind=\"coupling\")\n    S.wire(ax, [1.385, 1.85], [YT, YT])\n    S.wire(ax, [0.85, 1.85], [YB, YB])\n    capacitor(ax, 1.85, qc)\n    right = 3.05 if split else 2.5\n    for y in (YT, YB):\n        S.wire(ax, [1.85, right], [y, y], color=qc)\n    if split:\n        branch(ax, 2.5, lambda x: S.inductor_v(ax, x, YM + 0.3, YM - 0.3), qc)\n        S.wire(ax, [3.05, 3.05], [YT, YB], color=qc)\n        S.nonlinear_element(ax, 3.05, YM)\n    else:\n        S.wire(ax, [2.5, 2.5], [YT, YB], color=qc)\n        S.junction(ax, 2.5, YM)\n    S.ground(ax, 1.35, YB - 0.08)\n    S.wire(ax, [1.35, 1.35], [YB, YB - 0.08])\n    lab = dict(fontsize=fs, va=\"center\")\n    ax.text(0.2, YM, r\"$L_r$\", ha=\"right\", color=rc, **lab)\n    ax.text(1.0, YM, r\"$C_r$\", ha=\"left\", color=rc, **lab)\n    ax.text(1.35, YT + 0.22, r\"$C_g$\", ha=\"center\", **lab)\n    ax.text(2.0, YM, r\"$C_\\Sigma$\", ha=\"left\", color=qc, **lab)\n    ax.text(2.65 if split else 2.68, YM, r\"$L_J$\", ha=\"left\", **lab)\n    if split:\n        ax.text(3.05, YM - 0.42, \"nl\", ha=\"center\", **lab)\n\n\ndef black_box(ax, fs, x=2.6):\n    \"\"\"The linear part as one admittance, its port on the rails at x.\"\"\"\n    S.admittance_box(ax, 0.95, YM, w=1.1, h=0.62, fs=fs + 1)\n    for y, side in ((YT, YM + 0.31), (YB, YM - 0.31)):\n        S.wire(ax, [0.95, 0.95], [side, y])\n        S.wire(ax, [0.95, x], [y, y])\n\n\ndef build():\n    t = sq.theme()\n    fs = t.size - 1.5\n    C = np.array([[C_SIGMA, -C_G], [-C_G, C_R + C_K + C_G]])\n    bb = ph.black_box(lambda f: ph.port_susceptance(f, C, np.diag([1 / L_J, 1 / L_R])), ph.ej_from_lj(L_J),\n                      np.linspace(1, 20, 2001))\n    fig, axes = sq.figure(\"column\", aspect=0.7, nrows=2, ncols=2)\n    for ax, k, ylim in zip(axes.flat, \"abcd\", [(0.2, 2.1)] * 2 + [(0.05, 1.9)] * 2):\n        S.blank(ax)\n        ax.set_xlim(-0.05, 3.45)\n        ax.set_ylim(*ylim)\n        sq.panel(ax, k)\n    a, b, c, d = axes.flat\n    with S.tiles():\n        network(a, t, fs, split=False)\n        network(b, t, fs, split=True)\n\n    black_box(c, fs)\n    S.wire(c, [2.6, 2.6], [YT, YM + 0.13])\n    S.wire(c, [2.6, 2.6], [YM - 0.13, YB])\n    S.current_source(c, 2.6, YM, up=True)\n    S.tunable_mark(c, 2.6, YM, size=0.42)\n    c.text(2.85, YM, r\"$I(\\omega)$\", ha=\"left\", va=\"center\", fontsize=fs)\n    c.text(1.75, 0.18, r\"$Y(\\omega) = I/V$\", ha=\"center\", va=\"center\", fontsize=fs)\n\n    with S.tiles():\n        black_box(d, fs)\n        S.wire(d, [2.6, 2.6], [YT, YB])\n        S.nonlinear_element(d, 2.6, YM)\n    S.flux_arrow(d, (2.82, YM + 0.25), (2.82, YM - 0.25), rad=-0.5, label=r\"$\\varphi_\\mathrm{zpf}$\",\n                 offset=(0.36, 0.0))\n    modes = \", \".join(rf\"$\\varphi_{n}$ = {p:.2g}\" for n, p in zip(\"qr\", bb[\"phi\"]))\n    d.text(1.75, 0.18, modes, ha=\"center\", va=\"center\", fontsize=fs)\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "symbols.admittance_box",
+    "symbols.blank",
+    "symbols.capacitor_h",
+    "symbols.capacitor_v",
+    "symbols.current_source",
+    "symbols.flux_arrow",
+    "symbols.ground",
+    "symbols.inductor_v",
+    "symbols.junction",
+    "symbols.nonlinear_element",
+    "symbols.tiles",
+    "symbols.tunable_mark",
+    "symbols.wire"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/80_black_box_circuit.png",
+     "pdf": "figures/field/80_black_box_circuit.pdf",
+     "thumb": "thumbs/field/80_black_box_circuit.jpg",
+     "w": 671,
+     "h": 447,
+     "width_in": 3.35
+    },
+    "folio": {
+     "png": "figures/folio/80_black_box_circuit.png",
+     "pdf": "figures/folio/80_black_box_circuit.pdf",
+     "thumb": "thumbs/folio/80_black_box_circuit.jpg",
+     "w": 671,
+     "h": 446,
+     "width_in": 3.35
+    }
+   },
+   "page": false,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure}[t]\n  \\centering\n  \\scqgraphics[width=\\columnwidth]{80_black_box_circuit}   % figures/<style>/80_black_box_circuit.pdf\n  \\caption{Black-box quantization in four steps for the device of example 72: (a) the transmon coupled to its readout resonator; (b) the junction split into its linear inductance and its nonlinear remainder; (c) the linear part as one admittance, probed by a swept current source; (d) that admittance beside the nonlinear element, whose zero-point phase each mode sets (computed).}\n  \\label{fig:black-box-circuit}\n\\end{figure}\n"
   }
  ],
  "latex": [
