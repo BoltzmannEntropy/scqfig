@@ -1,13 +1,23 @@
-# scqfig
+<div align="center">
+  <img src="docs/assets/favicon.svg" alt="scqfig logo" width="96"/>
+  <h1>scqfig</h1>
+  <code>v0.1.0</code>&nbsp;&nbsp;Python · matplotlib · LaTeX (TikZ, pgfplots, quantikz)
+  <br><br>
+  <p><b>Publication figures for superconducting-qubit and chip papers,<br>in two matched styles, with a companion LaTeX package.</b></p>
+  <a href="https://boltzmannentropy.github.io/scqfig/"><strong>Open the gallery</strong></a>&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;<a href="gallery/gallery.pdf"><strong>Gallery PDF</strong></a>&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;<a href="#quick-start"><strong>Quick start</strong></a>
+  <br><br>
+  <img src="https://img.shields.io/badge/python-3.9%2B-1f5fbf" alt="Python 3.9+"/>
+  <img src="https://img.shields.io/badge/matplotlib-3.6%2B-5e2a84" alt="matplotlib 3.6+"/>
+  <img src="https://img.shields.io/badge/examples-45-e69f00" alt="45 examples"/>
+  <img src="https://img.shields.io/badge/license-MIT-c2378f" alt="License: MIT"/>
+  <br><br>
+</div>
 
-**Publication figures for superconducting-qubit and chip papers, in two matched styles, with a
-companion LaTeX package.**
+> **Research context.** scqfig was developed as part of Shlomo Kashani's research on dark matter
+> detection. That research is not yet published. The example figures use synthetic, simulated,
+> designed or computed values, not data from that work.
 
-![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-1f5fbf)
-![matplotlib 3.6+](https://img.shields.io/badge/matplotlib-3.6%2B-5e2a84)
-![License: MIT](https://img.shields.io/badge/license-MIT-c2378f)
-
-*Part of a research on dark matter detection conducted by Shlomo Kashani.*
+> **Spectroscopy** | **Coherence and benchmarking** | **Readout** | **Frequency plans** | **Chip plans** | **Cryostat wiring** | **Gate-model circuits**
 
 scqfig is a Python library, built on matplotlib, that draws the figures a superconducting-chip paper
 keeps repeating: spectroscopy and coherence decays, readout and benchmarking, frequency plans, chip
@@ -20,11 +30,29 @@ pgfplots and quantikz the same palette.
 | ![field style](gallery/contact_field.png) | ![folio style](gallery/contact_folio.png) |
 
 The full catalogue, with every example in both styles side by side, is in
-[`gallery/gallery.pdf`](gallery/gallery.pdf). The [website](#website) shows each figure with its
-Python and LaTeX code.
+[`gallery/gallery.pdf`](gallery/gallery.pdf). The [website](https://boltzmannentropy.github.io/scqfig/)
+shows each figure with its Python and LaTeX code.
+
+## Website UI
+
+The [gallery site](https://boltzmannentropy.github.io/scqfig/) lays the 45 example figures out as
+dies on a three.js wafer. Pick a die to open its figure, switch every figure between field and
+folio with one toggle, and copy the Python source or the LaTeX include.
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/assets/screens/gallery.png" alt="Gallery: the wafer view with one die per figure and the family filter"/><br><sub><b>Gallery.</b> One die per figure, filtered by family.</sub></td>
+    <td width="50%"><img src="docs/assets/screens/example.png" alt="Figure page: the Rabi chevron with its Python source"/><br><sub><b>Figure page.</b> The figure, its caption, PDF and PNG downloads, and the Python, LaTeX and run commands.</sub></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/assets/screens/latex.png" alt="LaTeX tab: native pgfplots, TikZ and quantikz demos"/><br><sub><b>LaTeX.</b> Native pgfplots, TikZ and quantikz in the same palette.</sub></td>
+    <td width="50%"><img src="docs/assets/screens/styles.png" alt="Styles tab: the field and folio palettes side by side"/><br><sub><b>Styles.</b> The field and folio palettes and type side by side.</sub></td>
+  </tr>
+</table>
 
 ## Contents
 
+- [Website UI](#website-ui)
 - [Highlights](#highlights)
 - [Why](#why)
 - [Install](#install)
@@ -299,7 +327,9 @@ python tools/build_site.py         # copy them into docs/ and write docs/data/si
 python -m http.server -d docs 8000 # preview at http://localhost:8000
 ```
 
-To publish, set the repository's Pages source to the `main` branch and the `/docs` folder.
+The site is published from the `main` branch, `/docs` folder, at
+<https://boltzmannentropy.github.io/scqfig/>. `docs/assets/screens/` holds the screenshots this
+README shows.
 
 ## Contributing
 
