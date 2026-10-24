@@ -7,11 +7,12 @@ import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 import pytest  # noqa: E402
 from matplotlib.artist import Artist  # noqa: E402
+from matplotlib.path import Path  # noqa: E402
 
 import scqfig as sq  # noqa: E402
 from scqfig.check import violations  # noqa: E402
 from scqfig.plots import processor  # noqa: E402
-from scqfig.schematics import chip, motifs, pulses, wiring  # noqa: E402
+from scqfig.schematics import chip, motifs, pulses, symbols, wiring  # noqa: E402
 
 STYLES = ["field", "folio"]
 
@@ -258,6 +259,76 @@ def test_cdf_returns_and_marks_the_medians():
         processor.cdf(ax, {"bad": [1e-3, -1e-3]})
 
 
+# ---- circuit glyphs --------------------------------------------------------------------------
+
+def _data_path(ax, patch):
+    """Vertices of an arrow patch in data coordinates (FancyArrowPatch.get_path already returns them),
+    without the closing vertices, whose coordinates matplotlib ignores."""
+    p = patch.get_path()
+    return p.vertices if p.codes is None else p.vertices[p.codes != Path.CLOSEPOLY]
+
+
+def _glyph_axes():
+    fig, ax = sq.figure(layout=None)
+    ax.set_xlim(-1, 1)
+    ax.set_ylim(-1, 1)
+    symbols.blank(ax)
+    return ax
+
+
+def test_nonlinear_element_arcs_touch_the_wire_at_the_centre_and_open_away_from_it():
+    ax = _glyph_axes()
+    up, down = symbols.nonlinear_element(ax, 0.2, -0.1, s=0.1)
+    for arc in (up, down):
+        x, y = arc.get_data()
+        assert np.hypot(x - 0.2, y + 0.1).min() < 1e-9               # each arc touches the wire at the centre
+        assert np.ptp(x) == pytest.approx(0.2, rel=1e-6)
+    assert up.get_ydata().min() == pytest.approx(-0.1) and down.get_ydata().max() == pytest.approx(-0.1)
+    assert up.get_color() == sq.theme().chip["junction"]
+
+
+def test_nonlinear_element_sits_on_the_nonlinear_tile():
+    ax = _glyph_axes()
+    with symbols.tiles():
+        symbols.nonlinear_element(ax, 0.0, 0.0)
+    fills = [p.get_facecolor() for p in ax.patches]
+    assert matplotlib.colors.to_rgba(sq.theme().tiles["nonlinear"]) in fills
+
+
+@pytest.mark.parametrize("up", [True, False])
+def test_current_source_arrow_points_along_the_current(up):
+    ax = _glyph_axes()
+    ring, arrow = symbols.current_source(ax, 0.3, 0.0, r=0.2, up=up)
+    assert ring.get_radius() == 0.2 and tuple(ring.center) == (0.3, 0.0)
+    y = _data_path(ax, arrow)[:, 1]
+    assert np.abs(y).max() < 0.2                                        # inside the ring
+    assert (y.mean() > 0) == up                                         # the head sits at the far end
+
+
+def test_tunable_mark_crosses_the_element_at_its_angle():
+    ax = _glyph_axes()
+    mark = symbols.tunable_mark(ax, 0.1, 0.2, size=0.6, angle=30)
+    P = _data_path(ax, mark) - (0.1, 0.2)
+    along = P @ (np.cos(np.radians(30)), np.sin(np.radians(30)))
+    assert along.min() == pytest.approx(-0.3, abs=0.01) and along.max() == pytest.approx(0.3, abs=0.01)
+
+
+def test_flux_arrow_curves_between_its_ends_and_labels_its_middle():
+    ax = _glyph_axes()
+    arrow, text = symbols.flux_arrow(ax, (-0.3, 0.0), (0.3, 0.0), rad=0.5, label=r"$\Phi$", offset=(0, 0.2))
+    P = _data_path(ax, arrow)
+    assert np.abs(P[:, 1]).max() > 0.05                                  # bowed off the chord
+    assert text.get_position() == (0.0, 0.2) and text.get_text() == r"$\Phi$"
+
+
+def test_admittance_box_is_a_labelled_white_box_centred_on_its_point():
+    ax = _glyph_axes()
+    box, text = symbols.admittance_box(ax, 0.1, 0.2, w=0.6, h=0.4)
+    assert (box.get_x(), box.get_y(), box.get_width(), box.get_height()) == pytest.approx((-0.2, 0.0, 0.6, 0.4))
+    assert box.get_facecolor() == (1.0, 1.0, 1.0, 1.0)
+    assert text.get_text() == r"$Y(\omega)$" and text.get_position() == (0.1, 0.2)
+
+
 # ---- exports and the colour rule -------------------------------------------------------------
 
 def test_every_export_is_callable():
@@ -286,6 +357,13 @@ def _draw_everything():
     processor.device_map(axes[1, 1], pos, edges, np.arange(6) * 10 + 40.0, np.linspace(0.3, 1.2, 7),
                          names=[f"Q{i}" for i in range(6)])
     processor.cdf(axes[1, 2], {"a": [1e-3, 2e-3, 3e-3], "b": [1e-2, 2e-2, 4e-2]})
+    ax = symbols.blank(fig.add_axes([0.0, 0.0, 0.2, 0.2]))
+    with symbols.tiles():
+        symbols.nonlinear_element(ax, 0.0, 0.0)
+    symbols.admittance_box(ax, 0.5, 0.0)
+    symbols.current_source(ax, 1.0, 0.0)
+    symbols.tunable_mark(ax, 1.0, 0.0)
+    symbols.flux_arrow(ax, (0.0, 0.3), (0.5, 0.3), label=r"$\Phi_\mathrm{zpf}$")
     return fig
 
 

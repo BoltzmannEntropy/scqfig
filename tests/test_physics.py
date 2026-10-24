@@ -132,3 +132,104 @@ def test_rb_decay_model():
 def test_rabi_population_resonant_and_detuned():
     assert ph.rabi_population(1.0, 0.0, 0.5) == pytest.approx(1.0)
     assert ph.rabi_population(1.0, 1.0, 1 / (2 * np.sqrt(2))) == pytest.approx(0.5)
+
+
+# ---- circuits: normal modes and black-box quantization ---------------------------------------
+
+E, HBAR = 1.602176634e-19, 6.62607015e-34 / (2 * np.pi)
+
+
+def resonator(f, Z):
+    """L and C of an LC resonator of frequency f (Hz) and impedance Z (ohm)."""
+    w = 2 * np.pi * f
+    return Z / w, 1 / (Z * w)
+
+
+def two_node(Cq, Cg, Cr, LJ, Lr):
+    """Capacitance and inverse-inductance matrices of a transmon (node 0, junction as L_J) coupled
+    through Cg to an LC resonator (node 1)."""
+    return np.array([[Cq + Cg, -Cg], [-Cg, Cr + Cg]]), np.diag([1 / LJ, 1 / Lr])
+
+
+def charging_energy(C):
+    return E ** 2 / (2 * C) / (2 * np.pi * HBAR) / 1e9
+
+
+def test_ej_from_lj_follows_the_163_ghz_nh_rule():
+    assert ph.ej_from_lj(10e-9) == pytest.approx(16.35, rel=1e-3)
+
+
+def test_normal_modes_of_two_lc_resonators_coupled_by_a_capacitor():
+    L, C, Cc = 2e-9, 300e-15, 10e-15
+    Cm = np.array([[C + Cc, -Cc], [-Cc, C + Cc]])
+    f, V = ph.normal_modes(Cm, np.diag([1 / L, 1 / L]))
+    # in phase the coupling capacitor carries no current; out of phase it loads each side with 2 Cc
+    slow, fast = 1 / (2 * np.pi * np.sqrt(L * (C + 2 * Cc))), 1 / (2 * np.pi * np.sqrt(L * C))
+    np.testing.assert_allclose(f, np.array([slow, fast]) / 1e9, rtol=1e-10)
+    np.testing.assert_allclose(V.T @ Cm @ V, np.eye(2), atol=1e-10)
+
+
+def test_port_susceptance_of_a_parallel_lc():
+    L, C = 10e-9, 100e-15
+    f = np.array([3.0, 5.0, 8.0])
+    w = 2 * np.pi * f * 1e9
+    B = ph.port_susceptance(f, np.array([[C]]), np.array([[1 / L]]))
+    np.testing.assert_allclose(B, w * C - 1 / (w * L), rtol=1e-12)
+
+
+def test_black_box_finds_the_normal_modes_and_their_zero_point_flux():
+    Lr, Cr = resonator(7.2e9, 50.0)
+    C, Linv = two_node(65e-15, 5e-15, Cr, 11e-9, Lr)
+    bb = ph.black_box(lambda f: ph.port_susceptance(f, C, Linv), ph.ej_from_lj(11e-9), np.linspace(1, 20, 2001))
+    f, V = ph.normal_modes(C, Linv)
+    np.testing.assert_allclose(bb["f"], f, rtol=1e-9)
+    # an independent route: phi_zpf^2 = (2e/hbar)^2 hbar/(2 w) v_port^2 for C-normalised mode vectors
+    w = 2 * np.pi * f * 1e9
+    np.testing.assert_allclose(bb["phi"] ** 2, 2 * E ** 2 * V[0] ** 2 / (HBAR * w), rtol=1e-6)
+    np.testing.assert_allclose(bb["Z"], bb["phi"] ** 2 * 6.62607015e-34 / (4 * np.pi * E ** 2), rtol=1e-12)
+    K = bb["K"]
+    assert np.all(K < 0) and K[0, 1] == K[1, 0]
+    assert K[0, 1] ** 2 == pytest.approx(4 * K[0, 0] * K[1, 1])     # first order: chi^2 = 4 alpha_q alpha_r
+
+
+def test_black_box_gives_minus_ec_for_a_single_junction_mode():
+    LJ, C = 12e-9, 80e-15
+    B = lambda f: ph.port_susceptance(f, np.array([[C]]), np.array([[1 / LJ]]))
+    bb = ph.black_box(B, ph.ej_from_lj(LJ), np.linspace(1, 15, 141))
+    EC = charging_energy(C)
+    assert bb["K"][0, 0] == pytest.approx(-EC, rel=1e-6)
+    assert bb["phi"][0] ** 2 == pytest.approx(np.sqrt(2 * EC / ph.ej_from_lj(LJ)), rel=1e-6)
+
+
+def test_black_box_needs_a_mode_in_the_search_range():
+    B = lambda f: ph.port_susceptance(f, np.array([[80e-15]]), np.array([[1 / 12e-9]]))   # one mode at 5.1 GHz
+    with pytest.raises(ValueError):
+        ph.black_box(B, 13.6, np.linspace(8, 12, 41))
+
+
+def test_transmon_resonator_without_coupling_returns_the_bare_parts():
+    Lr, Cr = resonator(7.0e9, 50.0)
+    x = ph.transmon_resonator(80e-15, 1e-21, Cr, 10e-9, Lr)
+    f = ph.transmon_spectrum(ph.ej_from_lj(10e-9), charging_energy(80e-15))
+    np.testing.assert_allclose(x["f"], [f[1], 7.0], rtol=1e-6)
+    assert x["K"][0, 0] == pytest.approx(f[2] - 2 * f[1], rel=1e-6)
+    assert abs(x["K"][0, 1]) < 1e-9 and abs(x["K"][1, 1]) < 1e-9 and x["g"] < 1e-6
+
+
+def test_black_box_agrees_with_exact_diagonalization_for_weak_anharmonicity():
+    Lr, Cr = resonator(9e9, 50.0)
+    args = (400e-15, 10e-15, Cr, 2e-9, Lr)
+    bb = ph.black_box(lambda f: ph.port_susceptance(f, *two_node(*args)), ph.ej_from_lj(2e-9),
+                      np.linspace(1, 20, 2001))
+    x = ph.transmon_resonator(*args)
+    assert bb["K"][0, 0] == pytest.approx(x["K"][0, 0], rel=0.05)
+    assert bb["K"][0, 1] == pytest.approx(x["K"][0, 1], rel=0.05)
+
+
+def test_first_order_black_box_overstates_chi_of_a_strongly_anharmonic_transmon():
+    Lr, Cr = resonator(7.2e9, 50.0)
+    args = (65e-15, 5e-15, Cr, 11e-9, Lr)
+    bb = ph.black_box(lambda f: ph.port_susceptance(f, *two_node(*args)), ph.ej_from_lj(11e-9),
+                      np.linspace(1, 20, 2001))
+    x = ph.transmon_resonator(*args)
+    assert x["K"][0, 1] < 0 and abs(bb["K"][0, 1]) > 1.3 * abs(x["K"][0, 1])

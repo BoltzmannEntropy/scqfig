@@ -8,7 +8,7 @@
   <br><br>
   <img src="https://img.shields.io/badge/python-3.9%2B-1f5fbf" alt="Python 3.9+"/>
   <img src="https://img.shields.io/badge/matplotlib-3.6%2B-5e2a84" alt="matplotlib 3.6+"/>
-  <img src="https://img.shields.io/badge/examples-45-e69f00" alt="45 examples"/>
+  <img src="https://img.shields.io/badge/examples-47-e69f00" alt="47 examples"/>
   <img src="https://img.shields.io/badge/license-MIT-c2378f" alt="License: MIT"/>
   <br><br>
 </div>
@@ -245,6 +245,7 @@ docstring and `TITLE`, not the table.
 | 14 | Dispersive shift | Dispersive shift of a transmon against its frequency for a 7.15 GHz resonator, g = 85 MHz and alpha = -233 MHz, with the straddling regime shaded and the design point marked (computed). | [`14_dispersive_shift.py`](examples/14_dispersive_shift.py) |
 | 15 | Purcell limit | Purcell limit on T1 against qubit frequency for a 7.15 GHz readout resonator (kappa = 1.5 MHz, g = 85 MHz), without and with a Q = 25 bandpass filter (computed). | [`15_purcell_limit.py`](examples/15_purcell_limit.py) |
 | 16 | Convergence | Eigenmode frequency of a readout resonator against adaptive mesh pass, with the relative change per pass and a 0.02 % target (synthetic data). | [`16_convergence.py`](examples/16_convergence.py) |
+| 17 | Black-box quantization | Black-box quantization of the transmon and readout resonator of example 72: (a) the susceptance the junction sees, whose rising zeros are the modes and whose slopes set their impedances; (b) the first-order Kerr matrix, with exact diagonalization of the same circuit in brackets (computed). | [`17_black_box.py`](examples/17_black_box.py) |
 | 20 | S21 of a resonator | Notch-resonator transmission as magnitude, phase and circle, with one complex fit and the cable delay, amplitude and phase calibrated out (synthetic data). | [`20_s21_resonator.py`](examples/20_s21_resonator.py) |
 | 21 | Quality factor vs power | Internal quality factor of a resonator against mean photon number, with a fit of the saturable two-level-system model (synthetic data). | [`21_quality_vs_power.py`](examples/21_quality_vs_power.py) |
 | 22 | Dispersive readout | Dispersive readout: resonator transmission with the qubit in \|0> and in \|1>, the 2chi shift computed for g = 85 MHz and Delta = -2.09 GHz, and the readout frequency between the two dips (synthetic data). | [`22_dispersive_readout.py`](examples/22_dispersive_readout.py) |
@@ -279,6 +280,7 @@ docstring and `TITLE`, not the table.
 | 77 | Qubit array in a uniform field | A 3 x 4 qubit array drawn as spins in a uniform field (the wash), with photons arriving from several directions and three qubits excited. | [`77_spin_array.py`](examples/77_spin_array.py) |
 | 78 | Quantum circuit | GHZ-state preparation: a Hadamard and two CNOTs entangle three qubits, then all three are measured; dashed slices mark the states Psi_1 to Psi_4. | [`78_quantum_circuit.py`](examples/78_quantum_circuit.py) |
 | 79 | Teleportation and gate glyphs | (a) Teleportation: a Bell pair, a Bell measurement and classically controlled X and Z corrections. (b) The other gate glyphs: rotation, controlled-U with an open control, CZ, SWAP and a three-qubit box. | [`79_teleportation.py`](examples/79_teleportation.py) |
+| 80 | Black-box circuit | Black-box quantization in four steps for the device of example 72: (a) the transmon coupled to its readout resonator; (b) the junction split into its linear inductance and its nonlinear remainder; (c) the linear part as one admittance, probed by a swept current source; (d) that admittance beside the nonlinear element, whose zero-point phase each mode sets (computed). | [`80_black_box_circuit.py`](examples/80_black_box_circuit.py) |
 <!-- catalogue:end -->
 
 ## Rules the library keeps

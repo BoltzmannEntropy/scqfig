@@ -10,7 +10,7 @@ place in the gallery. These conventions keep the two styles consistent and the p
 |---|---|
 | `src/scqfig/themes.py` | the palette and the two Theme objects (single source of truth) |
 | `src/scqfig/core.py` | `use`, `style`, `figure`, `save`, `panel`, the marker grammar, `note`, `pm` |
-| `src/scqfig/physics.py` | exact models: transmon, SQUID, dispersive, Purcell, notch S21, TLS, Wigner, Bloch, RB |
+| `src/scqfig/physics.py` | exact models: transmon, SQUID, dispersive, Purcell, notch S21, TLS, circuit normal modes and black-box quantization, Wigner, Bloch, RB |
 | `src/scqfig/fit.py` | fits returning a `Fit` (callable, indexable, `.errors`, `.derived`) |
 | `src/scqfig/plots/<family>.py` | plot functions, one module per family |
 | `src/scqfig/plots/_base.py` | `heatmap`, `annotated_matrix`, `colorbar` |

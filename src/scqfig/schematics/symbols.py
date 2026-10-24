@@ -3,11 +3,12 @@
 Each subsystem keeps one colour (theme().qubits, .bus), junctions stay ink. Inside `with tiles():`
 capacitors, junctions and inductors sit on pale tiles by element kind (capacitive, nonlinear,
 inductive; "coupling" for coupling capacitors), so that the Hamiltonian terms they produce can sit on
-the same tiles beside the circuit."""
+the same tiles beside the circuit. The black-box glyphs (nonlinear_element, admittance_box) draw a
+junction split into its linear inductance and its nonlinear remainder."""
 import contextlib
 
 import numpy as np
-from matplotlib.patches import Circle, FancyArrowPatch, FancyBboxPatch
+from matplotlib.patches import Circle, FancyArrowPatch, FancyBboxPatch, Rectangle
 
 from ..core import theme
 
@@ -80,6 +81,32 @@ def junction(ax, x, y, s=0.08, lw=1.1, color=None, tile_kind=None):
     ax.plot([x - s, x + s], [y + s, y - s], color=c, lw=lw, ls="-", zorder=5)
 
 
+def nonlinear_element(ax, x, y, s=0.1, lw=1.1, color=None, tile_kind=None):
+    """The nonlinear part of a Josephson junction, the black-box "spider" of Nigg et al. (2012), for a
+    vertical wire through (x, y): two arcs s wide on each side that touch the wire at (x, y), the upper
+    one opening up and the lower one opening down. It carries the junction's cosine potential less the
+    quadratic term, which the linear inductance L_J takes. Returns the two arcs."""
+    kind = _kind(tile_kind, "nonlinear")
+    if kind:
+        tile(ax, x, y, s * 3.2, s * 3.2, kind)
+    c = theme().chip["junction"] if color is None else color
+    th = np.linspace(-1, 1, 61) * np.radians(70)
+    R = s / np.sin(np.radians(70))
+    dx, dy = R * np.sin(th), R * (1 - np.cos(th))
+    up, = ax.plot(x + dx, y + dy, color=c, lw=lw, ls="-", zorder=5)
+    down, = ax.plot(x + dx, y - dy, color=c, lw=lw, ls="-", zorder=5)
+    return up, down
+
+
+def admittance_box(ax, x, y, w=0.5, h=0.36, label=r"$Y(\omega)$", color=None, lw=0.9, fs=None):
+    """A linear network as a black box: a white w by h rectangle centred at (x, y), labelled with its
+    admittance. Returns (box, label)."""
+    box = Rectangle((x - w / 2, y - h / 2), w, h, fc="white", ec=_ink(color), lw=lw, zorder=5)
+    ax.add_patch(box)
+    text = ax.text(x, y, label, ha="center", va="center", fontsize=fs or theme().size, color=_ink(color), zorder=6)
+    return box, text
+
+
 def squid(ax, x, y, w=0.36, h=0.3, color=None, lw=0.9, tile_kind=None):
     """dc SQUID for a vertical wire: a w by h loop with a junction on each side; the wire attaches at
     (x, y +- h/2)."""
@@ -129,9 +156,37 @@ def ac_source(ax, x, y, r=0.13, color=None):
     ax.plot(x + 0.7 * r * t, y + 0.35 * r * np.sin(np.pi * t), color=_ink(color), lw=0.8, ls="-", zorder=6)
 
 
+def current_source(ax, x, y, r=0.13, up=True, color=None):
+    """Current source for a vertical wire through (x, y): a ring with an arrow inside along the
+    current, up or down. Returns (ring, arrow)."""
+    ring = Circle((x, y), r, fc="white", ec=_ink(color), lw=0.9, zorder=5)
+    ax.add_patch(ring)
+    d = 0.6 * r if up else -0.6 * r
+    return ring, arrow(ax, (x, y - d), (x, y + d), color=color, lw=0.8, ms=6, zorder=6)
+
+
 def arrow(ax, p0, p1, color=None, lw=0.7, style="-|>", ms=7, **kw):
-    ax.add_patch(FancyArrowPatch(p0, p1, arrowstyle=style, mutation_scale=ms, color=_ink(color), lw=lw,
-                                 shrinkA=0, shrinkB=0, **kw))
+    return ax.add_patch(FancyArrowPatch(p0, p1, arrowstyle=style, mutation_scale=ms, color=_ink(color), lw=lw,
+                                        shrinkA=0, shrinkB=0, **kw))
+
+
+def tunable_mark(ax, x, y, size=0.3, angle=45, color=None, lw=0.8):
+    """A variable element: an arrow of length size through (x, y) at angle (degrees), across the element
+    drawn there (a tunable inductor, a swept source). Returns the arrow."""
+    d = 0.5 * size * np.array([np.cos(np.radians(angle)), np.sin(np.radians(angle))])
+    return arrow(ax, (x - d[0], y - d[1]), (x + d[0], y + d[1]), color=color, lw=lw, ms=6, zorder=7)
+
+
+def flux_arrow(ax, p0, p1, rad=0.4, label=None, offset=(0, 0), color=None, lw=0.8, fs=None):
+    """A curved arrow from p0 to p1, bowed by rad (matplotlib's arc3), for the flux across a branch or
+    its zero-point fluctuation; label sits at the middle of the chord plus offset. Returns (arrow, label
+    or None)."""
+    a = arrow(ax, p0, p1, color=color, lw=lw, ms=6, connectionstyle=f"arc3,rad={rad}", zorder=7)
+    text = None
+    if label:
+        mx, my = (p0[0] + p1[0]) / 2 + offset[0], (p0[1] + p1[1]) / 2 + offset[1]
+        text = ax.text(mx, my, label, ha="center", va="center", fontsize=fs or theme().size, color=_ink(color))
+    return a, text
 
 
 def dim(ax, p0, p1, label, offset=(0, 0), color=None, fs=None, **kw):

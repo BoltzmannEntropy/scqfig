@@ -1,14 +1,22 @@
 """Small exact models behind the plots, so that every curve, level and wavefunction a figure shows is
 computed, never sketched: the transmon in the charge basis, SQUID tuning, Jaynes-Cummings and
 dispersive formulas, the Purcell limit, notch-resonator scattering, TLS-limited quality factors,
-Fock-space states with their Wigner functions, and Bloch-vector dynamics.
+normal modes and black-box quantization of lumped circuits, Fock-space states with their Wigner
+functions, and Bloch-vector dynamics.
 
 Units: energies and frequencies in GHz (E/h), times in the reciprocal unit (ns), except purcell_t1,
-which returns microseconds. Flux is in units of the flux quantum."""
+which returns microseconds. Flux is in units of the flux quantum. Circuit elements (capacitance,
+inductance, susceptance) are in SI units."""
 from math import factorial
 
 import numpy as np
+from scipy.linalg import eigh
+from scipy.optimize import brentq
 from scipy.special import eval_genlaguerre
+
+_H, _E = 6.62607015e-34, 1.602176634e-19
+_HBAR, _PHI0 = _H / (2 * np.pi), _H / (2 * _E)
+_RQ = _H / (4 * _E ** 2)                                 # superconducting resistance quantum h/4e^2
 
 
 # ---- transmon -----------------------------------------------------------------------------
@@ -95,6 +103,90 @@ def tls_qi(nbar, F_delta, nc, beta=0.5, Q_other=np.inf):
     """Internal quality factor limited by saturable two-level systems:
     1/Qi = F delta / (1 + nbar/nc)^beta + 1/Q_other."""
     return 1.0 / (F_delta / (1 + np.asarray(nbar, float) / nc) ** beta + 1.0 / Q_other)
+
+
+# ---- circuits: normal modes and black-box quantization ----------------------------------------
+
+def ej_from_lj(LJ):
+    """Josephson energy E_J/h in GHz of a junction of inductance LJ (H): (Phi0/2 pi)^2 / LJ."""
+    return (_PHI0 / (2 * np.pi)) ** 2 / (np.asarray(LJ, float) * _H) / 1e9
+
+
+def normal_modes(C, Linv):
+    """Normal modes of a lossless lumped circuit from its node capacitance matrix C (F, Maxwell form)
+    and inverse-inductance matrix Linv (1/H), from Linv v = w^2 C v. Returns the frequencies in GHz,
+    ascending, and the mode vectors as the columns of V, normalised so that V^T C V = 1."""
+    w2, V = eigh(np.asarray(Linv, float), np.asarray(C, float))
+    return np.sqrt(np.clip(w2, 0.0, None)) / (2e9 * np.pi), V
+
+
+def port_susceptance(f, C, Linv, port=0):
+    """Susceptance B = Im Y (S) of a lossless lumped circuit seen between node `port` and ground,
+    against frequency f (GHz): Y = 1 / Z_pp with Z = (i w C + Linv / (i w))^-1. The circuit's modes are
+    the zeros of B, which rises through each, and its poles are the series resonances seen from the
+    port."""
+    w = 2e9 * np.pi * np.atleast_1d(np.asarray(f, float))[:, None, None]
+    K = w * np.asarray(C, float) - np.asarray(Linv, float) / w          # Y = i K
+    e = np.zeros((len(w), K.shape[1], 1))
+    e[:, port] = 1.0
+    B = 1.0 / np.linalg.solve(K, e)[:, port, 0]
+    return B if np.ndim(f) else B[0]
+
+
+def black_box(B, EJ, f):
+    """Black-box quantization (Nigg et al. 2012) of a junction shunted by a lossless linear circuit,
+    to first order in the quartic term of the junction's cosine.
+
+    B(f) is the susceptance (S) that the junction sees at frequency f (GHz), with the junction's own
+    linear inductance included: port_susceptance gives it for a lumped circuit, and an interpolant of
+    simulated data works too. The modes are the zeros of B on the search grid f where B rises. Each
+    mode has an effective impedance Z = 2 / (f dB/df) (ohm) and a zero-point phase across the junction
+    phi = sqrt(pi Z / R_Q), with R_Q = h / 4e^2. With EJ (GHz) these give the Kerr matrix K (GHz): the
+    anharmonicity alpha_m = -EJ phi_m^4 / 2 on the diagonal and the cross-Kerr shift
+    chi_mn = -EJ phi_m^2 phi_n^2 off it, the full shift of mode m per photon in mode n (2 chi in the
+    convention of dispersive_shift). First order evaluates everything at the linear modes, so it
+    overstates chi for a strongly anharmonic transmon; transmon_resonator gives the exact values.
+    Returns {"f": GHz, "Z": ohm, "phi", "K"}, the modes in ascending frequency."""
+    f = np.asarray(f, float)
+    g = lambda x: float(B(x))
+    b = np.asarray(B(f), float)
+    rise = np.nonzero((b[:-1] < 0) & (b[1:] >= 0))[0]
+    if not rise.size:
+        raise ValueError("B has no rising zero on the search grid, so the circuit has no mode there")
+    fm = np.array([brentq(g, f[k], f[k + 1], xtol=1e-13) for k in rise])
+    h = 1e-7 * fm
+    slope = np.array([(g(x + d) - g(x - d)) / (2 * d) for x, d in zip(fm, h)])   # S per GHz
+    Z = 2.0 / (fm * slope)
+    phi = np.sqrt(np.pi * Z / _RQ)
+    K = -EJ * np.outer(phi ** 2, phi ** 2)
+    K[np.diag_indices_from(K)] /= 2
+    return {"f": fm, "Z": Z, "phi": phi, "K": K}
+
+
+def transmon_resonator(Cq, Cg, Cr, LJ, Lr, ncut=25, nlev=12, nfock=12):
+    """Exact spectrum of a transmon (Cq and a junction of inductance LJ to ground) coupled through Cg to
+    an LC resonator (Cr, Lr), all in SI units. The transmon is solved in the charge basis (nlev levels
+    kept) and the resonator in its Fock basis (nfock levels); they couple through the inverse
+    capacitance matrix and are diagonalised together, and each eigenstate is labelled by its largest
+    bare component. Returns {"f": [fq, fr], "K": [[alpha, chi], [chi, K_r]], "g"}, all in GHz: the
+    dressed 0-1 frequencies, the transmon anharmonicity, the cross-Kerr shift
+    chi = E11 - E10 - E01 + E00 (2 chi in the convention of dispersive_shift), the resonator self-Kerr
+    and the charge coupling g = |<0|n|1>| times the coupling energy."""
+    Ci = np.linalg.inv([[Cq + Cg, -Cg], [-Cg, Cr + Cg]])
+    E, V = transmon_levels(ej_from_lj(LJ), _E ** 2 * Ci[0, 0] / 2 / _H / 1e9, ncut=ncut, nlev=nlev)
+    n = np.arange(-ncut, ncut + 1)
+    nop = V.T @ (n[:, None] * V)                                        # <i|n|j> between transmon levels
+    fr = np.sqrt(Ci[1, 1] / Lr) / (2e9 * np.pi)                          # resonator loaded by 1/Ci[1, 1]
+    gq = Ci[0, 1] * 2 * _E * np.sqrt(_HBAR / (2 * np.sqrt(Lr * Ci[1, 1]))) / _H / 1e9
+    a = np.diag(np.sqrt(np.arange(1, nfock)), 1)
+    H = (np.kron(np.diag(E - E[0]), np.eye(nfock)) + np.kron(np.eye(nlev), fr * np.diag(np.arange(nfock)))
+         + gq * np.kron(nop, a + a.T))
+    w, U = np.linalg.eigh(H)
+    level = lambda i, j: w[np.argmax(np.abs(U[i * nfock + j]))]
+    E00, E10, E01 = level(0, 0), level(1, 0), level(0, 1)
+    chi = level(1, 1) - E10 - E01 + E00
+    K = np.array([[level(2, 0) - 2 * E10 + E00, chi], [chi, level(0, 2) - 2 * E01 + E00]])
+    return {"f": np.array([E10 - E00, E01 - E00]), "K": K, "g": abs(gq * nop[0, 1])}
 
 
 # ---- Fock space, Wigner functions, Bloch vectors ---------------------------------------------

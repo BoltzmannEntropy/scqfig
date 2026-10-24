@@ -1,5 +1,5 @@
 """Design-stage plots: frequency plans and collision maps, capacitance matrices, loss participation,
-dispersive shift and Purcell limits, simulation convergence."""
+dispersive shift and Purcell limits, black-box quantization, simulation convergence."""
 import numpy as np
 from matplotlib.colors import LogNorm
 from matplotlib.lines import Line2D
@@ -13,7 +13,7 @@ from ..themes import lighten
 from ._base import annotated_matrix, cell_text
 
 __all__ = ["frequency_plan", "collision_map", "capacitance_matrix", "participation", "dispersive_shift",
-           "purcell_limit", "convergence"]
+           "purcell_limit", "admittance", "kerr_matrix", "convergence"]
 
 def collision_windows(alpha, delta=0.017, delta_12=0.030, delta_2ph=0.004):
     """Forbidden detunings Delta = f_q2 - f_q1 (GHz) of two coupled transmons that share the
@@ -127,11 +127,17 @@ def capacitance_matrix(ax, C, labels, *, unit="fF", digits=3, cbar=True, fontsiz
     so couplings across several decades stay visible, and print the signed value; zero cells stay
     blank. Returns (image, colour bar or None)."""
     C = np.asarray(C, float)
-    A = np.abs(C)
-    norm = LogNorm(vmin=A[A > 0].min(), vmax=A.max())
     signed = [[cell_text(f"{{:.{digits}g}}", c) if c else "" for c in row] for row in C]   # the signed Maxwell entry
-    return annotated_matrix(ax, A, labels, norm=norm, text=signed, cbar=cbar, label=rf"$|C_{{ij}}|$ ({unit})",
-                            fontsize=fontsize, skip=lambda i, j, v: v == 0)
+    return _log_cells(ax, C, labels, signed, rf"$|C_{{ij}}|$ ({unit})", cbar, fontsize)
+
+
+def _log_cells(ax, M, labels, text, label, cbar, fontsize):
+    """M as annotated cells coloured by |M| on a log scale and printed with the strings in text; zero
+    cells stay blank."""
+    A = np.abs(M)
+    norm = LogNorm(vmin=A[A > 0].min(), vmax=A.max())
+    return annotated_matrix(ax, A, labels, norm=norm, text=text, cbar=cbar, label=label, fontsize=fontsize,
+                            skip=lambda i, j, v: v == 0)
 
 
 def participation(ax, p, tand, *, freq=None):
@@ -259,6 +265,69 @@ def purcell_limit(ax, fq, fr, g, kappa, *, filter_q=None, mark=None, target=None
     ax.set_ylabel(r"Purcell limit $T_1$ (µs)")
     ax.legend(loc=loc)
     return out
+
+
+def admittance(ax, f, B, *, modes=None, labels=None, unit="mS", ylim=None):
+    """Susceptance Im Y that a junction sees, against frequency f (GHz), with B in siemens drawn in unit
+    ("mS" or "S"). This is the curve black-box quantization reads. The curve breaks at each pole, where
+    B falls through infinity, and a guide line marks the pole. modes, the dict from physics.black_box,
+    rings each mode inside the range at its zero of B in the accent colour and draws the tangent there,
+    whose slope sets the mode's impedance Z. Each mode is labelled with Z and phi_zpf; labels names the
+    modes ("q", "r"). ylim defaults to the range that holds most of the curve. Returns
+    {"curve": Line2D, "poles": GHz, "marks": one Line2D per ringed mode}."""
+    t = theme()
+    f = np.asarray(f, float)
+    s = {"mS": 1e3, "S": 1.0}[unit]
+    y = s * np.asarray(B, float)
+    fall = np.nonzero((y[:-1] > 0) & (y[1:] < 0))[0]
+    with np.errstate(divide="ignore"):
+        u = 1 / y                                                   # 1/B passes linearly through each pole
+    poles = f[fall] - u[fall] * (f[fall + 1] - f[fall]) / (u[fall + 1] - u[fall])
+    if ylim is None:
+        top = 1.3 * np.percentile(np.abs(y), 90)
+        ylim = (-top, top)
+    y = np.where(np.abs(y) > 3 * max(np.abs(ylim)), np.nan, y)
+    y[fall] = np.nan
+    ax.axhline(0, color=t.light, ls="-", lw=0.6, zorder=1)
+    for p in poles:
+        ax.axvline(p, **ref_kw())
+    curve, = ax.plot(f, y, **model_kw())
+    marks = []
+    if modes is not None:
+        span = ylim[1] - ylim[0]
+        for m, (fm, Z, phi) in enumerate(zip(modes["f"], modes["Z"], modes["phi"])):
+            if not f.min() <= fm <= f.max():
+                continue
+            slope = s * 2 / (fm * Z)                                # dB/df at the mode
+            d = min(0.04 * (f.max() - f.min()), 0.18 * span / slope)
+            ax.plot([fm - d, fm + d], [-slope * d, slope * d], color=t.accent, ls="-", lw=1.4, zorder=4)
+            mark, = ax.plot(fm, 0.0, **sim_kw(color=t.accent, ms=6, zorder=5))
+            marks.append(mark)
+            name = labels[m] if labels else str(m)
+            ax.annotate(rf"$Z_{{{name}}}$ = {Z:.3g} Ω" "\n" rf"$\varphi_{{{name}}}$ = {phi:.3g}", (fm, 0.0),
+                        xytext=(6, -6), textcoords="offset points", ha="left", va="top", fontsize=t.size - 1,
+                        color=t.ink, zorder=6)
+    ax.set_xlim(f.min(), f.max())
+    ax.set_ylim(*ylim)
+    ax.yaxis.set_major_formatter(FuncFormatter(lambda v, _: f"{v:g}".replace("-", _MINUS)))
+    ax.set_xlabel("frequency (GHz)")
+    ax.set_ylabel(rf"susceptance Im $Y$ ({unit})")
+    return {"curve": curve, "poles": poles, "marks": marks}
+
+
+def kerr_matrix(ax, K, labels, *, exact=None, digits=3, cbar=True, fontsize=None):
+    """Kerr matrix of coupled modes (GHz, as physics.black_box returns it), printed in MHz: each mode's
+    anharmonicity on the diagonal and the cross-Kerr shifts off it. Cells are coloured by |K| on a log
+    scale, which spans the decades between a transmon and a resonator. exact, a matrix of the same
+    shape (from physics.transmon_resonator, say), prints its value in brackets under each entry.
+    Returns (image, colour bar or None)."""
+    fmt = lambda v: cell_text(f"{{:.{digits}g}}", v)
+    K = 1e3 * np.asarray(K, float)
+    text = [[fmt(v) for v in row] for row in K]
+    if exact is not None:
+        X = 1e3 * np.asarray(exact, float)
+        text = [[f"{a}\n({fmt(x)})" for a, x in zip(row, xrow)] for row, xrow in zip(text, X)]
+    return _log_cells(ax, K, labels, text, r"$|K_{mn}|/2\pi$ (MHz)", cbar, fontsize)
 
 
 def convergence(ax, passes, values, *, label="simulated value", tol=None, xlabel="adaptive pass",

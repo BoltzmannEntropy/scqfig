@@ -90,6 +90,53 @@ def test_convergence_finds_first_pass_below_tolerance():
     assert out["converged"] == 5
 
 
+def test_admittance_breaks_the_curve_at_the_pole_and_rings_each_mode():
+    w = 2 * np.pi * 7.2e9
+    Lr, Cr, Cg = 50.0 / w, 1 / (50.0 * w), 5e-15
+    C, Linv = np.array([[70e-15, -Cg], [-Cg, Cr + Cg]]), np.diag([1 / 11e-9, 1 / Lr])
+    B = lambda f: ph.port_susceptance(f, C, Linv)
+    bb = ph.black_box(B, ph.ej_from_lj(11e-9), np.linspace(1, 20, 2001))
+    f = np.linspace(4, 9, 2001)
+    with sq.style("field"):
+        fig, ax = sq.figure()
+        out = sq.plots.admittance(ax, f, B(f), modes=bb, labels=["q", "r"])
+        y = out["curve"].get_ydata()
+        marks = [m.get_xydata()[0] for m in out["marks"]]
+        plt.close(fig)
+    pole = 1e-9 / (2 * np.pi * np.sqrt(Lr * (Cr + Cg)))            # the resonator branch seen through Cg
+    np.testing.assert_allclose(out["poles"], [pole], rtol=1e-4)      # well inside the 2.5 MHz sample spacing
+    k = np.searchsorted(f, pole)
+    assert np.isnan(y[k - 1:k + 1]).any() and np.isfinite(y[:k - 5]).all()
+    np.testing.assert_allclose(marks, [(bb["f"][0], 0.0), (bb["f"][1], 0.0)], atol=1e-9)
+
+
+def test_admittance_skips_modes_outside_the_plotted_range():
+    B = lambda f: ph.port_susceptance(f, np.array([[80e-15]]), np.array([[1 / 12e-9]]))
+    bb = ph.black_box(B, ph.ej_from_lj(12e-9), np.linspace(1, 15, 141))
+    f = np.linspace(6, 9, 301)
+    with sq.style("folio"):
+        fig, ax = sq.figure()
+        out = sq.plots.admittance(ax, f, B(f), modes=bb)
+        plt.close(fig)
+    assert out["marks"] == [] and out["poles"].size == 0
+
+
+def test_kerr_matrix_prints_first_order_over_exact_values_in_mhz():
+    K = np.array([[-0.274, -2.72e-3], [-2.72e-3, -6.7e-6]])
+    X = np.array([[-0.316, -1.81e-3], [-1.81e-3, -3.3e-6]])
+    with sq.style("field"):
+        fig, ax = sq.figure()
+        sq.plots.kerr_matrix(ax, K, ["q", "r"], exact=X, cbar=False)
+        both = [t.get_text() for t in ax.texts]
+        plt.close(fig)
+        fig, ax = sq.figure()
+        sq.plots.kerr_matrix(ax, K, ["q", "r"], cbar=False)
+        alone = [t.get_text() for t in ax.texts]
+        plt.close(fig)
+    assert both == ["−274\n(−316)", "−2.72\n(−1.81)", "−2.72\n(−1.81)", "−0.0067\n(−0.0033)"]
+    assert alone == ["−274", "−2.72", "−2.72", "−0.0067"]
+
+
 # ---- readout --------------------------------------------------------------------------------
 
 def test_readout_shots_without_decay_are_gaussian_about_the_centre():
