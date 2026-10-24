@@ -7,7 +7,7 @@ companion LaTeX package.**
 ![matplotlib 3.6+](https://img.shields.io/badge/matplotlib-3.6%2B-5e2a84)
 ![License: MIT](https://img.shields.io/badge/license-MIT-c2378f)
 
-*Part of a research on dark matter conducted by Shlomo Kashani.*
+*Part of a research on dark matter detection conducted by Shlomo Kashani.*
 
 scqfig is a Python library, built on matplotlib, that draws the figures a superconducting-chip paper
 keeps repeating: spectroscopy and coherence decays, readout and benchmarking, frequency plans, chip
