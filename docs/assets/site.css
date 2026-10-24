@@ -63,6 +63,10 @@ code, pre { font-family: var(--mono); font-size: 12.5px }
 .theme-btn { display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; color: var(--muted) }
 .theme-btn[aria-pressed=true] { color: var(--ink) }
 .theme-btn svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round }
+.src-link { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--rule); border-radius: 8px; padding: 5px 11px;
+  color: var(--ink); background: var(--paper) }
+.src-link:hover { border-color: var(--accent); text-decoration: none }
+.src-link svg { width: 15px; height: 15px; fill: currentColor }
 input[type=search] { background: var(--well); border: 1px solid var(--rule); border-radius: 8px; padding: 6px 10px;
   width: 260px; max-width: 100% }
 input[type=search]:focus { border-color: var(--accent); outline: none }

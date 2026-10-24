@@ -120,7 +120,8 @@ const introHTML = d => `
       palette. Below are all ${d.examples.length} example figures in ${d.families.length} families, each with its
       Python and LaTeX code.</p>
     <p class="intro-links"><a class="btn" href="#/start">Install and use</a><a class="btn quiet" href="#/latex">LaTeX
-      package</a><a class="btn quiet" href="#/styles">Compare the styles</a></p>
+      package</a><a class="btn quiet" href="#/styles">Compare the styles</a><a class="btn quiet"
+      href="https://github.com/BoltzmannEntropy/scqfig">Source code on GitHub</a></p>
   </section>`;
 
 function buildGallery() {
@@ -242,6 +243,7 @@ function codeFor(ex, tab) {
   }
   return [
     '# from a clone of the repository',
+    'git clone https://github.com/BoltzmannEntropy/scqfig.git && cd scqfig',
     'pip install -e .',
     '',
     `# this figure in the ${st} style: writes ${ex.id}_${st}.pdf and .png`,

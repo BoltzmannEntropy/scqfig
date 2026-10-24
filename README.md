@@ -102,6 +102,7 @@ Levels, wavefunctions, chevrons, Wigner functions and response curves come from 
 ## Install
 
 ```bash
+git clone https://github.com/BoltzmannEntropy/scqfig.git && cd scqfig
 pip install -e .            # from a checkout
 pip install -e ".[test]"    # with pytest
 ```

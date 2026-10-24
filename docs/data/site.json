@@ -1,6 +1,6 @@
 {
  "version": "0.1.0",
- "build": "eb97d88093",
+ "build": "e77f50345d",
  "families": [
   {
    "name": "Spectrum",
@@ -1655,7 +1655,7 @@
   ],
   "install": [
    {
-    "code": "pip install -e .            # from a checkout\npip install -e \".[test]\"    # with pytest\n",
+    "code": "git clone https://github.com/BoltzmannEntropy/scqfig.git && cd scqfig\npip install -e .            # from a checkout\npip install -e \".[test]\"    # with pytest\n",
     "lang": "sh"
    },
    {
