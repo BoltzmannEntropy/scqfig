@@ -17,8 +17,6 @@
 > detection. That research is not yet published. The example figures use synthetic, simulated,
 > designed or computed values, not data from that work.
 
-> **Spectroscopy** | **Coherence and benchmarking** | **Readout** | **Frequency plans** | **Chip plans** | **Cryostat wiring** | **Gate-model circuits**
-
 scqfig is a Python library, built on matplotlib, that draws the figures a superconducting-chip paper
 keeps repeating: spectroscopy and coherence decays, readout and benchmarking, frequency plans, chip
 plans, cryostat wiring and gate-model circuits. Each plot type has a runnable example. Every figure
