@@ -40,11 +40,10 @@ export function createWafer(host, { examples, style, onHover, onPick }) {
   const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.setClearColor(0x000000, 1);
   host.prepend(renderer.domElement);
 
   const scene = new THREE.Scene();
-  scene.fog = new THREE.Fog(0x000000, 18, 34);
+  scene.fog = new THREE.Fog(0x000000, 18, 34);   // setTheme gives the fog and the clear colour the stage colour
   const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 80);
   const home = new THREE.Vector3(0, 10.2, 9.4);
   camera.position.copy(home);
@@ -234,6 +233,14 @@ export function createWafer(host, { examples, style, onHover, onPick }) {
   }
   function start() { if (!running) { running = true; last = performance.now(); raf = requestAnimationFrame(frame); } }
   function stop() { running = false; cancelAnimationFrame(raf); }
+  // the background follows the page theme: site.css defines --stage for light and dark
+  function setTheme() {
+    const bg = new THREE.Color(getComputedStyle(host).getPropertyValue('--stage').trim() || '#000');
+    renderer.setClearColor(bg, 1);
+    scene.fog.color.copy(bg);
+    if (!running) renderer.render(scene, camera);
+  }
+  setTheme();
 
   const ro = new ResizeObserver(() => {
     const w = host.clientWidth, h = host.clientHeight;
@@ -251,5 +258,5 @@ export function createWafer(host, { examples, style, onHover, onPick }) {
   new IntersectionObserver(([en]) => { onScreen = en.isIntersecting; sync(); }).observe(host);
   document.addEventListener('visibilitychange', sync);
 
-  return { setStyle, setFilter, setSpin, highlight, resetView, start, stop };
+  return { setStyle, setFilter, setSpin, setTheme, highlight, resetView, start, stop };
 }

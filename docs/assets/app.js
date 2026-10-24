@@ -468,6 +468,15 @@ function setStyle(st) {
   status();
 }
 
+// Light unless the visitor chose dark; index.html applies a stored "dark" before first paint.
+function setTheme(dark, save = true) {
+  const root = document.documentElement;
+  if (dark) root.dataset.theme = 'dark'; else delete root.dataset.theme;
+  if (save) store.set('scqfig.theme', dark ? 'dark' : 'light');
+  $('#theme').setAttribute('aria-pressed', dark);
+  S.wafer?.setTheme();
+}
+
 function status() {
   const d = S.data;
   $('#status').innerHTML = `<span><b>scqfig ${d.version}</b></span><span>${d.examples.length} example figures</span>
@@ -489,12 +498,14 @@ async function init() {
   $('#ver').textContent = `v${d.version}`;
   $('#count').textContent = `${d.examples.length} figures`;
   $$('.appbar [data-style]').forEach(b => b.setAttribute('aria-pressed', b.dataset.style === S.style));
+  setTheme(document.documentElement.dataset.theme === 'dark', false);
   buildGallery();
   applyFilter();
 
   document.addEventListener('click', e => {
     const s = e.target.closest('button[data-style]');
     if (s) { setStyle(s.dataset.style); return; }
+    if (e.target.closest('#theme')) { setTheme(document.documentElement.dataset.theme !== 'dark'); return; }
     const c = e.target.closest('.codebox .copy');
     if (c) copy($('pre', c.parentElement).textContent, c);
   });

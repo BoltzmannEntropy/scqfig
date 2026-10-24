@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>scqfig</title>
 <meta name="description" content="Publication figures for superconducting-qubit and chip papers in two matched styles, with a companion LaTeX package. Every example figure with its Python and LaTeX code.">
-<meta name="color-scheme" content="dark">
+<meta name="color-scheme" content="light dark">
+<script>try { if (localStorage.getItem('scqfig.theme') === 'dark') document.documentElement.dataset.theme = 'dark'; } catch (e) {}</script>
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="assets/site.css">
 <script type="importmap">
@@ -34,6 +35,8 @@
       <button type="button" data-style="field" aria-pressed="true">field</button>
       <button type="button" data-style="folio" aria-pressed="false">folio</button>
     </div>
+    <button type="button" id="theme" class="theme-btn" aria-pressed="false" title="Dark theme">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13.5 9.6A5.8 5.8 0 0 1 6.4 2.5a5.8 5.8 0 1 0 7.1 7.1z"/></svg>dark</button>
     <input type="search" id="q" placeholder="Search figures, captions, functions" aria-label="Search figures">
   </div>
 </header>
