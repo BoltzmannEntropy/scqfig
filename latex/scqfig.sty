@@ -215,6 +215,21 @@
     scq tile fill/capacitive/.style={fill=scqTileCapacitive},
     scq tile fill/inductive/.style={fill=scqTileInductive},
     scq tile fill/coupling/.style={fill=scqTileCoupling}}%
+  % quantikz: \begin{quantikz}[scqfig circuit] draws gates, meters, slices and groups like QCircuit
+  \tikzset{scq slice label/.style={rotate=30,anchor=south west,inner sep=1pt}}%
+  \tikzset{scqfig circuit field/.style={
+    operator/.append style={fill=scqFieldTileNonlinear,draw=scqFieldInk,rounded corners=1.5pt},
+    meter/.append style={fill=white,draw=scqFieldInk,rounded corners=1.5pt},
+    ggroup/.append style={draw=scqFieldReference,dash pattern=on 3pt off 2pt,rounded corners=3pt},
+    slice/.style={thickness,scqFieldModel,dash pattern=on 4pt off 2.5pt,align=center},
+    slice label style={scq slice label}}}%
+  \tikzset{scqfig circuit folio/.style={
+    operator/.append style={fill=scqFolioTileNonlinear,draw=scqFolioInk},
+    meter/.append style={fill=white,draw=scqFolioInk},
+    ggroup/.append style={draw=scqFolioReference,dash pattern=on 3pt off 2pt,rounded corners=3pt},
+    slice/.style={thickness,scqFolioModel,dash pattern=on 4pt off 2.5pt,align=center},
+    slice label style={scq slice label}}}%
+  \tikzset{scqfig circuit/.style={scqfig circuit \scq@style}}%
 }{}}
 
 \endinput

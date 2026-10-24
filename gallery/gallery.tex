@@ -2,6 +2,7 @@
 \usepackage[a4paper,margin=16mm]{geometry}
 \usepackage{graphicx}
 \usepackage{pgfplots}\pgfplotsset{compat=1.16}
+\usepackage{quantikz}
 \usepackage[field,figdir=.]{scqfig}
 \usepackage[T1]{fontenc}\usepackage{helvet}\renewcommand{\familydefault}{\sfdefault}
 \setlength{\parindent}{0pt}
@@ -46,6 +47,8 @@ Every example in both styles: \textcolor{scqBlue}{\textbf{field}} (left) and \te
 }\par\bigskip
 \noindent\begin{tikzpicture}\begin{axis}[scqfig field,width=7.4cm,height=4.6cm,xlabel={free evolution ($\mu$s)},ylabel={$P_1$},ymin=0,ymax=1,xmin=0,xmax=10,legend pos=north east]\addplot+[scqfig field data,samples=41,domain=0:10]{0.5+0.42*exp(-x/4)*cos(deg(2*pi*0.6*x))+0.02*sin(deg(37*x))};\addlegendentry{data}\addplot+[scqfig field model,samples=300,domain=0:10]{0.5+0.42*exp(-x/4)*cos(deg(2*pi*0.6*x))};\addlegendentry{fit}\end{axis}\end{tikzpicture}\hfill\begin{tikzpicture}\begin{axis}[scqfig folio,width=7.4cm,height=4.6cm,xlabel={free evolution ($\mu$s)},ylabel={$P_1$},ymin=0,ymax=1,xmin=0,xmax=10,legend pos=north east]\addplot+[scqfig folio data,samples=41,domain=0:10]{0.5+0.42*exp(-x/4)*cos(deg(2*pi*0.6*x))+0.02*sin(deg(37*x))};\addlegendentry{data}\addplot+[scqfig folio model,samples=300,domain=0:10]{0.5+0.42*exp(-x/4)*cos(deg(2*pi*0.6*x))};\addlegendentry{fit}\end{axis}\end{tikzpicture}\par
 {\small pgfplots axes drawn natively by LaTeX with \texttt{[scqfig field]} (left) and \texttt{[scqfig folio]} (right).}\par\bigskip
+\noindent\begin{quantikz}[scqfig circuit field,row sep=0.3cm,column sep=0.45cm]\lstick{$|0\rangle$} & \gate{H}\slice[label style=scq slice label]{$\Psi_1$} & \ctrl{1}\slice[label style=scq slice label]{$\Psi_2$} & \ctrl{2}\slice[label style=scq slice label]{$\Psi_3$} & \meter{}\slice[label style=scq slice label]{$\Psi_4$} & \\\lstick{$|0\rangle$} & \qw & \targ{} & \qw & \meter{} & \\\lstick{$|0\rangle$} & \qw & \qw & \targ{} & \meter{} &\end{quantikz}\hfill\begin{quantikz}[scqfig circuit folio,row sep=0.3cm,column sep=0.45cm]\lstick{$|0\rangle$} & \gate{H}\slice[label style=scq slice label]{$\Psi_1$} & \ctrl{1}\slice[label style=scq slice label]{$\Psi_2$} & \ctrl{2}\slice[label style=scq slice label]{$\Psi_3$} & \meter{}\slice[label style=scq slice label]{$\Psi_4$} & \\\lstick{$|0\rangle$} & \qw & \targ{} & \qw & \meter{} & \\\lstick{$|0\rangle$} & \qw & \qw & \targ{} & \meter{} &\end{quantikz}\par\smallskip
+{\small The GHZ circuit of example 78 typeset by quantikz with \texttt{[scqfig circuit field]} (left) and \texttt{[scqfig circuit folio]} (right). Each slice tilts its label with \texttt{\textbackslash slice[label style=scq slice label]}.}\par\bigskip
 \clearpage
 \section*{\color{scqPurple}Spectrum}
 \begin{minipage}{\textwidth}
@@ -312,5 +315,17 @@ Every example in both styles: \textcolor{scqBlue}{\textbf{field}} (left) and \te
 {\small A 3 x 4 qubit array drawn as spins in a uniform field (the wash), with photons arriving from several directions and three qubits excited.}\par\smallskip
 \begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/77_spin_array.pdf}\end{minipage}\hfill
 \begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/77_spin_array.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{78\quad Quantum circuit}\hfill\texttt{78\_quantum\_circuit.py}\par
+{\small GHZ-state preparation: a Hadamard and two CNOTs entangle three qubits, then all three are measured; dashed slices mark the states Psi\_1 to Psi\_4.}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/78_quantum_circuit.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/78_quantum_circuit.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{79\quad Teleportation and gate glyphs}\hfill\texttt{79\_teleportation.py}\par
+{\small (a) Teleportation: a Bell pair, a Bell measurement and classically controlled X and Z corrections. (b) The other gate glyphs: rotation, controlled-U with an open control, CZ, SWAP and a three-qubit box.}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/79_teleportation.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/79_teleportation.pdf}\end{minipage}
 \end{minipage}\par\bigskip\medskip
 \end{document}

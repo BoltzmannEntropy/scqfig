@@ -79,6 +79,7 @@ def write_tex(paths):
              r"\usepackage[a4paper,margin=16mm]{geometry}",
              r"\usepackage{graphicx}",
              r"\usepackage{pgfplots}\pgfplotsset{compat=1.16}",
+             r"\usepackage{quantikz}",
              r"\usepackage[field,figdir=.]{scqfig}",
              r"\usepackage[T1]{fontenc}\usepackage{helvet}\renewcommand{\familydefault}{\sfdefault}",
              r"\setlength{\parindent}{0pt}",
@@ -131,6 +132,13 @@ def latex_page():
                        rf"\addplot+[scqfig {st} model,samples=300,domain=0:10]"
                        r"{0.5+0.42*exp(-x/4)*cos(deg(2*pi*0.6*x))};\addlegendentry{fit}"
                        r"\end{axis}\end{tikzpicture}")
+    cut = lambda k: rf"\slice[label style=scq slice label]{{$\Psi_{k}$}}"
+    circuit = lambda st: (rf"\begin{{quantikz}}[scqfig circuit {st},row sep=0.3cm,column sep=0.45cm]"
+                          rf"\lstick{{$|0\rangle$}} & \gate{{H}}{cut(1)} & \ctrl{{1}}{cut(2)} & \ctrl{{2}}{cut(3)} & "
+                          rf"\meter{{}}{cut(4)} & \\"
+                          r"\lstick{$|0\rangle$} & \qw & \targ{} & \qw & \meter{} & \\"
+                          r"\lstick{$|0\rangle$} & \qw & \qw & \targ{} & \meter{} &"
+                          r"\end{quantikz}")
     return ([r"\section*{\color{scqPurple}The LaTeX package}",
              r"\texttt{\textbackslash usepackage[field]\{scqfig\}} or \texttt{[folio]} defines the palette, both "
              r"styles' roles (\texttt{scqFieldAccent}, \texttt{scqFolioAccent}) and the active style's roles under "
@@ -140,7 +148,11 @@ def latex_page():
              r"{\small"] + tab(names[:half]) + [r"\hfill"] + tab(names[half:]) + [r"}\par\bigskip",
              r"\noindent" + plot("field") + r"\hfill" + plot("folio") + r"\par",
              r"{\small pgfplots axes drawn natively by LaTeX with \texttt{[scqfig field]} (left) and "
-             r"\texttt{[scqfig folio]} (right).}\par\bigskip", r"\clearpage"])
+             r"\texttt{[scqfig folio]} (right).}\par\bigskip",
+             r"\noindent" + circuit("field") + r"\hfill" + circuit("folio") + r"\par\smallskip",
+             r"{\small The GHZ circuit of example 78 typeset by quantikz with \texttt{[scqfig circuit field]} (left) "
+             r"and \texttt{[scqfig circuit folio]} (right). Each slice tilts its label with "
+             r"\texttt{\textbackslash slice[label style=scq slice label]}.}\par\bigskip", r"\clearpage"])
 
 
 def write_catalogue(paths):

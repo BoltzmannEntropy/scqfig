@@ -94,6 +94,47 @@ and `sq.figure("page")` is 7.0 in. `scqfig.WIDTHS` adds APS, Nature, IEEE and th
 Render both styles into `figures/field/` and `figures/folio/`. The package option then switches
 every figure in the paper at once.
 
+## Gate-model circuits
+
+`QCircuit` draws digital circuits in the same two styles:
+
+```python
+from scqfig.schematics import QCircuit
+
+c = QCircuit(3, labels=[r"$|0\rangle$"] * 3)
+c.gate("H", 0);       c.slice(r"$\Psi_1$")
+c.cnot(0, 1);         c.slice(r"$\Psi_2$")
+c.cnot(0, 2);         c.slice(r"$\Psi_3$")
+c.measure([0, 1, 2]); c.slice(r"$\Psi_4$")
+w, h = c.figsize()                                # the circuit sizes its own figure
+fig, ax = sq.figure(w, height=h)
+c.draw(ax)
+```
+
+Each operation takes the first column that is free on every wire it spans, and a slice keeps later
+operations to its right. `gate`, `multi`, `cnot`, `controlled` (with `open_controls`), `cz`, `swap`,
+`measure`, `slice` and `group` cover the usual glyphs. A measured wire turns into a classical double
+line, and `gate("X", 2, cond=1)` hangs a gate on the bit that wire 1 measured (example 79).
+
+field puts gates on rounded lilac tiles, rotations on amber and multi-qubit boxes on pale blue, and
+draws slices in blue. folio draws square grey gates and ink slices. Both styles use white meters,
+grey dashed groups and slice labels tilted by 30 degrees.
+
+To typeset a circuit in LaTeX instead, load quantikz next to the package and pass `scqfig circuit`:
+
+```latex
+\usepackage{quantikz}
+\usepackage[field]{scqfig}
+...
+\begin{quantikz}[scqfig circuit]          % or [scqfig circuit field] / [scqfig circuit folio]
+\lstick{$|0\rangle$} & \gate{H}\slice[label style=scq slice label]{$\Psi_1$} & \ctrl{1} & \meter{} \\
+\lstick{$|0\rangle$} & \qw                                                   & \targ{}  & \meter{}
+\end{quantikz}
+```
+
+The preset replaces quantikz's red slices with the style's model colour. `scq slice label` tilts one
+slice label; under `slice all` every label tilts by itself. Tested with quantikz 0.9.6.
+
 ## Plot catalogue
 
 <!-- catalogue:start -->
@@ -142,6 +183,8 @@ every figure in the paper at once.
 | 75 | Level ladder and transitions | Transmon ladder (E_J/E_C = 40) to scale, with drive photons for f01, f12 and the two-photon f02/2, and the parity-forbidden single-photon 0-2 transition. | [`75_level_ladder.py`](examples/75_level_ladder.py) |
 | 76 | Film stack | Cross-section of a tantalum CPW on silicon with its metal-air, metal-substrate and substrate-air interfaces marked. | [`76_film_stack.py`](examples/76_film_stack.py) |
 | 77 | Qubit array in a uniform field | A 3 x 4 qubit array drawn as spins in a uniform field (the wash), with photons arriving from several directions and three qubits excited. | [`77_spin_array.py`](examples/77_spin_array.py) |
+| 78 | Quantum circuit | GHZ-state preparation: a Hadamard and two CNOTs entangle three qubits, then all three are measured; dashed slices mark the states Psi_1 to Psi_4. | [`78_quantum_circuit.py`](examples/78_quantum_circuit.py) |
+| 79 | Teleportation and gate glyphs | (a) Teleportation: a Bell pair, a Bell measurement and classically controlled X and Z corrections. (b) The other gate glyphs: rotation, controlled-U with an open control, CZ, SWAP and a three-qubit box. | [`79_teleportation.py`](examples/79_teleportation.py) |
 <!-- catalogue:end -->
 
 ## Rules the library keeps

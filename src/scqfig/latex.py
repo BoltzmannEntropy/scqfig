@@ -6,7 +6,8 @@
 The package defines every palette colour (scqBlue, ...), every role of both styles (scqFieldAccent,
 scqFolioAccent, ...) and the active style's roles under plain names (scqAccent, scqQubitA, scqLevel0,
 scqTileCapacitive, scqChipFlux, ...). It adds \\scqgraphics, which picks the figure of the active
-style, pgfplots styles that match the matplotlib ones, and TikZ tiles for circuit elements."""
+style, pgfplots styles that match the matplotlib ones, TikZ tiles for circuit elements, and the quantikz
+preset `scqfig circuit` that draws gate-model circuits like schematics.QCircuit."""
 import pathlib
 import sys
 
@@ -98,6 +99,24 @@ def _rgb255(c):
     return ",".join(str(int(h[i:i + 2], 16)) for i in (1, 3, 5))
 
 
+def _quantikz_style(t):
+    """TikZ style `scqfig circuit <name>` for quantikz, matching schematics.QCircuit: gates on the
+    nonlinear tile (rounded in field, square in folio), white meters, grey dashed gate groups, and
+    slices in the model colour. quantikz draws every slice with its red `slice` style and reads
+    `slice style` and `slice label style` only under `slice all`, so `slice` itself is redefined
+    without red; a single slice tilts its label with \\slice[label style=scq slice label]{...}."""
+    pre = "scq" + t.name.capitalize()
+    corners = ",rounded corners=1.5pt" if t.name == "field" else ""
+    return [
+        rf"  \tikzset{{scqfig circuit {t.name}/.style={{",
+        rf"    operator/.append style={{fill={pre}TileNonlinear,draw={pre}Ink{corners}}},",
+        rf"    meter/.append style={{fill=white,draw={pre}Ink{corners}}},",
+        rf"    ggroup/.append style={{draw={pre}Reference,dash pattern=on 3pt off 2pt,rounded corners=3pt}},",
+        rf"    slice/.style={{thickness,{pre}Model,dash pattern=on 4pt off 2.5pt,align=center}},",
+        r"    slice label style={scq slice label}}}%",
+    ]
+
+
 def sty_text():
     """The full text of scqfig.sty."""
     L = [
@@ -149,7 +168,12 @@ def sty_text():
     kinds = list(next(iter(THEMES.values())).tiles)
     L += [rf"    scq tile fill/{k}/.style={{fill=scqTile{_camel(k)}}}" + ("," if i < len(kinds) - 1 else "}%")
           for i, k in enumerate(kinds)]
-    L += [r"}{}}",
+    L += ["  % quantikz: \\begin{quantikz}[scqfig circuit] draws gates, meters, slices and groups like QCircuit",
+          r"  \tikzset{scq slice label/.style={rotate=30,anchor=south west,inner sep=1pt}}%"]
+    for t in THEMES.values():
+        L += _quantikz_style(t)
+    L += [r"  \tikzset{scqfig circuit/.style={scqfig circuit \scq@style}}%",
+          r"}{}}",
           "",
           r"\endinput"]
     return "\n".join(L) + "\n"
