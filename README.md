@@ -4,7 +4,7 @@
   <code>v0.1.0</code>&nbsp;&nbsp;Python · matplotlib · LaTeX (TikZ, pgfplots, quantikz)
   <br><br>
   <p><b>Publication figures for superconducting-qubit and chip papers,<br>in two matched styles, with a companion LaTeX package.</b></p>
-  <a href="https://boltzmannentropy.github.io/scqfig/"><strong>Open the gallery</strong></a>&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;<a href="gallery/gallery.pdf"><strong>Gallery PDF</strong></a>&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;<a href="#quick-start"><strong>Quick start</strong></a>
+  <a href="https://boltzmannentropy.github.io/scqfig.github.io/"><strong>Open the gallery</strong></a>&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;<a href="gallery/gallery.pdf"><strong>Gallery PDF</strong></a>&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;<a href="#quick-start"><strong>Quick start</strong></a>
   <br><br>
   <img src="https://img.shields.io/badge/python-3.9%2B-1f5fbf" alt="Python 3.9+"/>
   <img src="https://img.shields.io/badge/matplotlib-3.6%2B-5e2a84" alt="matplotlib 3.6+"/>
@@ -30,12 +30,12 @@ pgfplots and quantikz the same palette.
 | ![field style](gallery/contact_field.png) | ![folio style](gallery/contact_folio.png) |
 
 The full catalogue, with every example in both styles side by side, is in
-[`gallery/gallery.pdf`](gallery/gallery.pdf). The [website](https://boltzmannentropy.github.io/scqfig/)
+[`gallery/gallery.pdf`](gallery/gallery.pdf). The [website](https://boltzmannentropy.github.io/scqfig.github.io/)
 shows each figure with its Python and LaTeX code.
 
 ## Website UI
 
-The [gallery site](https://boltzmannentropy.github.io/scqfig/) lays the 45 example figures out as
+The [gallery site](https://boltzmannentropy.github.io/scqfig.github.io/) lays the 47 example figures out as
 dies on a three.js wafer. Pick a die to open its figure, switch every figure between field and
 folio with one toggle, and copy the Python source or the LaTeX include.
 
@@ -327,11 +327,14 @@ back to a plain grid without WebGL.
 python examples/build_gallery.py   # render the figures first
 python tools/build_site.py         # copy them into docs/ and write docs/data/site.json
 python -m http.server -d docs 8000 # preview at http://localhost:8000
+sh tools/publish_site.sh           # push docs/ to the public site repository
 ```
 
-The site is published from the `main` branch, `/docs` folder, at
-<https://boltzmannentropy.github.io/scqfig/>. `docs/assets/screens/` holds the screenshots this
-README shows.
+The site lives in its own public repository,
+[BoltzmannEntropy/scqfig.github.io](https://github.com/BoltzmannEntropy/scqfig.github.io), and
+GitHub Pages serves it at <https://boltzmannentropy.github.io/scqfig.github.io/>.
+`tools/publish_site.sh` replaces that repository's contents with `docs/` (leaving out
+`docs/review/`). `docs/assets/screens/` holds the screenshots this README shows.
 
 ## Contributing
 
