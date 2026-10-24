@@ -5,7 +5,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 const R = 5;                 // wafer radius (scene units)
 const FLAT = -0.955 * R;     // primary flat, on the side nearest the camera
-const THICK = 0.14;
+const BEZEL = 0.07;          // width of the rim that outlines the wafer
 const LIFT = 0.42;
 
 // Square cells inside the wafer, row by row from the far edge, until there are at least n.
@@ -28,12 +28,12 @@ function layout(n) {
   throw new Error('wafer layout failed');
 }
 
-function waferShape() {
-  const s = new THREE.Shape();
-  const a = Math.acos(FLAT / R);                    // angle where the flat meets the rim
-  s.absarc(0, 0, R, -Math.PI / 2 + (Math.PI - a), -Math.PI / 2 - (Math.PI - a) + 2 * Math.PI, false);
-  s.closePath();
-  return s;
+// wafer outline of radius r with its flat at y = flat, traced into a Shape or a hole Path
+function waferOutline(path, r, flat) {
+  const a = Math.acos(flat / r);                    // angle where the flat meets the rim
+  path.absarc(0, 0, r, -Math.PI / 2 + (Math.PI - a), -Math.PI / 2 - (Math.PI - a) + 2 * Math.PI, false);
+  path.closePath();
+  return path;
 }
 
 export function createWafer(host, { examples, style, onHover, onPick }) {
@@ -68,14 +68,15 @@ export function createWafer(host, { examples, style, onHover, onPick }) {
   rim.position.set(6, 3, -6);
   scene.add(rim);
 
-  // wafer body: polished silicon, dark blue-grey, with the primary flat toward the viewer
-  const body = new THREE.Mesh(
-    new THREE.ExtrudeGeometry(waferShape(), { depth: THICK, bevelEnabled: true, bevelThickness: 0.03, bevelSize: 0.05,
-      bevelSegments: 3, curveSegments: 160 }),
-    new THREE.MeshStandardMaterial({ color: 0x252d3a, metalness: 0.75, roughness: 0.32 }));
-  body.rotation.x = -Math.PI / 2;
-  body.position.y = -THICK;
-  scene.add(body);
+  // the wafer is only a thin metal bezel around the dies, with the primary flat toward the viewer
+  const ring = waferOutline(new THREE.Shape(), R, FLAT);
+  ring.holes.push(waferOutline(new THREE.Path(), R - BEZEL, FLAT + BEZEL));
+  const bezel = new THREE.Mesh(
+    new THREE.ExtrudeGeometry(ring, { depth: 0.05, bevelEnabled: false, curveSegments: 160 }),
+    new THREE.MeshStandardMaterial({ color: 0x9aa4b2, metalness: 0.25, roughness: 0.4 }));
+  bezel.rotation.x = -Math.PI / 2;
+  bezel.position.y = -0.02;
+  scene.add(bezel);
 
   // a faint scribe grid between dies
   const { c, cells } = layout(examples.length);
@@ -125,12 +126,6 @@ export function createWafer(host, { examples, style, onHover, onPick }) {
     scene.add(g);
     dies.push({ g, fig, paper, block });
   });
-  // leftover edge cells hold blank dies, as a real wafer does
-  for (let i = examples.length; i < cells.length; i++) {
-    const m = new THREE.Mesh(blockGeo, new THREE.MeshStandardMaterial({ color: 0x3b4556, metalness: 0.6, roughness: 0.4 }));
-    m.position.set(cells[i].x, 0.025, cells[i].z);
-    scene.add(m);
-  }
 
   function fit(d, img) {
     const inner = die * 0.9, a = img.w / img.h;
