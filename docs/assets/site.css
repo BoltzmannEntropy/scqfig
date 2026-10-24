@@ -72,6 +72,32 @@ input[type=search] { background: var(--well); border: 1px solid var(--rule); bor
 input[type=search]:focus { border-color: var(--accent); outline: none }
 
 main { flex: 1; min-width: 0 }
+
+/* Left sidebar: every example by family. Below 1100px it becomes a drawer opened from the app bar. */
+.shell { flex: 1; display: flex; min-width: 0 }
+.sidenav { flex: none; width: 260px; position: sticky; top: var(--appbar-h, 64px); align-self: flex-start;
+  height: calc(100vh - var(--appbar-h, 64px)); overflow-y: auto; overscroll-behavior: contain;
+  border-right: 1px solid var(--rule); background: var(--paper); padding: 10px 8px 24px; font-size: 13px }
+.sidenav .all { display: block; padding: 6px 10px; border-radius: 6px; color: var(--ink); font-weight: 600 }
+.sidenav h3 { display: flex; align-items: center; gap: 7px; margin: 14px 10px 4px; font: 600 11.5px/1.3 var(--sans);
+  letter-spacing: .04em; text-transform: uppercase; color: var(--head) }
+.sidenav h3 i { width: 9px; height: 9px; border-radius: 2px; background: var(--c, #888) }
+.sidenav h3 small { margin-left: auto; color: var(--muted); font-weight: 400; letter-spacing: 0 }
+.sidenav ul { list-style: none; margin: 0; padding: 0 }
+.sidenav a.ex { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 6px; padding: 4px 10px; border-radius: 6px;
+  color: var(--ink); line-height: 1.3 }
+.sidenav a.ex .num { font-size: 11.5px; padding-top: 1px }
+.sidenav a:hover { background: var(--tint); text-decoration: none }
+.sidenav a[aria-current=page] { background: var(--accent-soft); box-shadow: inset 2px 0 0 var(--accent) }
+.nav-toggle { display: none; align-items: center; gap: 6px; padding: 5px 11px }
+.nav-toggle svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round }
+@media (max-width: 1100px) {
+  .nav-toggle { display: inline-flex }
+  .sidenav { position: fixed; left: 0; bottom: 0; height: auto; align-self: auto; width: min(300px, 86vw); z-index: 30; visibility: hidden;
+    transform: translateX(-100%); transition: transform .2s, visibility .2s; box-shadow: 0 10px 30px rgba(0, 0, 0, .25) }
+  .sidenav.open { transform: none; visibility: visible }
+}
+@media (prefers-reduced-motion: reduce) { .sidenav { transition: none } }
 .view { padding: 14px; max-width: 1480px; margin: 0 auto; width: 100% }
 
 /* Gallery: wafer stage plus legend sidebar, then the card grid */

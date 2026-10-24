@@ -180,10 +180,39 @@ function matches(e, terms) {
   return terms.every(t => hay.includes(t));
 }
 
+// ---- left sidebar: every example by family; it follows the route and the search box
+function buildNav() {
+  const d = S.data;
+  $('#sidenav').innerHTML = `<a class="all" href="#/gallery">All ${d.examples.length} figures</a>` + d.families.map(f => {
+    const list = d.examples.filter(e => e.family === f.name);
+    return `<section><h3><i style="--c:${f.color}"></i>${esc(f.name)}<small>${list.length}</small></h3><ul>${list.map(e =>
+      `<li data-id="${e.id}"><a class="ex" href="#/example/${e.id}"><span class="num">${e.num}</span><span>${esc(e.title)}</span></a></li>`
+    ).join('')}</ul></section>`;
+  }).join('');
+}
+
+function syncNav() {
+  const { view, arg } = currentView(), nav = $('#sidenav');
+  $$('a', nav).forEach(a => a.removeAttribute('aria-current'));
+  const a = view === 'example' ? $(`li[data-id="${arg}"] a`, nav) : view === 'gallery' ? $('.all', nav) : null;
+  if (!a) return;
+  a.setAttribute('aria-current', 'page');
+  const r = a.getBoundingClientRect(), n = nav.getBoundingClientRect();   // scroll the sidebar only, never the page
+  if (r.top < n.top || r.bottom > n.bottom) nav.scrollTop += r.top - n.top - n.height / 3;
+}
+
+function setNav(open) {
+  $('#sidenav').classList.toggle('open', open);
+  $('#navtoggle').setAttribute('aria-expanded', open);
+}
+
 function applyFilter() {
   const terms = S.q.toLowerCase().split(/\s+/).filter(Boolean);
   const ex = S.data.examples;
   const ids = new Set(ex.filter(e => !S.off.has(e.family) && matches(e, terms)).map(e => e.id));
+  const hits = new Set(ex.filter(e => matches(e, terms)).map(e => e.id));   // the sidebar ignores the family checkboxes
+  $$('#sidenav li').forEach(li => { li.hidden = !hits.has(li.dataset.id); });
+  $$('#sidenav section').forEach(s => { s.hidden = !$$('li', s).some(li => !li.hidden); });
   $$('#cards .card').forEach(c => { c.hidden = !ids.has(c.dataset.id); });
   $$('#fams li').forEach(li => {
     const box = $('input', li);
@@ -450,6 +479,7 @@ function route(keepScroll = false) {
     RENDER[view](arg);
   }
   if (keepScroll) window.scrollTo(0, y); else if (!gal) window.scrollTo(0, 0);
+  syncNav();
   status();
 }
 
@@ -501,6 +531,11 @@ async function init() {
   $('#count').textContent = `${d.examples.length} figures`;
   $$('.appbar [data-style]').forEach(b => b.setAttribute('aria-pressed', b.dataset.style === S.style));
   setTheme(document.documentElement.dataset.theme === 'dark', false);
+  const bar = $('.appbar');   // the sticky sidebar starts below the app bar, whose height changes as it wraps
+  const barHeight = () => document.documentElement.style.setProperty('--appbar-h', `${bar.offsetHeight}px`);
+  barHeight();
+  new ResizeObserver(barHeight).observe(bar);
+  buildNav();
   buildGallery();
   applyFilter();
 
@@ -508,6 +543,8 @@ async function init() {
     const s = e.target.closest('button[data-style]');
     if (s) { setStyle(s.dataset.style); return; }
     if (e.target.closest('#theme')) { setTheme(document.documentElement.dataset.theme !== 'dark'); return; }
+    if (e.target.closest('#navtoggle')) { setNav(!$('#sidenav').classList.contains('open')); return; }
+    if (e.target.closest('#sidenav a')) setNav(false);
     const c = e.target.closest('.codebox .copy');
     if (c) copy($('pre', c.parentElement).textContent, c);
   });
@@ -518,6 +555,7 @@ async function init() {
     applyFilter();
   });
   document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && $('#sidenav').classList.contains('open')) { setNav(false); $('#navtoggle').focus(); return; }
     if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName) || e.metaKey || e.ctrlKey || e.altKey) return;
     if (e.key === '/') { e.preventDefault(); q.focus(); return; }
     if (currentView().view === 'example' && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {

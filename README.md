@@ -34,8 +34,9 @@ shows each figure with its Python and LaTeX code.
 ## Website UI
 
 The [gallery site](https://boltzmannentropy.github.io/scqfig.github.io/) lays the 47 example figures out as
-dies on a three.js wafer. Pick a die to open its figure, switch every figure between field and
-folio with one toggle, and copy the Python source or the LaTeX include.
+dies on a three.js wafer, and a sidebar lists every example by family. Pick a die or a sidebar entry
+to open its figure, switch every figure between field and folio with one toggle, and copy the Python
+source or the LaTeX include.
 
 <table>
   <tr>

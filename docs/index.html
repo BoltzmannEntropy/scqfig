@@ -19,6 +19,8 @@
 </head>
 <body>
 <header class="appbar">
+  <button type="button" id="navtoggle" class="nav-toggle" aria-controls="sidenav" aria-expanded="false" title="All examples">
+    <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4h12M2 8h12M2 12h12"/></svg>Examples</button>
   <a class="brand" href="#/gallery" aria-label="scqfig home">
     <svg viewBox="0 0 32 32" aria-hidden="true"><use href="assets/favicon.svg#mark"/></svg>
     <span><b>scqfig</b><small id="ver"></small></span>
@@ -42,10 +44,13 @@
     <input type="search" id="q" placeholder="Search figures, captions, functions" aria-label="Search figures">
   </div>
 </header>
+<div class="shell">
+<nav id="sidenav" class="sidenav" aria-label="All examples"></nav>
 <main id="main">
   <section id="gallery" class="view" aria-label="Gallery"></section>
   <section id="page" class="view" hidden></section>
 </main>
+</div>
 <footer class="statusbar" id="status">Loading figures…</footer>
 <noscript><p class="noscript">This site needs JavaScript to list the figures. The same figures are in the <a href="https://github.com/BoltzmannEntropy/scqfig">repository</a> under gallery/.</p></noscript>
 </body>
