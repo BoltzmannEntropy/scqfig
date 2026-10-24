@@ -1,0 +1,1816 @@
+{
+ "version": "0.1.0",
+ "build": "9eae2b2a5d",
+ "families": [
+  {
+   "name": "Spectrum",
+   "color": "#628fd2",
+   "text": "Levels, wavefunctions, charge dispersion, flux spectroscopy, avoided crossings."
+  },
+  {
+   "name": "Design",
+   "color": "#9675af",
+   "text": "Frequency plans, collisions, capacitance, loss participation, Purcell and dispersive design."
+  },
+  {
+   "name": "Readout",
+   "color": "#cb55a0",
+   "text": "Resonator S21, quality factors, dispersive response, single-shot readout."
+  },
+  {
+   "name": "Time domain",
+   "color": "#e69f00",
+   "text": "Rabi, chevrons, Ramsey, echo, benchmarking, coherence over time, TLS maps."
+  },
+  {
+   "name": "States",
+   "color": "#a5bfe5",
+   "text": "Bloch spheres, Wigner functions, density matrices."
+  },
+  {
+   "name": "Noise and errors",
+   "color": "#e09bc7",
+   "text": "Noise spectra, error budgets, correlated bursts and correlations."
+  },
+  {
+   "name": "Processor",
+   "color": "#9a9a9a",
+   "text": "Device maps and error distributions across a chip."
+  },
+  {
+   "name": "Schematics",
+   "color": "#c2aed0",
+   "text": "Chips in plan and oblique view, circuits, wiring, pulses, level diagrams, gate circuits."
+  }
+ ],
+ "examples": [
+  {
+   "id": "01_potential_well",
+   "num": "01",
+   "title": "Potential well and wavefunctions",
+   "family": "Spectrum",
+   "caption": "Transmon potential with the four lowest levels and their computed |psi(phi)|^2 (charge basis, E_J/E_C = 80).",
+   "code": "\"\"\"Transmon potential with the four lowest levels and their computed |psi(phi)|^2 (charge basis, E_J/E_C = 80).\"\"\"\nimport scqfig as sq\n\nTITLE = \"Potential well and wavefunctions\"\nFAMILY = \"Spectrum\"\n\n\ndef build():\n    fig, ax = sq.figure(\"column\", aspect=0.72)\n    sq.plots.potential_well(ax, EJ=20.0, EC=0.25, nlev=4)\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "potential_well"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/01_potential_well.png",
+     "pdf": "figures/field/01_potential_well.pdf",
+     "thumb": "thumbs/field/01_potential_well.jpg",
+     "w": 671,
+     "h": 480,
+     "width_in": 3.35
+    },
+    "folio": {
+     "png": "figures/folio/01_potential_well.png",
+     "pdf": "figures/folio/01_potential_well.pdf",
+     "thumb": "thumbs/folio/01_potential_well.jpg",
+     "w": 671,
+     "h": 480,
+     "width_in": 3.35
+    }
+   },
+   "page": false,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure}[t]\n  \\centering\n  \\scqgraphics[width=\\columnwidth]{01_potential_well}   % figures/<style>/01_potential_well.pdf\n  \\caption{Transmon potential with the four lowest levels and their computed |psi(phi)|^2 (charge basis, E\\_J/E\\_C = 80).}\n  \\label{fig:potential-well}\n\\end{figure}\n"
+  },
+  {
+   "id": "02_charge_dispersion",
+   "num": "02",
+   "title": "Charge dispersion",
+   "family": "Spectrum",
+   "caption": "Charge dispersion of the three lowest levels as E_J/E_C grows from the Cooper-pair box to the transmon.",
+   "code": "\"\"\"Charge dispersion of the three lowest levels as E_J/E_C grows from the Cooper-pair box to the transmon.\"\"\"\nimport scqfig as sq\n\nTITLE = \"Charge dispersion\"\nFAMILY = \"Spectrum\"\n\n\ndef build():\n    fig, axes = sq.figure(\"page\", aspect=0.24, ncols=4, sharey=True)\n    for k, (ax, r) in enumerate(zip(axes, (1, 5, 10, 50))):\n        sq.plots.charge_dispersion(ax, r, nlev=3)\n        sq.panel(ax, \"abcd\"[k])\n        if k:\n            ax.set_ylabel(\"\")\n    axes[0].set_ylim(-0.12, 3.2)\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "charge_dispersion"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/02_charge_dispersion.png",
+     "pdf": "figures/field/02_charge_dispersion.pdf",
+     "thumb": "thumbs/field/02_charge_dispersion.jpg",
+     "w": 1391,
+     "h": 327,
+     "width_in": 6.96
+    },
+    "folio": {
+     "png": "figures/folio/02_charge_dispersion.png",
+     "pdf": "figures/folio/02_charge_dispersion.pdf",
+     "thumb": "thumbs/folio/02_charge_dispersion.jpg",
+     "w": 1391,
+     "h": 327,
+     "width_in": 6.96
+    }
+   },
+   "page": true,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure*}[t]\n  \\centering\n  \\scqgraphics[width=\\textwidth]{02_charge_dispersion}   % figures/<style>/02_charge_dispersion.pdf\n  \\caption{Charge dispersion of the three lowest levels as E\\_J/E\\_C grows from the Cooper-pair box to the transmon.}\n  \\label{fig:charge-dispersion}\n\\end{figure*}\n"
+  },
+  {
+   "id": "03_flux_spectroscopy",
+   "num": "03",
+   "title": "Flux-tuned spectroscopy",
+   "family": "Spectrum",
+   "caption": "Two-tone spectroscopy of a SQUID transmon against flux, with the exact f01 and f02/2 drawn over the data (synthetic data).",
+   "code": "\"\"\"Two-tone spectroscopy of a SQUID transmon against flux, with the exact f01 and f02/2 drawn over the data (synthetic data).\"\"\"\nimport numpy as np\n\nimport scqfig as sq\nfrom scqfig import physics as ph\n\nTITLE = \"Flux-tuned spectroscopy\"\nFAMILY = \"Spectrum\"\n\n\ndef build():\n    rng = np.random.default_rng(3)\n    flux = np.linspace(-0.6, 0.6, 161)\n    freq = np.linspace(3.2, 6.4, 241)\n    f = ph.tunable_frequencies(flux, EJmax=18.0, EC=0.22, d=0.35, nlev=3)\n    f01, f02h = f[:, 0], f[:, 1] / 2\n    F, X = np.meshgrid(freq, flux, indexing=\"ij\")\n    line = lambda f0, w, A: A / (1 + ((F - f0[None, :]) / w) ** 2)\n    S = line(f01, 0.02, 1.0) + line(f02h, 0.008, 0.45) + rng.normal(0, 0.04, F.shape)\n    fig, ax = sq.figure(\"column\", aspect=0.8)\n    sq.plots.flux_spectroscopy(ax, flux, freq, S, model={r\"$f_{01}$\": f01, r\"$f_{02}/2$\": f02h})\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "flux_spectroscopy"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/03_flux_spectroscopy.png",
+     "pdf": "figures/field/03_flux_spectroscopy.pdf",
+     "thumb": "thumbs/field/03_flux_spectroscopy.jpg",
+     "w": 671,
+     "h": 535,
+     "width_in": 3.35
+    },
+    "folio": {
+     "png": "figures/folio/03_flux_spectroscopy.png",
+     "pdf": "figures/folio/03_flux_spectroscopy.pdf",
+     "thumb": "thumbs/folio/03_flux_spectroscopy.jpg",
+     "w": 671,
+     "h": 535,
+     "width_in": 3.35
+    }
+   },
+   "page": false,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure}[t]\n  \\centering\n  \\scqgraphics[width=\\columnwidth]{03_flux_spectroscopy}   % figures/<style>/03_flux_spectroscopy.pdf\n  \\caption{Two-tone spectroscopy of a SQUID transmon against flux, with the exact f01 and f02/2 drawn over the data (synthetic data).}\n  \\label{fig:flux-spectroscopy}\n\\end{figure}\n"
+  },
+  {
+   "id": "04_avoided_crossing",
+   "num": "04",
+   "title": "Avoided crossing",
+   "family": "Spectrum",
+   "caption": "Vacuum-Rabi splitting: resonator transmission as a tunable qubit crosses it, with the bare modes dashed and 2g marked (synthetic data).",
+   "code": "\"\"\"Vacuum-Rabi splitting: resonator transmission as a tunable qubit crosses it, with the bare modes dashed and 2g marked (synthetic data).\"\"\"\nimport numpy as np\n\nimport scqfig as sq\nfrom scqfig import physics as ph\n\nTITLE = \"Avoided crossing\"\nFAMILY = \"Spectrum\"\n\n\ndef build():\n    rng = np.random.default_rng(4)\n    flux = np.linspace(0.18, 0.32, 141)\n    freq = np.linspace(6.85, 7.15, 201)\n    fq = ph.tunable_frequencies(flux, EJmax=40.0, EC=0.25, d=0.0, nlev=2)[:, 0]\n    fr, g = 7.0, 0.035\n    up, lo = ph.dressed_frequencies(fq, fr, g)\n    theta = 0.5 * np.arctan2(2 * g, fq - fr)                 # photon weight of each normal mode\n    w_lo, w_up = np.cos(theta) ** 2, np.sin(theta) ** 2\n    F = freq[:, None]\n    dip = lambda f0, w: w / (1 + ((F - f0[None, :]) / 0.004) ** 2)\n    S = 1 - 0.85 * (dip(lo, w_up) + dip(up, w_lo)) + rng.normal(0, 0.015, (freq.size, flux.size))\n    x0 = flux[np.argmin(np.abs(fq - fr))]\n    fig, ax = sq.figure(\"column\", aspect=0.8)\n    sq.plots.avoided_crossing(ax, flux, freq, S, bare=(fq, np.full_like(flux, fr)), g=g, x0=x0)\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "avoided_crossing"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/04_avoided_crossing.png",
+     "pdf": "figures/field/04_avoided_crossing.pdf",
+     "thumb": "thumbs/field/04_avoided_crossing.jpg",
+     "w": 670,
+     "h": 535,
+     "width_in": 3.35
+    },
+    "folio": {
+     "png": "figures/folio/04_avoided_crossing.png",
+     "pdf": "figures/folio/04_avoided_crossing.pdf",
+     "thumb": "thumbs/folio/04_avoided_crossing.jpg",
+     "w": 670,
+     "h": 535,
+     "width_in": 3.35
+    }
+   },
+   "page": false,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure}[t]\n  \\centering\n  \\scqgraphics[width=\\columnwidth]{04_avoided_crossing}   % figures/<style>/04_avoided_crossing.pdf\n  \\caption{Vacuum-Rabi splitting: resonator transmission as a tunable qubit crosses it, with the bare modes dashed and 2g marked (synthetic data).}\n  \\label{fig:avoided-crossing}\n\\end{figure}\n"
+  },
+  {
+   "id": "10_frequency_plan",
+   "num": "10",
+   "title": "Frequency plan",
+   "family": "Design",
+   "caption": "Frequency plan of a three-qubit chain: each transmon's f01 and f12, the readout resonators inside the Purcell-filter passband, and the collision windows each qubit's f01 must avoid (designed values).",
+   "code": "\"\"\"Frequency plan of a three-qubit chain: each transmon's f01 and f12, the readout resonators inside the Purcell-filter passband, and the collision windows each qubit's f01 must avoid (designed values).\"\"\"\nimport scqfig as sq\nfrom scqfig import physics as ph\nfrom scqfig.plots.design import collision_windows\n\nTITLE = \"Frequency plan\"\nFAMILY = \"Design\"\n\n\ndef build():\n    EJ, EC = {\"Q1\": 15.6, \"Q2\": 16.6, \"Q3\": 16.0}, 0.21          # GHz\n    qubits = {}\n    for name, ej in EJ.items():\n        f = ph.transmon_spectrum(ej, EC, nlev=3)\n        qubits[name] = (f[1], f[2] - f[1])                       # (f01, f12)\n    coupled = {\"Q1\": [\"Q2\"], \"Q2\": [\"Q1\", \"Q3\"], \"Q3\": [\"Q2\"]}\n    collisions = {}\n    for name, nbrs in coupled.items():\n        wins = []\n        for nb in nbrs:\n            alpha = 0.5 * sum(qubits[q][1] - qubits[q][0] for q in (name, nb))\n            wins += [(qubits[nb][0] + c - w, qubits[nb][0] + c + w) for _, c, w, _ in collision_windows(alpha)]\n        collisions[name] = wins\n    resonators = {\"R1\": 7.05, \"R2\": 7.15, \"R3\": 7.25}\n    fig, ax = sq.figure(\"page\", aspect=0.3)\n    sq.plots.frequency_plan(ax, qubits, resonators=resonators, purcell=(6.95, 7.35), collisions=collisions)\n    ax.set_xlim(4.5, 7.5)\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "collision_windows",
+    "frequency_plan"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/10_frequency_plan.png",
+     "pdf": "figures/field/10_frequency_plan.pdf",
+     "thumb": "thumbs/field/10_frequency_plan.jpg",
+     "w": 1391,
+     "h": 411,
+     "width_in": 6.96
+    },
+    "folio": {
+     "png": "figures/folio/10_frequency_plan.png",
+     "pdf": "figures/folio/10_frequency_plan.pdf",
+     "thumb": "thumbs/folio/10_frequency_plan.jpg",
+     "w": 1391,
+     "h": 411,
+     "width_in": 6.96
+    }
+   },
+   "page": true,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure*}[t]\n  \\centering\n  \\scqgraphics[width=\\textwidth]{10_frequency_plan}   % figures/<style>/10_frequency_plan.pdf\n  \\caption{Frequency plan of a three-qubit chain: each transmon's f01 and f12, the readout resonators inside the Purcell-filter passband, and the collision windows each qubit's f01 must avoid (designed values).}\n  \\label{fig:frequency-plan}\n\\end{figure*}\n"
+  },
+  {
+   "id": "11_collision_map",
+   "num": "11",
+   "title": "Collision map",
+   "family": "Design",
+   "caption": "Collision map of two coupled transmons: forbidden bands of the f_q2 against f_q1 plane, with three design points and their 20 MHz fabrication scatter; one point sits on a two-photon band (designed values).",
+   "code": "\"\"\"Collision map of two coupled transmons: forbidden bands of the f_q2 against f_q1 plane, with three design points and their 20 MHz fabrication scatter; one point sits on a two-photon band (designed values).\"\"\"\nimport scqfig as sq\nfrom scqfig import physics as ph\n\nTITLE = \"Collision map\"\nFAMILY = \"Design\"\n\n\ndef build():\n    f = ph.transmon_spectrum(16.0, 0.21, nlev=3)\n    alpha = f[2] - 2 * f[1]                                      # GHz, about -0.23\n    points = {\"Q1\u2013Q2\": (4.900, 5.062), \"Q3\u2013Q2\": (4.966, 5.062), \"Q4\u2013Q5\": (5.100, 5.100 + alpha / 2 + 0.002)}\n    fig, ax = sq.figure(\"column\", aspect=0.95)\n    sq.plots.collision_map(ax, alpha, points, lim=(4.7, 5.35), spread=0.02)\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "collision_map"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/11_collision_map.png",
+     "pdf": "figures/field/11_collision_map.pdf",
+     "thumb": "thumbs/field/11_collision_map.jpg",
+     "w": 648,
+     "h": 637,
+     "width_in": 3.24
+    },
+    "folio": {
+     "png": "figures/folio/11_collision_map.png",
+     "pdf": "figures/folio/11_collision_map.pdf",
+     "thumb": "thumbs/folio/11_collision_map.jpg",
+     "w": 645,
+     "h": 637,
+     "width_in": 3.23
+    }
+   },
+   "page": false,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure}[t]\n  \\centering\n  \\scqgraphics[width=\\columnwidth]{11_collision_map}   % figures/<style>/11_collision_map.pdf\n  \\caption{Collision map of two coupled transmons: forbidden bands of the f\\_q2 against f\\_q1 plane, with three design points and their 20 MHz fabrication scatter; one point sits on a two-photon band (designed values).}\n  \\label{fig:collision-map}\n\\end{figure}\n"
+  },
+  {
+   "id": "12_capacitance_matrix",
+   "num": "12",
+   "title": "Capacitance matrix",
+   "family": "Design",
+   "caption": "Maxwell capacitance matrix of two transmons, their readout resonators and the feedline, coloured by |C| on a log scale (simulated values).",
+   "code": "\"\"\"Maxwell capacitance matrix of two transmons, their readout resonators and the feedline, coloured by |C| on a log scale (simulated values).\"\"\"\nimport numpy as np\n\nimport scqfig as sq\n\nTITLE = \"Capacitance matrix\"\nFAMILY = \"Design\"\n\n\ndef build():\n    nets = [\"Q1\", \"Q2\", \"R1\", \"R2\", \"feed\"]\n    ground = np.array([78.4, 80.1, 412.0, 405.0, 690.0])           # fF to ground\n    mutual = np.zeros((5, 5))                                      # fF between nets\n    for (i, j), c in {(0, 1): 0.48, (0, 2): 4.62, (1, 3): 4.41, (0, 3): 0.061, (1, 2): 0.057, (2, 3): 0.12,\n                      (2, 4): 11.3, (3, 4): 10.8, (0, 4): 0.21, (1, 4): 0.19}.items():\n        mutual[i, j] = mutual[j, i] = c\n    C = np.diag(ground + mutual.sum(1)) - mutual                   # Maxwell form\n    fig, ax = sq.figure(\"column\", aspect=0.8)\n    sq.plots.capacitance_matrix(ax, C, nets)\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "capacitance_matrix"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/12_capacitance_matrix.png",
+     "pdf": "figures/field/12_capacitance_matrix.pdf",
+     "thumb": "thumbs/field/12_capacitance_matrix.jpg",
+     "w": 670,
+     "h": 535,
+     "width_in": 3.35
+    },
+    "folio": {
+     "png": "figures/folio/12_capacitance_matrix.png",
+     "pdf": "figures/folio/12_capacitance_matrix.pdf",
+     "thumb": "thumbs/folio/12_capacitance_matrix.jpg",
+     "w": 673,
+     "h": 535,
+     "width_in": 3.37
+    }
+   },
+   "page": false,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure}[t]\n  \\centering\n  \\scqgraphics[width=\\columnwidth]{12_capacitance_matrix}   % figures/<style>/12_capacitance_matrix.pdf\n  \\caption{Maxwell capacitance matrix of two transmons, their readout resonators and the feedline, coloured by |C| on a log scale (simulated values).}\n  \\label{fig:capacitance-matrix}\n\\end{figure}\n"
+  },
+  {
+   "id": "13_participation",
+   "num": "13",
+   "title": "Participation budget",
+   "family": "Design",
+   "caption": "Surface-participation loss budget of a transmon: participation and loss tangent of each region, the quality factor each allows, and the total (simulated participation, assumed loss tangents).",
+   "code": "\"\"\"Surface-participation loss budget of a transmon: participation and loss tangent of each region, the quality factor each allows, and the total (simulated participation, assumed loss tangents).\"\"\"\nimport scqfig as sq\n\nTITLE = \"Participation budget\"\nFAMILY = \"Design\"\n\n\ndef build():\n    p = {\"MA\": 2.0e-5, \"MS\": 2.6e-4, \"SA\": 2.1e-4, \"substrate\": 0.91}\n    tand = {\"MA\": 2.0e-3, \"MS\": 2.6e-3, \"SA\": 2.2e-3, \"substrate\": 5e-8}\n    fig, ax = sq.figure(\"column\", aspect=0.66)\n    sq.plots.participation(ax, p, tand, freq=4.9)\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "participation"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/13_participation.png",
+     "pdf": "figures/field/13_participation.pdf",
+     "thumb": "thumbs/field/13_participation.jpg",
+     "w": 671,
+     "h": 440,
+     "width_in": 3.35
+    },
+    "folio": {
+     "png": "figures/folio/13_participation.png",
+     "pdf": "figures/folio/13_participation.pdf",
+     "thumb": "thumbs/folio/13_participation.jpg",
+     "w": 671,
+     "h": 440,
+     "width_in": 3.35
+    }
+   },
+   "page": false,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure}[t]\n  \\centering\n  \\scqgraphics[width=\\columnwidth]{13_participation}   % figures/<style>/13_participation.pdf\n  \\caption{Surface-participation loss budget of a transmon: participation and loss tangent of each region, the quality factor each allows, and the total (simulated participation, assumed loss tangents).}\n  \\label{fig:participation}\n\\end{figure}\n"
+  },
+  {
+   "id": "14_dispersive_shift",
+   "num": "14",
+   "title": "Dispersive shift",
+   "family": "Design",
+   "caption": "Dispersive shift of a transmon against its frequency for a 7.15 GHz resonator, g = 85 MHz and alpha = -233 MHz, with the straddling regime shaded and the design point marked (computed).",
+   "code": "\"\"\"Dispersive shift of a transmon against its frequency for a 7.15 GHz resonator, g = 85 MHz and alpha = -233 MHz, with the straddling regime shaded and the design point marked (computed).\"\"\"\nimport numpy as np\n\nimport scqfig as sq\n\nTITLE = \"Dispersive shift\"\nFAMILY = \"Design\"\n\n\ndef build():\n    fq = np.linspace(4.0, 9.0, 4001)\n    fig, ax = sq.figure(\"column\", aspect=0.66)\n    sq.plots.dispersive_shift(ax, fq, fr=7.15, g=0.085, alpha=-0.233, mark=5.06)\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "dispersive_shift"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/14_dispersive_shift.png",
+     "pdf": "figures/field/14_dispersive_shift.pdf",
+     "thumb": "thumbs/field/14_dispersive_shift.jpg",
+     "w": 671,
+     "h": 440,
+     "width_in": 3.35
+    },
+    "folio": {
+     "png": "figures/folio/14_dispersive_shift.png",
+     "pdf": "figures/folio/14_dispersive_shift.pdf",
+     "thumb": "thumbs/folio/14_dispersive_shift.jpg",
+     "w": 671,
+     "h": 440,
+     "width_in": 3.35
+    }
+   },
+   "page": false,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure}[t]\n  \\centering\n  \\scqgraphics[width=\\columnwidth]{14_dispersive_shift}   % figures/<style>/14_dispersive_shift.pdf\n  \\caption{Dispersive shift of a transmon against its frequency for a 7.15 GHz resonator, g = 85 MHz and alpha = -233 MHz, with the straddling regime shaded and the design point marked (computed).}\n  \\label{fig:dispersive-shift}\n\\end{figure}\n"
+  },
+  {
+   "id": "15_purcell_limit",
+   "num": "15",
+   "title": "Purcell limit",
+   "family": "Design",
+   "caption": "Purcell limit on T1 against qubit frequency for a 7.15 GHz readout resonator (kappa = 1.5 MHz, g = 85 MHz), without and with a Q = 25 bandpass filter (computed).",
+   "code": "\"\"\"Purcell limit on T1 against qubit frequency for a 7.15 GHz readout resonator (kappa = 1.5 MHz, g = 85 MHz), without and with a Q = 25 bandpass filter (computed).\"\"\"\nimport numpy as np\n\nimport scqfig as sq\n\nTITLE = \"Purcell limit\"\nFAMILY = \"Design\"\n\n\ndef build():\n    fq = np.linspace(4.0, 7.0, 600)\n    fig, ax = sq.figure(\"column\", aspect=0.66)\n    sq.plots.purcell_limit(ax, fq, fr=7.15, g=0.085, kappa=0.0015, filter_q=25, mark=5.06, target=500)\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "purcell_limit"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/15_purcell_limit.png",
+     "pdf": "figures/field/15_purcell_limit.pdf",
+     "thumb": "thumbs/field/15_purcell_limit.jpg",
+     "w": 671,
+     "h": 440,
+     "width_in": 3.35
+    },
+    "folio": {
+     "png": "figures/folio/15_purcell_limit.png",
+     "pdf": "figures/folio/15_purcell_limit.pdf",
+     "thumb": "thumbs/folio/15_purcell_limit.jpg",
+     "w": 671,
+     "h": 440,
+     "width_in": 3.35
+    }
+   },
+   "page": false,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure}[t]\n  \\centering\n  \\scqgraphics[width=\\columnwidth]{15_purcell_limit}   % figures/<style>/15_purcell_limit.pdf\n  \\caption{Purcell limit on T1 against qubit frequency for a 7.15 GHz readout resonator (kappa = 1.5 MHz, g = 85 MHz), without and with a Q = 25 bandpass filter (computed).}\n  \\label{fig:purcell-limit}\n\\end{figure}\n"
+  },
+  {
+   "id": "16_convergence",
+   "num": "16",
+   "title": "Convergence",
+   "family": "Design",
+   "caption": "Eigenmode frequency of a readout resonator against adaptive mesh pass, with the relative change per pass and a 0.02 % target (synthetic data).",
+   "code": "\"\"\"Eigenmode frequency of a readout resonator against adaptive mesh pass, with the relative change per pass and a 0.02 % target (synthetic data).\"\"\"\nimport numpy as np\n\nimport scqfig as sq\n\nTITLE = \"Convergence\"\nFAMILY = \"Design\"\n\n\ndef build():\n    rng = np.random.default_rng(16)\n    n = np.arange(1, 13)\n    f = 7.1512 + 0.31 * np.exp(-(n - 1) / 1.45) * (1 + rng.normal(0, 0.06, n.size))\n    fig, ax = sq.figure(\"column\", aspect=0.66)\n    sq.plots.convergence(ax, n, f, label=r\"eigenfrequency $f_r$ (GHz)\", tol=2e-4)\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "convergence"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/16_convergence.png",
+     "pdf": "figures/field/16_convergence.pdf",
+     "thumb": "thumbs/field/16_convergence.jpg",
+     "w": 671,
+     "h": 440,
+     "width_in": 3.35
+    },
+    "folio": {
+     "png": "figures/folio/16_convergence.png",
+     "pdf": "figures/folio/16_convergence.pdf",
+     "thumb": "thumbs/folio/16_convergence.jpg",
+     "w": 671,
+     "h": 440,
+     "width_in": 3.35
+    }
+   },
+   "page": false,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure}[t]\n  \\centering\n  \\scqgraphics[width=\\columnwidth]{16_convergence}   % figures/<style>/16_convergence.pdf\n  \\caption{Eigenmode frequency of a readout resonator against adaptive mesh pass, with the relative change per pass and a 0.02 \\% target (synthetic data).}\n  \\label{fig:convergence}\n\\end{figure}\n"
+  },
+  {
+   "id": "20_s21_resonator",
+   "num": "20",
+   "title": "S21 of a resonator",
+   "family": "Readout",
+   "caption": "Notch-resonator transmission as magnitude, phase and circle, with one complex fit and the cable delay, amplitude and phase calibrated out (synthetic data).",
+   "code": "\"\"\"Notch-resonator transmission as magnitude, phase and circle, with one complex fit and the cable delay, amplitude and phase calibrated out (synthetic data).\"\"\"\nimport numpy as np\n\nimport scqfig as sq\nfrom scqfig import physics as ph\n\nTITLE = \"S21 of a resonator\"\nFAMILY = \"Readout\"\n\n\ndef build():\n    rng = np.random.default_rng(20)\n    fr, Qi, Qc, phi = 6.8312, 3.0e4, 1.5e4, 0.12\n    Ql = 1 / (1 / Qi + np.cos(phi) / Qc)\n    f = np.linspace(fr - 6 * fr / Ql, fr + 6 * fr / Ql, 161)\n    s = ph.notch_s21(f, fr, Ql, Qc, phi, a=0.42, alpha=1.1, tau=45.0)          # tau in ns, f in GHz\n    s = s + 0.42 * 0.006 * (rng.standard_normal(f.size) + 1j * rng.standard_normal(f.size))\n    r = sq.fit.notch(f, s)\n    fig, ax = sq.figure(\"page\", aspect=0.4)\n    ax.remove()\n    axd = fig.subplot_mosaic([[\"mag\", \"circle\"], [\"phase\", \"circle\"]], width_ratios=[1.55, 1])\n    axd[\"phase\"].sharex(axd[\"mag\"])\n    sq.plots.s21_magnitude(axd[\"mag\"], f, s, fit=r)\n    sq.plots.s21_phase(axd[\"phase\"], f, s, fit=r)\n    sq.plots.s21_circle(axd[\"circle\"], f, s, fit=r)\n    axd[\"mag\"].set_xlabel(\"\")\n    axd[\"mag\"].tick_params(labelbottom=False)\n    for k, name in zip(\"abc\", (\"mag\", \"phase\", \"circle\")):\n        sq.panel(axd[name], k)\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "s21_circle",
+    "s21_magnitude",
+    "s21_phase"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/20_s21_resonator.png",
+     "pdf": "figures/field/20_s21_resonator.pdf",
+     "thumb": "thumbs/field/20_s21_resonator.jpg",
+     "w": 1391,
+     "h": 551,
+     "width_in": 6.96
+    },
+    "folio": {
+     "png": "figures/folio/20_s21_resonator.png",
+     "pdf": "figures/folio/20_s21_resonator.pdf",
+     "thumb": "thumbs/folio/20_s21_resonator.jpg",
+     "w": 1391,
+     "h": 551,
+     "width_in": 6.96
+    }
+   },
+   "page": true,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure*}[t]\n  \\centering\n  \\scqgraphics[width=\\textwidth]{20_s21_resonator}   % figures/<style>/20_s21_resonator.pdf\n  \\caption{Notch-resonator transmission as magnitude, phase and circle, with one complex fit and the cable delay, amplitude and phase calibrated out (synthetic data).}\n  \\label{fig:s21-resonator}\n\\end{figure*}\n"
+  },
+  {
+   "id": "21_quality_vs_power",
+   "num": "21",
+   "title": "Quality factor vs power",
+   "family": "Readout",
+   "caption": "Internal quality factor of a resonator against mean photon number, with a fit of the saturable two-level-system model (synthetic data).",
+   "code": "\"\"\"Internal quality factor of a resonator against mean photon number, with a fit of the saturable two-level-system model (synthetic data).\"\"\"\nimport numpy as np\n\nimport scqfig as sq\nfrom scqfig import physics as ph\n\nTITLE = \"Quality factor vs power\"\nFAMILY = \"Readout\"\n\n\ndef build():\n    rng = np.random.default_rng(21)\n    nbar = np.logspace(-1, 6, 22)\n    qi = ph.tls_qi(nbar, F_delta=1.3e-6, nc=4.0, beta=0.42, Q_other=2.2e6)\n    qi = qi * np.exp(rng.normal(0, 0.04, nbar.size))\n    fig, ax = sq.figure(\"column\", aspect=0.7)\n    sq.plots.quality_vs_power(ax, nbar, qi, err=0.04 * qi)\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "quality_vs_power"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/21_quality_vs_power.png",
+     "pdf": "figures/field/21_quality_vs_power.pdf",
+     "thumb": "thumbs/field/21_quality_vs_power.jpg",
+     "w": 671,
+     "h": 467,
+     "width_in": 3.35
+    },
+    "folio": {
+     "png": "figures/folio/21_quality_vs_power.png",
+     "pdf": "figures/folio/21_quality_vs_power.pdf",
+     "thumb": "thumbs/folio/21_quality_vs_power.jpg",
+     "w": 671,
+     "h": 467,
+     "width_in": 3.35
+    }
+   },
+   "page": false,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure}[t]\n  \\centering\n  \\scqgraphics[width=\\columnwidth]{21_quality_vs_power}   % figures/<style>/21_quality_vs_power.pdf\n  \\caption{Internal quality factor of a resonator against mean photon number, with a fit of the saturable two-level-system model (synthetic data).}\n  \\label{fig:quality-vs-power}\n\\end{figure}\n"
+  },
+  {
+   "id": "22_dispersive_readout",
+   "num": "22",
+   "title": "Dispersive readout",
+   "family": "Readout",
+   "caption": "Dispersive readout: resonator transmission with the qubit in |0> and in |1>, the 2chi shift computed for g = 85 MHz and Delta = -2.09 GHz, and the readout frequency between the two dips (synthetic data).",
+   "code": "\"\"\"Dispersive readout: resonator transmission with the qubit in |0> and in |1>, the 2chi shift computed for g = 85 MHz and Delta = -2.09 GHz, and the readout frequency between the two dips (synthetic data).\"\"\"\nimport numpy as np\n\nimport scqfig as sq\nfrom scqfig import physics as ph\n\nTITLE = \"Dispersive readout\"\nFAMILY = \"Readout\"\n\n\ndef build():\n    rng = np.random.default_rng(22)\n    fr, fq, g, alpha = 7.15, 5.06, 0.085, -0.233\n    chi = ph.dispersive_shift(fq, fr, g, alpha)                    # GHz, negative here\n    Ql, Qi = fr / (2 * abs(chi)), 3e5                              # kappa = 2|chi|\n    Qc = 1 / (1 / Ql - 1 / Qi)\n    f = np.linspace(fr - 0.003, fr + 0.003, 121)\n\n    def noise():\n        return 0.012 * (rng.standard_normal(f.size) + 1j * rng.standard_normal(f.size))\n\n    s0 = ph.notch_s21(f, fr - chi, Ql, Qc) + noise()                # qubit in |0>\n    s1 = ph.notch_s21(f, fr + chi, Ql, Qc) + noise()                # qubit in |1>\n    fig, ax = sq.figure(\"column\", aspect=0.72)\n    sq.plots.dispersive_readout(ax, f, s0, s1)\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "dispersive_readout"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/22_dispersive_readout.png",
+     "pdf": "figures/field/22_dispersive_readout.pdf",
+     "thumb": "thumbs/field/22_dispersive_readout.jpg",
+     "w": 671,
+     "h": 480,
+     "width_in": 3.35
+    },
+    "folio": {
+     "png": "figures/folio/22_dispersive_readout.png",
+     "pdf": "figures/folio/22_dispersive_readout.pdf",
+     "thumb": "thumbs/folio/22_dispersive_readout.jpg",
+     "w": 671,
+     "h": 480,
+     "width_in": 3.35
+    }
+   },
+   "page": false,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure}[t]\n  \\centering\n  \\scqgraphics[width=\\columnwidth]{22_dispersive_readout}   % figures/<style>/22_dispersive_readout.pdf\n  \\caption{Dispersive readout: resonator transmission with the qubit in |0> and in |1>, the 2chi shift computed for g = 85 MHz and Delta = -2.09 GHz, and the readout frequency between the two dips (synthetic data).}\n  \\label{fig:dispersive-readout}\n\\end{figure}\n"
+  },
+  {
+   "id": "23_iq_blobs",
+   "num": "23",
+   "title": "IQ blobs",
+   "family": "Readout",
+   "caption": "Single-shot readout in the IQ plane: 4000 shots per prepared state with 1 and 2 sigma contours and the discrimination line; the |1> shots include T1 decay during the 1.5 us integration (synthetic data).",
+   "code": "\"\"\"Single-shot readout in the IQ plane: 4000 shots per prepared state with 1 and 2 sigma contours and the discrimination line; the |1> shots include T1 decay during the 1.5 us integration (synthetic data).\"\"\"\nimport numpy as np\n\nimport scqfig as sq\nfrom scqfig.plots.readout import readout_shots\n\nTITLE = \"IQ blobs\"\nFAMILY = \"Readout\"\n\n\ndef build():\n    rng = np.random.default_rng(23)\n    centres = [-0.55 + 0.30j, 0.35 + 0.62j]                       # mV\n    shots = [readout_shots(m, centres, 0.16, 4000, t_ro=1.5, T1=20.0, p_th=0.01, rng=rng) for m in (0, 1)]\n    fig, ax = sq.figure(\"column\", aspect=0.85)\n    sq.plots.iq_blobs(ax, shots)\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "iq_blobs",
+    "readout_shots"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/23_iq_blobs.png",
+     "pdf": "figures/field/23_iq_blobs.pdf",
+     "thumb": "thumbs/field/23_iq_blobs.jpg",
+     "w": 671,
+     "h": 569,
+     "width_in": 3.35
+    },
+    "folio": {
+     "png": "figures/folio/23_iq_blobs.png",
+     "pdf": "figures/folio/23_iq_blobs.pdf",
+     "thumb": "thumbs/folio/23_iq_blobs.jpg",
+     "w": 671,
+     "h": 569,
+     "width_in": 3.35
+    }
+   },
+   "page": false,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure}[t]\n  \\centering\n  \\scqgraphics[width=\\columnwidth]{23_iq_blobs}   % figures/<style>/23_iq_blobs.pdf\n  \\caption{Single-shot readout in the IQ plane: 4000 shots per prepared state with 1 and 2 sigma contours and the discrimination line; the |1> shots include T1 decay during the 1.5 us integration (synthetic data).}\n  \\label{fig:iq-blobs}\n\\end{figure}\n"
+  },
+  {
+   "id": "24_readout_histogram",
+   "num": "24",
+   "title": "Readout histogram",
+   "family": "Readout",
+   "caption": "Single-shot histograms projected on the discrimination axis, with Gaussian fits to each peak and the assignment fidelity; the tail between the peaks is T1 decay during readout (synthetic data).",
+   "code": "\"\"\"Single-shot histograms projected on the discrimination axis, with Gaussian fits to each peak and the assignment fidelity; the tail between the peaks is T1 decay during readout (synthetic data).\"\"\"\nimport numpy as np\n\nimport scqfig as sq\nfrom scqfig.plots.readout import readout_shots\n\nTITLE = \"Readout histogram\"\nFAMILY = \"Readout\"\n\n\ndef build():\n    rng = np.random.default_rng(23)\n    centres = [-0.55 + 0.30j, 0.35 + 0.62j]                       # mV\n    shots = [readout_shots(m, centres, 0.16, 4000, t_ro=1.5, T1=20.0, p_th=0.01, rng=rng) for m in (0, 1)]\n    fig, ax = sq.figure(\"column\", aspect=0.7)\n    sq.plots.readout_histogram(ax, shots, log=True)\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "readout_histogram",
+    "readout_shots"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/24_readout_histogram.png",
+     "pdf": "figures/field/24_readout_histogram.pdf",
+     "thumb": "thumbs/field/24_readout_histogram.jpg",
+     "w": 671,
+     "h": 467,
+     "width_in": 3.35
+    },
+    "folio": {
+     "png": "figures/folio/24_readout_histogram.png",
+     "pdf": "figures/folio/24_readout_histogram.pdf",
+     "thumb": "thumbs/folio/24_readout_histogram.jpg",
+     "w": 671,
+     "h": 467,
+     "width_in": 3.35
+    }
+   },
+   "page": false,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure}[t]\n  \\centering\n  \\scqgraphics[width=\\columnwidth]{24_readout_histogram}   % figures/<style>/24_readout_histogram.pdf\n  \\caption{Single-shot histograms projected on the discrimination axis, with Gaussian fits to each peak and the assignment fidelity; the tail between the peaks is T1 decay during readout (synthetic data).}\n  \\label{fig:readout-histogram}\n\\end{figure}\n"
+  },
+  {
+   "id": "25_assignment_matrix",
+   "num": "25",
+   "title": "Assignment matrix",
+   "family": "Readout",
+   "caption": "Three-state assignment matrix from 5000 simulated shots per prepared state, assigned to the nearest IQ centre; decay during readout fills the lower triangle (synthetic data).",
+   "code": "\"\"\"Three-state assignment matrix from 5000 simulated shots per prepared state, assigned to the nearest IQ centre; decay during readout fills the lower triangle (synthetic data).\"\"\"\nimport numpy as np\n\nimport scqfig as sq\nfrom scqfig.plots.readout import readout_shots\n\nTITLE = \"Assignment matrix\"\nFAMILY = \"Readout\"\n\n\ndef build():\n    rng = np.random.default_rng(25)\n    centres = np.array([-0.55 + 0.30j, 0.35 + 0.62j, 0.62 - 0.28j])  # mV\n    M = np.zeros((3, 3))\n    for m in range(3):\n        s = readout_shots(m, centres, 0.16, 5000, t_ro=1.5, T1=20.0, p_th=0.01, rng=rng)\n        got = np.argmin(np.abs(s[:, None] - centres[None, :]), axis=1)\n        M[m] = np.bincount(got, minlength=3)\n    fig, ax = sq.figure(\"column\", aspect=0.8)\n    sq.plots.assignment_matrix(ax, M)\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "assignment_matrix",
+    "readout_shots"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/25_assignment_matrix.png",
+     "pdf": "figures/field/25_assignment_matrix.pdf",
+     "thumb": "thumbs/field/25_assignment_matrix.jpg",
+     "w": 507,
+     "h": 535,
+     "width_in": 2.54
+    },
+    "folio": {
+     "png": "figures/folio/25_assignment_matrix.png",
+     "pdf": "figures/folio/25_assignment_matrix.pdf",
+     "thumb": "thumbs/folio/25_assignment_matrix.jpg",
+     "w": 506,
+     "h": 535,
+     "width_in": 2.53
+    }
+   },
+   "page": false,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure}[t]\n  \\centering\n  \\scqgraphics[width=\\columnwidth]{25_assignment_matrix}   % figures/<style>/25_assignment_matrix.pdf\n  \\caption{Three-state assignment matrix from 5000 simulated shots per prepared state, assigned to the nearest IQ centre; decay during readout fills the lower triangle (synthetic data).}\n  \\label{fig:assignment-matrix}\n\\end{figure}\n"
+  },
+  {
+   "id": "30_t1_decay",
+   "num": "30",
+   "title": "T1 decay",
+   "family": "Time domain",
+   "caption": "Energy relaxation: excited-state population against delay with an exponential fit (synthetic data, T1 = 48 us).",
+   "code": "\"\"\"Energy relaxation: excited-state population against delay with an exponential fit (synthetic data, T1 = 48 us).\"\"\"\nimport numpy as np\n\nimport scqfig as sq\n\nTITLE = \"T1 decay\"\nFAMILY = \"Time domain\"\n\n\ndef build():\n    rng = np.random.default_rng(5)\n    t = np.linspace(0, 240, 41)\n    p = 0.93 * np.exp(-t / 48.0) + 0.03 + rng.normal(0, 0.012, t.size)\n    fig, ax = sq.figure(\"column\", aspect=0.62)\n    sq.plots.t1_decay(ax, t, p, err=np.full(t.size, 0.012))\n    ax.set_ylim(0, 1)\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "t1_decay"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/30_t1_decay.png",
+     "pdf": "figures/field/30_t1_decay.pdf",
+     "thumb": "thumbs/field/30_t1_decay.jpg",
+     "w": 671,
+     "h": 412,
+     "width_in": 3.35
+    },
+    "folio": {
+     "png": "figures/folio/30_t1_decay.png",
+     "pdf": "figures/folio/30_t1_decay.pdf",
+     "thumb": "thumbs/folio/30_t1_decay.jpg",
+     "w": 671,
+     "h": 412,
+     "width_in": 3.35
+    }
+   },
+   "page": false,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure}[t]\n  \\centering\n  \\scqgraphics[width=\\columnwidth]{30_t1_decay}   % figures/<style>/30_t1_decay.pdf\n  \\caption{Energy relaxation: excited-state population against delay with an exponential fit (synthetic data, T1 = 48 us).}\n  \\label{fig:t1-decay}\n\\end{figure}\n"
+  },
+  {
+   "id": "31_rabi",
+   "num": "31",
+   "title": "Power Rabi",
+   "family": "Time domain",
+   "caption": "Power Rabi: excited population against drive amplitude for a 40 ns pulse, with a cosine fit and the pi-pulse amplitude (synthetic data).",
+   "code": "\"\"\"Power Rabi: excited population against drive amplitude for a 40 ns pulse, with a cosine fit and the pi-pulse amplitude (synthetic data).\"\"\"\nimport numpy as np\n\nimport scqfig as sq\nfrom scqfig import physics as ph\n\nTITLE = \"Power Rabi\"\nFAMILY = \"Time domain\"\n\n\ndef build():\n    rng = np.random.default_rng(31)\n    amp = np.linspace(0, 1, 61)\n    rabi = 0.030 * amp                                   # Rabi rate (GHz) at full scale 30 MHz\n    p = 0.03 + 0.92 * ph.rabi_population(rabi, 0.0005, 40.0) + rng.normal(0, 0.015, amp.size)\n    fig, ax = sq.figure(\"column\", aspect=0.62)\n    sq.plots.rabi(ax, amp, p)\n    ax.set_ylim(0, 1)\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "rabi"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/31_rabi.png",
+     "pdf": "figures/field/31_rabi.pdf",
+     "thumb": "thumbs/field/31_rabi.jpg",
+     "w": 671,
+     "h": 412,
+     "width_in": 3.35
+    },
+    "folio": {
+     "png": "figures/folio/31_rabi.png",
+     "pdf": "figures/folio/31_rabi.pdf",
+     "thumb": "thumbs/folio/31_rabi.jpg",
+     "w": 671,
+     "h": 412,
+     "width_in": 3.35
+    }
+   },
+   "page": false,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure}[t]\n  \\centering\n  \\scqgraphics[width=\\columnwidth]{31_rabi}   % figures/<style>/31_rabi.pdf\n  \\caption{Power Rabi: excited population against drive amplitude for a 40 ns pulse, with a cosine fit and the pi-pulse amplitude (synthetic data).}\n  \\label{fig:rabi}\n\\end{figure}\n"
+  },
+  {
+   "id": "32_chevron",
+   "num": "32",
+   "title": "Rabi chevron",
+   "family": "Time domain",
+   "caption": "Rabi chevron: excited population against drive detuning and pulse duration at a 10 MHz Rabi rate, with the first two population maxima of the model drawn over the left half (synthetic data).",
+   "code": "\"\"\"Rabi chevron: excited population against drive detuning and pulse duration at a 10 MHz Rabi rate, with the first two population maxima of the model drawn over the left half (synthetic data).\"\"\"\nimport numpy as np\n\nimport scqfig as sq\nfrom scqfig import physics as ph\n\nTITLE = \"Rabi chevron\"\nFAMILY = \"Time domain\"\n\n\ndef build():\n    rng = np.random.default_rng(32)\n    det = np.linspace(-30, 30, 121)                      # MHz\n    dur = np.linspace(0, 250, 126)                       # ns\n    D, T = np.meshgrid(det, dur)\n    P = 0.03 + 0.92 * ph.rabi_population(0.010, D * 1e-3, T) + rng.normal(0, 0.03, D.shape)\n    fig, ax = sq.figure(\"column\", aspect=0.8)\n    sq.plots.chevron(ax, det, dur, P, rabi=10.0)\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "chevron"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/32_chevron.png",
+     "pdf": "figures/field/32_chevron.pdf",
+     "thumb": "thumbs/field/32_chevron.jpg",
+     "w": 671,
+     "h": 535,
+     "width_in": 3.35
+    },
+    "folio": {
+     "png": "figures/folio/32_chevron.png",
+     "pdf": "figures/folio/32_chevron.pdf",
+     "thumb": "thumbs/folio/32_chevron.jpg",
+     "w": 671,
+     "h": 535,
+     "width_in": 3.35
+    }
+   },
+   "page": false,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure}[t]\n  \\centering\n  \\scqgraphics[width=\\columnwidth]{32_chevron}   % figures/<style>/32_chevron.pdf\n  \\caption{Rabi chevron: excited population against drive detuning and pulse duration at a 10 MHz Rabi rate, with the first two population maxima of the model drawn over the left half (synthetic data).}\n  \\label{fig:chevron}\n\\end{figure}\n"
+  },
+  {
+   "id": "33_ramsey",
+   "num": "33",
+   "title": "Ramsey fringes",
+   "family": "Time domain",
+   "caption": "Ramsey fringes at 0.8 MHz detuning with a damped-cosine fit and its envelope (synthetic data, T2* = 4.2 us).",
+   "code": "\"\"\"Ramsey fringes at 0.8 MHz detuning with a damped-cosine fit and its envelope (synthetic data, T2* = 4.2 us).\"\"\"\nimport numpy as np\n\nimport scqfig as sq\n\nTITLE = \"Ramsey fringes\"\nFAMILY = \"Time domain\"\n\n\ndef build():\n    rng = np.random.default_rng(33)\n    t = np.linspace(0, 12, 121)\n    p = 0.5 + 0.46 * np.exp(-t / 4.2) * np.cos(2 * np.pi * 0.8 * t) + rng.normal(0, 0.015, t.size)\n    fig, ax = sq.figure(\"column\", aspect=0.62)\n    sq.plots.ramsey(ax, t, p)\n    ax.set_ylim(0, 1.0)\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "ramsey"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/33_ramsey.png",
+     "pdf": "figures/field/33_ramsey.pdf",
+     "thumb": "thumbs/field/33_ramsey.jpg",
+     "w": 671,
+     "h": 412,
+     "width_in": 3.35
+    },
+    "folio": {
+     "png": "figures/folio/33_ramsey.png",
+     "pdf": "figures/folio/33_ramsey.pdf",
+     "thumb": "thumbs/folio/33_ramsey.jpg",
+     "w": 671,
+     "h": 412,
+     "width_in": 3.35
+    }
+   },
+   "page": false,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure}[t]\n  \\centering\n  \\scqgraphics[width=\\columnwidth]{33_ramsey}   % figures/<style>/33_ramsey.pdf\n  \\caption{Ramsey fringes at 0.8 MHz detuning with a damped-cosine fit and its envelope (synthetic data, T2* = 4.2 us).}\n  \\label{fig:ramsey}\n\\end{figure}\n"
+  },
+  {
+   "id": "34_coherence_decays",
+   "num": "34",
+   "title": "Coherence decays",
+   "family": "Time domain",
+   "caption": "Ramsey envelope, Hahn echo and CPMG-16 decays of one qubit on one axis, each with its exponential fit and time constant (synthetic data).",
+   "code": "\"\"\"Ramsey envelope, Hahn echo and CPMG-16 decays of one qubit on one axis, each with its exponential fit and time constant (synthetic data).\"\"\"\nimport numpy as np\n\nimport scqfig as sq\n\nTITLE = \"Coherence decays\"\nFAMILY = \"Time domain\"\n\n\ndef build():\n    rng = np.random.default_rng(34)\n    curves = {}\n    for name, T, tmax in ((r\"Ramsey $T_2^*$\", 18.0, 80), (r\"echo $T_{2E}$\", 52.0, 200),\n                          (r\"CPMG-16 $T_{2}$\", 118.0, 400)):\n        t = np.linspace(0, tmax, 26)\n        curves[name] = (t, np.exp(-t / T) + rng.normal(0, 0.015, t.size))\n    fig, ax = sq.figure(\"column\", aspect=0.62)\n    sq.plots.coherence_decays(ax, curves)\n    ax.set_ylim(-0.05, 1.05)\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "coherence_decays"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/34_coherence_decays.png",
+     "pdf": "figures/field/34_coherence_decays.pdf",
+     "thumb": "thumbs/field/34_coherence_decays.jpg",
+     "w": 671,
+     "h": 412,
+     "width_in": 3.35
+    },
+    "folio": {
+     "png": "figures/folio/34_coherence_decays.png",
+     "pdf": "figures/folio/34_coherence_decays.pdf",
+     "thumb": "thumbs/folio/34_coherence_decays.jpg",
+     "w": 671,
+     "h": 412,
+     "width_in": 3.35
+    }
+   },
+   "page": false,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure}[t]\n  \\centering\n  \\scqgraphics[width=\\columnwidth]{34_coherence_decays}   % figures/<style>/34_coherence_decays.pdf\n  \\caption{Ramsey envelope, Hahn echo and CPMG-16 decays of one qubit on one axis, each with its exponential fit and time constant (synthetic data).}\n  \\label{fig:coherence-decays}\n\\end{figure}\n"
+  },
+  {
+   "id": "35_rb",
+   "num": "35",
+   "title": "Randomized benchmarking",
+   "family": "Time domain",
+   "caption": "Standard and interleaved randomized benchmarking of an X gate, 30 random sequences per length, with the error per Clifford and the interleaved gate error (synthetic data).",
+   "code": "\"\"\"Standard and interleaved randomized benchmarking of an X gate, 30 random sequences per length, with the error per Clifford and the interleaved gate error (synthetic data).\"\"\"\nimport numpy as np\n\nimport scqfig as sq\nfrom scqfig import physics as ph\n\nTITLE = \"Randomized benchmarking\"\nFAMILY = \"Time domain\"\n\n\ndef build():\n    rng = np.random.default_rng(35)\n    m = np.array([1, 20, 50, 100, 150, 200, 300, 400, 500, 650, 800])\n    nseq = 30\n\n    def runs(p):\n        mean = ph.rb_decay(m, p, A=0.47, B=0.5)\n        spread = 0.004 + 0.03 * (1 - p ** m)             # sequences scatter more as errors pile up\n        return np.clip(mean + rng.normal(0, 1, (nseq, m.size)) * spread, 0, 1)\n\n    fig, ax = sq.figure(\"column\", aspect=0.66)\n    sq.plots.rb(ax, m, runs(0.9970), interleaved=runs(0.9955), gate=r\"X\")\n    ax.set_ylim(0.45, 1.0)\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "rb"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/35_rb.png",
+     "pdf": "figures/field/35_rb.pdf",
+     "thumb": "thumbs/field/35_rb.jpg",
+     "w": 671,
+     "h": 440,
+     "width_in": 3.35
+    },
+    "folio": {
+     "png": "figures/folio/35_rb.png",
+     "pdf": "figures/folio/35_rb.pdf",
+     "thumb": "thumbs/folio/35_rb.jpg",
+     "w": 671,
+     "h": 440,
+     "width_in": 3.35
+    }
+   },
+   "page": false,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure}[t]\n  \\centering\n  \\scqgraphics[width=\\columnwidth]{35_rb}   % figures/<style>/35_rb.pdf\n  \\caption{Standard and interleaved randomized benchmarking of an X gate, 30 random sequences per length, with the error per Clifford and the interleaved gate error (synthetic data).}\n  \\label{fig:rb}\n\\end{figure}\n"
+  },
+  {
+   "id": "36_coherence_timeseries",
+   "num": "36",
+   "title": "Coherence over time",
+   "family": "Time domain",
+   "caption": "T1 and echo T2 measured every 10 minutes for 48 hours, with their histograms; T1 drops whenever a wandering defect drifts onto the qubit frequency (synthetic data).",
+   "code": "\"\"\"T1 and echo T2 measured every 10 minutes for 48 hours, with their histograms; T1 drops whenever a wandering defect drifts onto the qubit frequency (synthetic data).\"\"\"\nimport numpy as np\n\nimport scqfig as sq\nfrom scqfig.plots.timedomain import tls_t1\n\nTITLE = \"Coherence over time\"\nFAMILY = \"Time domain\"\n\n\ndef build():\n    rng = np.random.default_rng(36)\n    dt = 1 / 6                                           # hours between measurements\n    hours = np.arange(0, 48, dt)\n    det = np.empty(hours.size)                           # defect detuning (MHz), Ornstein-Uhlenbeck\n    det[0], tau, mu, sd = 2.5, 2.0, 2.2, 1.5\n    for k in range(1, hours.size):\n        det[k] = det[k - 1] + (mu - det[k - 1]) * dt / tau + sd * np.sqrt(2 * dt / tau) * rng.normal()\n    fq = 5.200                                           # qubit frequency (GHz)\n    T1 = tls_t1(fq, fq + 1e-3 * det[:, None], g=0.04, gamma=0.7, t1_bg=92.0) * rng.normal(1, 0.06, hours.size)\n    Tphi = 190.0 * rng.lognormal(0, 0.12, hours.size)\n    T2 = 1 / (1 / (2 * T1) + 1 / Tphi) * rng.normal(1, 0.05, hours.size)\n    fig, (ax, axh) = sq.figure(\"column\", aspect=0.66, ncols=2, sharey=True, gridspec_kw={\"width_ratios\": [4.2, 1]})\n    sq.plots.coherence_timeseries(ax, axh, hours, T1, T2=T2)\n    ax.set_ylim(0, 130)\n    ax.set_xticks(range(0, 49, 12))\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "coherence_timeseries",
+    "tls_t1"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/36_coherence_timeseries.png",
+     "pdf": "figures/field/36_coherence_timeseries.pdf",
+     "thumb": "thumbs/field/36_coherence_timeseries.jpg",
+     "w": 671,
+     "h": 440,
+     "width_in": 3.35
+    },
+    "folio": {
+     "png": "figures/folio/36_coherence_timeseries.png",
+     "pdf": "figures/folio/36_coherence_timeseries.pdf",
+     "thumb": "thumbs/folio/36_coherence_timeseries.jpg",
+     "w": 671,
+     "h": 440,
+     "width_in": 3.35
+    }
+   },
+   "page": false,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure}[t]\n  \\centering\n  \\scqgraphics[width=\\columnwidth]{36_coherence_timeseries}   % figures/<style>/36_coherence_timeseries.pdf\n  \\caption{T1 and echo T2 measured every 10 minutes for 48 hours, with their histograms; T1 drops whenever a wandering defect drifts onto the qubit frequency (synthetic data).}\n  \\label{fig:coherence-timeseries}\n\\end{figure}\n"
+  },
+  {
+   "id": "37_tls_map",
+   "num": "37",
+   "title": "TLS spectral diffusion",
+   "family": "Time domain",
+   "caption": "T1 against qubit frequency over 24 hours; five defects show as Lorentzian T1 dips whose frequencies wander, and one switches between two frequencies (synthetic data).",
+   "code": "\"\"\"T1 against qubit frequency over 24 hours; five defects show as Lorentzian T1 dips whose frequencies wander, and one switches between two frequencies (synthetic data).\"\"\"\nimport numpy as np\n\nimport scqfig as sq\nfrom scqfig.plots.timedomain import tls_t1\n\nTITLE = \"TLS spectral diffusion\"\nFAMILY = \"Time domain\"\n\n\ndef build():\n    rng = np.random.default_rng(37)\n    hours = np.linspace(0, 24, 97)\n    freq = np.linspace(5.10, 5.30, 201)                  # GHz\n    f0 = np.array([5.122, 5.163, 5.191, 5.243, 5.271])   # defect centres (GHz)\n    drift = np.cumsum(rng.normal(0, 0.7, (hours.size, f0.size)), axis=0)        # random walk (MHz)\n    drift += 3.5 * np.sin(2 * np.pi * hours[:, None] / rng.uniform(8, 20, f0.size) + rng.uniform(0, 6, f0.size))\n    state = np.cumsum(rng.random(hours.size) < 0.06) % 2                        # telegraphic switching\n    drift[:, 3] += 9.0 * state\n    tracks = f0 + 1e-3 * drift                           # shape (time, defect)\n    g = np.array([0.09, 0.06, 0.12, 0.07, 0.08])         # coupling g/2pi (MHz)\n    gamma = np.array([1.2, 0.8, 1.5, 1.0, 1.2])          # defect decoherence gamma/2pi (MHz)\n    T1 = tls_t1(freq[:, None], tracks, g=g, gamma=gamma, t1_bg=80.0)\n    T1 = T1 * rng.normal(1, 0.07, T1.shape)\n    fig, ax = sq.figure(\"column\", aspect=0.78)\n    sq.plots.tls_map(ax, hours, freq, T1, vmin=0, vmax=100)\n    ax.set_xticks(range(0, 25, 6))\n    ax.set_yticks(np.arange(5.10, 5.301, 0.05))\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "tls_map",
+    "tls_t1"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/37_tls_map.png",
+     "pdf": "figures/field/37_tls_map.pdf",
+     "thumb": "thumbs/field/37_tls_map.jpg",
+     "w": 671,
+     "h": 521,
+     "width_in": 3.35
+    },
+    "folio": {
+     "png": "figures/folio/37_tls_map.png",
+     "pdf": "figures/folio/37_tls_map.pdf",
+     "thumb": "thumbs/folio/37_tls_map.jpg",
+     "w": 671,
+     "h": 521,
+     "width_in": 3.35
+    }
+   },
+   "page": false,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure}[t]\n  \\centering\n  \\scqgraphics[width=\\columnwidth]{37_tls_map}   % figures/<style>/37_tls_map.pdf\n  \\caption{T1 against qubit frequency over 24 hours; five defects show as Lorentzian T1 dips whose frequencies wander, and one switches between two frequencies (synthetic data).}\n  \\label{fig:tls-map}\n\\end{figure}\n"
+  },
+  {
+   "id": "40_bloch_sphere",
+   "num": "40",
+   "title": "Bloch sphere",
+   "family": "States",
+   "caption": "Bloch sphere: (a) a detuned Rabi drive (Delta = 0.6 Omega) tilts the precession cone off the pole; (b) free precession from |+> spirals to |0> as T2 and T1 shrink the vector (computed).",
+   "code": "\"\"\"Bloch sphere: (a) a detuned Rabi drive (Delta = 0.6 Omega) tilts the precession cone off the pole; (b) free precession from |+> spirals to |0> as T2 and T1 shrink the vector (computed).\"\"\"\nimport numpy as np\n\nimport scqfig as sq\nfrom scqfig import physics as ph\nfrom scqfig.plots.states import bloch_decay\n\nTITLE = \"Bloch sphere\"\nFAMILY = \"States\"\n\n\ndef build():\n    fig, axes = sq.figure(\"column\", aspect=0.56, ncols=2, subplot_kw={\"projection\": \"3d\"})\n    t = np.linspace(0, 1 / np.hypot(1.0, 0.6), 200)     # one generalised Rabi period\n    rabi = ph.rabi_trajectory(1.0, 0.6, t)\n    sq.plots.bloch_sphere(axes[0], [rabi[70]], trajectories=[rabi])\n    ts = np.linspace(0, 6, 900)                          # \u00b5s\n    spiral = bloch_decay((1, 0, 0), 1.0, ts, T1=4.0, T2=2.0)\n    sq.plots.bloch_sphere(axes[1], [spiral[0], spiral[-1]], trajectories=[spiral])\n    for ax, k in zip(axes, \"ab\"):\n        sq.panel(ax, k)\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "bloch_decay",
+    "bloch_sphere"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/40_bloch_sphere.png",
+     "pdf": "figures/field/40_bloch_sphere.pdf",
+     "thumb": "thumbs/field/40_bloch_sphere.jpg",
+     "w": 671,
+     "h": 354,
+     "width_in": 3.35
+    },
+    "folio": {
+     "png": "figures/folio/40_bloch_sphere.png",
+     "pdf": "figures/folio/40_bloch_sphere.pdf",
+     "thumb": "thumbs/folio/40_bloch_sphere.jpg",
+     "w": 671,
+     "h": 354,
+     "width_in": 3.35
+    }
+   },
+   "page": false,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure}[t]\n  \\centering\n  \\scqgraphics[width=\\columnwidth]{40_bloch_sphere}   % figures/<style>/40_bloch_sphere.pdf\n  \\caption{Bloch sphere: (a) a detuned Rabi drive (Delta = 0.6 Omega) tilts the precession cone off the pole; (b) free precession from |+> spirals to |0> as T2 and T1 shrink the vector (computed).}\n  \\label{fig:bloch-sphere}\n\\end{figure}\n"
+  },
+  {
+   "id": "41_wigner",
+   "num": "41",
+   "title": "Wigner functions",
+   "family": "States",
+   "caption": "Wigner functions of (a) the Fock state |1> and (b) an even cat state with alpha = 2, on one colour scale of +-2/pi (computed).",
+   "code": "\"\"\"Wigner functions of (a) the Fock state |1> and (b) an even cat state with alpha = 2, on one colour scale of +-2/pi (computed).\"\"\"\nimport numpy as np\n\nimport scqfig as sq\nfrom scqfig import physics as ph\n\nTITLE = \"Wigner functions\"\nFAMILY = \"States\"\n\n\ndef build():\n    N = 40\n    x = np.linspace(-3.5, 3.5, 241)\n    fig, axes = sq.figure(\"column\", aspect=0.39, ncols=2)\n    sq.plots.wigner(axes[0], ph.fock(1, N), xvec=x, vmax=2 / np.pi, cbar=False)\n    sq.plots.wigner(axes[1], ph.cat(2.0, N), xvec=x, vmax=2 / np.pi)\n    axes[1].set_ylabel(\"\")\n    for ax, k in zip(axes, \"ab\"):\n        sq.panel(ax, k)\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "wigner"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/41_wigner.png",
+     "pdf": "figures/field/41_wigner.pdf",
+     "thumb": "thumbs/field/41_wigner.jpg",
+     "w": 672,
+     "h": 256,
+     "width_in": 3.36
+    },
+    "folio": {
+     "png": "figures/folio/41_wigner.png",
+     "pdf": "figures/folio/41_wigner.pdf",
+     "thumb": "thumbs/folio/41_wigner.jpg",
+     "w": 671,
+     "h": 256,
+     "width_in": 3.35
+    }
+   },
+   "page": false,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure}[t]\n  \\centering\n  \\scqgraphics[width=\\columnwidth]{41_wigner}   % figures/<style>/41_wigner.pdf\n  \\caption{Wigner functions of (a) the Fock state |1> and (b) an even cat state with alpha = 2, on one colour scale of +-2/pi (computed).}\n  \\label{fig:wigner}\n\\end{figure}\n"
+  },
+  {
+   "id": "42_density_matrix",
+   "num": "42",
+   "title": "Density matrix",
+   "family": "States",
+   "caption": "Two-qubit tomography of the Bell state (|00> + |11>)/sqrt(2): real and imaginary parts of the reconstructed density matrix (synthetic data).",
+   "code": "\"\"\"Two-qubit tomography of the Bell state (|00> + |11>)/sqrt(2): real and imaginary parts of the reconstructed density matrix (synthetic data).\"\"\"\nimport numpy as np\n\nimport scqfig as sq\nfrom scqfig import physics as ph\n\nTITLE = \"Density matrix\"\nFAMILY = \"States\"\n\n\ndef noisy_bell(seed=42):\n    \"\"\"A Bell state with depolarising, dephasing and tomography noise, projected onto a physical state.\"\"\"\n    rng = np.random.default_rng(seed)\n    bell = ph.dm(np.array([1, 0, 0, 1]) / np.sqrt(2))\n    rho = 0.92 * bell + 0.08 * np.eye(4) / 4\n    rho[0, 3] *= np.exp(0.12j)\n    rho[3, 0] = rho[0, 3].conj()\n    H = rng.normal(0, 0.012, (4, 4)) + 1j * rng.normal(0, 0.012, (4, 4))\n    rho = rho + (H + H.conj().T) / 2\n    w, V = np.linalg.eigh(rho)\n    w = np.clip(w, 0, None)\n    rho = (V * w) @ V.conj().T\n    return rho / np.trace(rho).real, bell\n\n\ndef build():\n    rho, _ = noisy_bell()\n    fig, axes = sq.figure(\"column\", aspect=0.52, ncols=2)\n    sq.plots.density_matrix(axes, rho)\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "density_matrix"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/42_density_matrix.png",
+     "pdf": "figures/field/42_density_matrix.pdf",
+     "thumb": "thumbs/field/42_density_matrix.jpg",
+     "w": 671,
+     "h": 346,
+     "width_in": 3.35
+    },
+    "folio": {
+     "png": "figures/folio/42_density_matrix.png",
+     "pdf": "figures/folio/42_density_matrix.pdf",
+     "thumb": "thumbs/folio/42_density_matrix.jpg",
+     "w": 671,
+     "h": 349,
+     "width_in": 3.35
+    }
+   },
+   "page": false,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure}[t]\n  \\centering\n  \\scqgraphics[width=\\columnwidth]{42_density_matrix}   % figures/<style>/42_density_matrix.pdf\n  \\caption{Two-qubit tomography of the Bell state (|00> + |11>)/sqrt(2): real and imaginary parts of the reconstructed density matrix (synthetic data).}\n  \\label{fig:density-matrix}\n\\end{figure}\n"
+  },
+  {
+   "id": "43_density_bars3d",
+   "num": "43",
+   "title": "Density matrix in 3D",
+   "family": "States",
+   "caption": "Real part of the reconstructed Bell-state density matrix as 3D bars, with the ideal state as wireframe outlines (synthetic data).",
+   "code": "\"\"\"Real part of the reconstructed Bell-state density matrix as 3D bars, with the ideal state as wireframe outlines (synthetic data).\"\"\"\nimport numpy as np\n\nimport scqfig as sq\nfrom scqfig import physics as ph\n\nTITLE = \"Density matrix in 3D\"\nFAMILY = \"States\"\n\n\ndef build():\n    rng = np.random.default_rng(43)\n    bell = ph.dm(np.array([1, 0, 0, 1]) / np.sqrt(2))\n    rho = 0.92 * bell + 0.08 * np.eye(4) / 4             # depolarising noise\n    H = rng.normal(0, 0.012, (4, 4)) + 1j * rng.normal(0, 0.012, (4, 4))\n    w, V = np.linalg.eigh(rho + (H + H.conj().T) / 2)   # tomography noise, projected onto a physical state\n    rho = (V * np.clip(w, 0, None)) @ V.conj().T\n    rho /= np.trace(rho).real\n    fig, ax = sq.figure(\"column\", aspect=0.8, subplot_kw={\"projection\": \"3d\"})\n    sq.plots.density_bars3d(ax, rho, ideal=bell)\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "density_bars3d"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/43_density_bars3d.png",
+     "pdf": "figures/field/43_density_bars3d.pdf",
+     "thumb": "thumbs/field/43_density_bars3d.jpg",
+     "w": 539,
+     "h": 535,
+     "width_in": 2.69
+    },
+    "folio": {
+     "png": "figures/folio/43_density_bars3d.png",
+     "pdf": "figures/folio/43_density_bars3d.pdf",
+     "thumb": "thumbs/folio/43_density_bars3d.jpg",
+     "w": 539,
+     "h": 535,
+     "width_in": 2.69
+    }
+   },
+   "page": false,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure}[t]\n  \\centering\n  \\scqgraphics[width=\\columnwidth]{43_density_bars3d}   % figures/<style>/43_density_bars3d.pdf\n  \\caption{Real part of the reconstructed Bell-state density matrix as 3D bars, with the ideal state as wireframe outlines (synthetic data).}\n  \\label{fig:density-bars3d}\n\\end{figure}\n"
+  },
+  {
+   "id": "50_noise_psd",
+   "num": "50",
+   "title": "Noise spectral density",
+   "family": "Noise and errors",
+   "caption": "Flux-noise spectral density with a power-law fit, amplitude at 1 Hz and a white floor (synthetic data).",
+   "code": "\"\"\"Flux-noise spectral density with a power-law fit, amplitude at 1 Hz and a white floor (synthetic data).\"\"\"\nimport numpy as np\n\nimport scqfig as sq\n\nTITLE = \"Noise spectral density\"\nFAMILY = \"Noise and errors\"\n\n\ndef build():\n    rng = np.random.default_rng(50)\n    f = np.geomspace(1e-4, 10, 70)\n    S = 2.2 ** 2 / f ** 0.88 + 0.6\n    S = S * np.exp(rng.normal(0, 0.12, f.size))\n    fig, ax = sq.figure(\"column\", aspect=0.72)\n    sq.plots.noise_psd(ax, f, S, fit_range=(1e-4, 0.1), white=0.6)\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "noise_psd"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/50_noise_psd.png",
+     "pdf": "figures/field/50_noise_psd.pdf",
+     "thumb": "thumbs/field/50_noise_psd.jpg",
+     "w": 671,
+     "h": 480,
+     "width_in": 3.35
+    },
+    "folio": {
+     "png": "figures/folio/50_noise_psd.png",
+     "pdf": "figures/folio/50_noise_psd.pdf",
+     "thumb": "thumbs/folio/50_noise_psd.jpg",
+     "w": 671,
+     "h": 480,
+     "width_in": 3.35
+    }
+   },
+   "page": false,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure}[t]\n  \\centering\n  \\scqgraphics[width=\\columnwidth]{50_noise_psd}   % figures/<style>/50_noise_psd.pdf\n  \\caption{Flux-noise spectral density with a power-law fit, amplitude at 1 Hz and a white floor (synthetic data).}\n  \\label{fig:noise-psd}\n\\end{figure}\n"
+  },
+  {
+   "id": "51_error_budget",
+   "num": "51",
+   "title": "Error budget",
+   "family": "Noise and errors",
+   "caption": "CZ-gate error budget: contributions, their sum, and the measured error with the unexplained part hatched.",
+   "code": "\"\"\"CZ-gate error budget: contributions, their sum, and the measured error with the unexplained part hatched.\"\"\"\nimport scqfig as sq\n\nTITLE = \"Error budget\"\nFAMILY = \"Noise and errors\"\n\n\ndef build():\n    items = {r\"$T_1$\": 0.21, r\"$T_\\phi$\": 0.12, \"leakage\": 0.07, \"spectator ZZ\": 0.05, \"control\": 0.04}\n    fig, ax = sq.figure(\"column\", aspect=0.62)\n    sq.plots.error_budget(ax, items, measured=0.56)\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "error_budget"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/51_error_budget.png",
+     "pdf": "figures/field/51_error_budget.pdf",
+     "thumb": "thumbs/field/51_error_budget.jpg",
+     "w": 671,
+     "h": 412,
+     "width_in": 3.35
+    },
+    "folio": {
+     "png": "figures/folio/51_error_budget.png",
+     "pdf": "figures/folio/51_error_budget.pdf",
+     "thumb": "thumbs/folio/51_error_budget.jpg",
+     "w": 671,
+     "h": 412,
+     "width_in": 3.35
+    }
+   },
+   "page": false,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure}[t]\n  \\centering\n  \\scqgraphics[width=\\columnwidth]{51_error_budget}   % figures/<style>/51_error_budget.pdf\n  \\caption{CZ-gate error budget: contributions, their sum, and the measured error with the unexplained part hatched.}\n  \\label{fig:error-budget}\n\\end{figure}\n"
+  },
+  {
+   "id": "52_burst_raster",
+   "num": "52",
+   "title": "Correlated error bursts",
+   "family": "Noise and errors",
+   "caption": "Correlated error bursts: detections per qubit over time, with the flagged fraction and burst marks above (synthetic data from a toy burst model).",
+   "code": "\"\"\"Correlated error bursts: detections per qubit over time, with the flagged fraction and burst marks above (synthetic data from a toy burst model).\"\"\"\nimport scqfig as sq\nfrom scqfig.plots.noise import burst_events\n\nTITLE = \"Correlated error bursts\"\nFAMILY = \"Noise and errors\"\n\n\ndef build():\n    t, E = burst_events(nq=24, nt=1000, p_bg=0.02, bursts=((220, 6), (690, 17)), tau=25.0, rng=52)\n    fig, (top, ax) = sq.figure(\"page\", aspect=0.36, nrows=2, sharex=True, gridspec_kw={\"height_ratios\": [1, 2.4]})\n    sq.plots.burst_raster(ax, t, E, ax_frac=top)\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "burst_events",
+    "burst_raster"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/52_burst_raster.png",
+     "pdf": "figures/field/52_burst_raster.pdf",
+     "thumb": "thumbs/field/52_burst_raster.jpg",
+     "w": 1391,
+     "h": 495,
+     "width_in": 6.96
+    },
+    "folio": {
+     "png": "figures/folio/52_burst_raster.png",
+     "pdf": "figures/folio/52_burst_raster.pdf",
+     "thumb": "thumbs/folio/52_burst_raster.jpg",
+     "w": 1391,
+     "h": 495,
+     "width_in": 6.96
+    }
+   },
+   "page": true,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure*}[t]\n  \\centering\n  \\scqgraphics[width=\\textwidth]{52_burst_raster}   % figures/<style>/52_burst_raster.pdf\n  \\caption{Correlated error bursts: detections per qubit over time, with the flagged fraction and burst marks above (synthetic data from a toy burst model).}\n  \\label{fig:burst-raster}\n\\end{figure*}\n"
+  },
+  {
+   "id": "53_error_correlation",
+   "num": "53",
+   "title": "Error correlations",
+   "family": "Noise and errors",
+   "caption": "Pairwise correlation of error detections across a 24-qubit chain; bursts correlate neighbours (synthetic data from a toy burst model).",
+   "code": "\"\"\"Pairwise correlation of error detections across a 24-qubit chain; bursts correlate neighbours (synthetic data from a toy burst model).\"\"\"\nimport numpy as np\n\nimport scqfig as sq\nfrom scqfig.plots.noise import burst_events\n\nTITLE = \"Error correlations\"\nFAMILY = \"Noise and errors\"\n\n\ndef build():\n    rng = np.random.default_rng(53)\n    bursts = list(zip(rng.integers(0, 20000, 40), rng.integers(0, 24, 40)))\n    t, E = burst_events(nq=24, nt=20000, p_bg=0.02, bursts=bursts, tau=25.0, rng=53)\n    fig, ax = sq.figure(\"column\", aspect=0.86)\n    sq.plots.error_correlation(ax, E)\n    ax.set_xlabel(\"qubit\")\n    ax.set_ylabel(\"qubit\")\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "burst_events",
+    "error_correlation"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/53_error_correlation.png",
+     "pdf": "figures/field/53_error_correlation.pdf",
+     "thumb": "thumbs/field/53_error_correlation.jpg",
+     "w": 674,
+     "h": 568,
+     "width_in": 3.37
+    },
+    "folio": {
+     "png": "figures/folio/53_error_correlation.png",
+     "pdf": "figures/folio/53_error_correlation.pdf",
+     "thumb": "thumbs/folio/53_error_correlation.jpg",
+     "w": 677,
+     "h": 570,
+     "width_in": 3.38
+    }
+   },
+   "page": false,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure}[t]\n  \\centering\n  \\scqgraphics[width=\\columnwidth]{53_error_correlation}   % figures/<style>/53_error_correlation.pdf\n  \\caption{Pairwise correlation of error detections across a 24-qubit chain; bursts correlate neighbours (synthetic data from a toy burst model).}\n  \\label{fig:error-correlation}\n\\end{figure}\n"
+  },
+  {
+   "id": "60_device_map",
+   "num": "60",
+   "title": "Device map",
+   "family": "Processor",
+   "caption": "Device map of a 3 x 4 qubit grid with T1 on the qubits and CZ error on the couplers (synthetic data).",
+   "code": "\"\"\"Device map of a 3 x 4 qubit grid with T1 on the qubits and CZ error on the couplers (synthetic data).\"\"\"\nimport numpy as np\n\nimport scqfig as sq\n\nTITLE = \"Device map\"\nFAMILY = \"Processor\"\n\n\ndef build():\n    rng = np.random.default_rng(60)\n    rows, cols = 3, 4\n    pos = [(c, -r) for r in range(rows) for c in range(cols)]\n    edges = [(r * cols + c, r * cols + c + 1) for r in range(rows) for c in range(cols - 1)]\n    edges += [(r * cols + c, (r + 1) * cols + c) for r in range(rows - 1) for c in range(cols)]\n    T1 = rng.lognormal(np.log(72), 0.25, len(pos))\n    cz = 100 * rng.lognormal(np.log(6e-3), 0.35, len(edges))\n    fig, ax = sq.figure(\"column\", aspect=0.62)\n    sq.plots.device_map(ax, pos, edges, T1, cz, names=[f\"Q{k + 1}\" for k in range(len(pos))])\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "device_map"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/60_device_map.png",
+     "pdf": "figures/field/60_device_map.pdf",
+     "thumb": "thumbs/field/60_device_map.jpg",
+     "w": 670,
+     "h": 380,
+     "width_in": 3.35
+    },
+    "folio": {
+     "png": "figures/folio/60_device_map.png",
+     "pdf": "figures/folio/60_device_map.pdf",
+     "thumb": "thumbs/folio/60_device_map.jpg",
+     "w": 670,
+     "h": 380,
+     "width_in": 3.35
+    }
+   },
+   "page": false,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure}[t]\n  \\centering\n  \\scqgraphics[width=\\columnwidth]{60_device_map}   % figures/<style>/60_device_map.pdf\n  \\caption{Device map of a 3 x 4 qubit grid with T1 on the qubits and CZ error on the couplers (synthetic data).}\n  \\label{fig:device-map}\n\\end{figure}\n"
+  },
+  {
+   "id": "61_error_cdf",
+   "num": "61",
+   "title": "Error distributions",
+   "family": "Processor",
+   "caption": "Cumulative distributions of single-qubit, CZ and readout errors across a 54-qubit processor, medians marked (synthetic data).",
+   "code": "\"\"\"Cumulative distributions of single-qubit, CZ and readout errors across a 54-qubit processor, medians marked (synthetic data).\"\"\"\nimport numpy as np\n\nimport scqfig as sq\n\nTITLE = \"Error distributions\"\nFAMILY = \"Processor\"\n\n\ndef build():\n    rng = np.random.default_rng(61)\n    data = {\"1Q (RB)\": 10 ** rng.normal(-3.0, 0.18, 54),\n            \"2Q CZ (XEB)\": 10 ** rng.normal(-2.2, 0.2, 88),\n            \"readout\": 10 ** rng.normal(-1.8, 0.22, 54)}\n    fig, ax = sq.figure(\"column\", aspect=0.68)\n    sq.plots.cdf(ax, data)\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "cdf"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/61_error_cdf.png",
+     "pdf": "figures/field/61_error_cdf.pdf",
+     "thumb": "thumbs/field/61_error_cdf.jpg",
+     "w": 671,
+     "h": 453,
+     "width_in": 3.35
+    },
+    "folio": {
+     "png": "figures/folio/61_error_cdf.png",
+     "pdf": "figures/folio/61_error_cdf.pdf",
+     "thumb": "thumbs/folio/61_error_cdf.jpg",
+     "w": 671,
+     "h": 453,
+     "width_in": 3.35
+    }
+   },
+   "page": false,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure}[t]\n  \\centering\n  \\scqgraphics[width=\\columnwidth]{61_error_cdf}   % figures/<style>/61_error_cdf.pdf\n  \\caption{Cumulative distributions of single-qubit, CZ and readout errors across a 54-qubit processor, medians marked (synthetic data).}\n  \\label{fig:error-cdf}\n\\end{figure}\n"
+  },
+  {
+   "id": "70_chip_plan",
+   "num": "70",
+   "title": "Chip plan",
+   "family": "Schematics",
+   "caption": "Plan view of a two-qubit chip: Xmons joined by a tunable coupler, readout resonators on a feedline, drive and flux lines, airbridges.",
+   "code": "\"\"\"Plan view of a two-qubit chip: Xmons joined by a tunable coupler, readout resonators on a feedline, drive and flux lines, airbridges.\"\"\"\nimport scqfig as sq\nfrom scqfig.schematics import chip, symbols\n\nTITLE = \"Chip plan\"\nFAMILY = \"Schematics\"\n\nW, H = 3600.0, 2400.0\n\n\ndef build():\n    fig, ax = sq.figure(\"column\", aspect=0.74)\n    symbols.blank(ax)\n    chip.substrate(ax, W, H)\n    chip.ground_plane(ax, W, H)\n    chip.coupler_chip(ax, size=(W, H))\n    chip.scale_bar(ax, W - 500, -110, 500, below=True)\n    ax.set_xlim(-20, W + 20)\n    ax.set_ylim(-330, H + 20)\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "chip.coupler_chip",
+    "chip.ground_plane",
+    "chip.scale_bar",
+    "chip.substrate",
+    "symbols.blank"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/70_chip_plan.png",
+     "pdf": "figures/field/70_chip_plan.pdf",
+     "thumb": "thumbs/field/70_chip_plan.jpg",
+     "w": 651,
+     "h": 494,
+     "width_in": 3.25
+    },
+    "folio": {
+     "png": "figures/folio/70_chip_plan.png",
+     "pdf": "figures/folio/70_chip_plan.pdf",
+     "thumb": "thumbs/folio/70_chip_plan.jpg",
+     "w": 651,
+     "h": 494,
+     "width_in": 3.25
+    }
+   },
+   "page": false,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure}[t]\n  \\centering\n  \\scqgraphics[width=\\columnwidth]{70_chip_plan}   % figures/<style>/70_chip_plan.pdf\n  \\caption{Plan view of a two-qubit chip: Xmons joined by a tunable coupler, readout resonators on a feedline, drive and flux lines, airbridges.}\n  \\label{fig:chip-plan}\n\\end{figure}\n"
+  },
+  {
+   "id": "71_chip_oblique",
+   "num": "71",
+   "title": "Chip on a slab",
+   "family": "Schematics",
+   "caption": "The two-qubit chip of example 70 laid on a slab by one rigid oblique map, with a plan-view zoom on the SQUID of Q1.",
+   "code": "\"\"\"The two-qubit chip of example 70 laid on a slab by one rigid oblique map, with a plan-view zoom on the SQUID of Q1.\"\"\"\nfrom matplotlib.patches import ConnectionPatch, Rectangle\n\nimport scqfig as sq\nfrom scqfig.schematics import chip, motifs, symbols\n\nTITLE = \"Chip on a slab\"\nFAMILY = \"Schematics\"\n\nW, H = 3600.0, 2400.0\nOB = motifs.Oblique(x0=0.0, y0=0.0, shear=0.45, squash=0.5)\n\n\ndef build():\n    t = sq.theme()\n    ch = t.chip\n    fs = t.size - 1\n    fig, ax = sq.figure(\"column\", aspect=0.74)\n    symbols.blank(ax)\n    motifs.ob_slab(ax, OB, W, H, depth=170)\n    before = motifs.artists(ax)\n    chip.ground_plane(ax, W, H)\n    a = chip.coupler_chip(ax, size=(W, H), labels=False, bridges=False)\n    for name, (u, v), c in ((r\"Q$_1$\", (1010, 1110), t.qubits[0]), (r\"Q$_2$\", (2590, 1110), t.qubits[1]),\n                            (\"R$_1$\", (760, 1420), ch[\"resonator\"]), (\"R$_2$\", (2860, 1420), ch[\"resonator\"]),\n                            (\"feedline\", (1800, 1960), ch[\"feedline\"])):\n        ax.text(u, v, name, ha=\"center\", va=\"center\", fontsize=fs, color=c, zorder=8)\n    us, vs = a[\"Q1\"][\"squid\"]\n    win = (us - 95, vs - 62, 190, 124)                     # zoom window in chip units\n    ax.add_patch(Rectangle(win[:2], win[2], win[3], fc=\"none\", ec=t.ink, lw=0.6, zorder=9))\n    motifs.onto_plane(ax, OB, before)                      # the whole layout through one affine map\n    ax.set_xlim(-40, W + OB.shear * H + 40)\n    ax.set_ylim(-230, OB.squash * H + 1150)\n\n    ins = ax.inset_axes([0.0, 0.53, 0.42, 0.47])\n    ins.set_aspect(\"equal\")\n    chip.substrate(ins, W, H)\n    chip.ground_plane(ins, W, H)\n    chip.coupler_chip(ins, size=(W, H), labels=False, bridges=False)\n    ins.set_xlim(win[0], win[0] + win[2])\n    ins.set_ylim(win[1], win[1] + win[3])\n    ins.set_xticks([])\n    ins.set_yticks([])\n    for s in ins.spines.values():\n        s.set_visible(True)\n        s.set_linewidth(0.6)\n        s.set_edgecolor(t.ink)\n    ins.text(us, vs, r\"$\\Phi$\", ha=\"center\", va=\"center\", fontsize=fs, color=t.ink, zorder=9)\n    ins.annotate(\"JJ\", (us + 14, vs - 2), (us + 50, vs + 24), fontsize=fs, color=t.ink, ha=\"left\", va=\"center\",\n                 arrowprops=dict(arrowstyle=\"-\", color=t.ink, lw=0.5, shrinkA=1, shrinkB=2), zorder=9)\n    ins.text(us + 26, win[1] + win[3] - 8, r\"Q$_1$ arm\", ha=\"left\", va=\"top\", fontsize=fs, color=t.qubits[0], zorder=9)\n    ins.text(us - 50, win[1] + 10, r\"Z$_1$\", ha=\"right\", va=\"bottom\", fontsize=fs, color=ch[\"flux\"], zorder=9)\n    chip.scale_bar(ins, win[0] + win[2] - 62, win[1] + 14, 50, fs=t.size - 1.5)\n    for cx in (0, 1):\n        corner = OB(win[0] + cx * win[2], win[1])\n        ax.add_artist(ConnectionPatch((cx, 0), corner, coordsA=ins.transAxes, coordsB=ax.transData,\n                                      color=t.reference, lw=0.5, zorder=8))\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "chip.coupler_chip",
+    "chip.ground_plane",
+    "chip.scale_bar",
+    "chip.substrate",
+    "motifs.Oblique",
+    "motifs.artists",
+    "motifs.ob_slab",
+    "motifs.onto_plane",
+    "symbols.blank"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/71_chip_oblique.png",
+     "pdf": "figures/field/71_chip_oblique.pdf",
+     "thumb": "thumbs/field/71_chip_oblique.jpg",
+     "w": 671,
+     "h": 367,
+     "width_in": 3.35
+    },
+    "folio": {
+     "png": "figures/folio/71_chip_oblique.png",
+     "pdf": "figures/folio/71_chip_oblique.pdf",
+     "thumb": "thumbs/folio/71_chip_oblique.jpg",
+     "w": 671,
+     "h": 367,
+     "width_in": 3.35
+    }
+   },
+   "page": false,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure}[t]\n  \\centering\n  \\scqgraphics[width=\\columnwidth]{71_chip_oblique}   % figures/<style>/71_chip_oblique.pdf\n  \\caption{The two-qubit chip of example 70 laid on a slab by one rigid oblique map, with a plan-view zoom on the SQUID of Q1.}\n  \\label{fig:chip-oblique}\n\\end{figure}\n"
+  },
+  {
+   "id": "72_lumped_circuit",
+   "num": "72",
+   "title": "Transmon and readout circuit",
+   "family": "Schematics",
+   "caption": "Lumped circuit of a transmon coupled to a quarter-wave readout resonator on a feedline, each Hamiltonian term on the tile of the element that produces it.",
+   "code": "\"\"\"Lumped circuit of a transmon coupled to a quarter-wave readout resonator on a feedline, each Hamiltonian term on the tile of the element that produces it.\"\"\"\nimport numpy as np\n\nimport scqfig as sq\nfrom scqfig import physics as ph\nfrom scqfig.schematics import symbols as S\n\nTITLE = \"Transmon and readout circuit\"\nFAMILY = \"Schematics\"\n\nH_PLANCK, E, PHI0 = 6.62607015e-34, 1.602176634e-19, 2.067833848e-15\nC_SIGMA, L_J, C_G, C_R, C_K, F_R = 85e-15, 10e-9, 5e-15, 400e-15, 8e-15, 7.0e9\n\n\ndef values():\n    \"\"\"Circuit parameters to energies (GHz): E_C, E_J, the exact f01, L_r for f_r, and g.\"\"\"\n    EC = E ** 2 / (2 * C_SIGMA) / H_PLANCK / 1e9\n    EJ = (PHI0 / (2 * np.pi)) ** 2 / L_J / H_PLANCK / 1e9\n    f01 = ph.transmon_spectrum(EJ, EC)[1]\n    L_R = 1 / ((2 * np.pi * F_R) ** 2 * C_R)\n    g = 0.5 * C_G / np.sqrt(C_SIGMA * C_R) * np.sqrt(f01 * F_R / 1e9)\n    return EC, EJ, f01, L_R, g\n\n\ndef build():\n    t = sq.theme()\n    EC, EJ, f01, L_R, g = values()\n    fig, ax = sq.figure(\"column\", aspect=0.69, layout=None)\n    ax.set_position([0.0, 0.0, 1.0, 1.0])\n    S.blank(ax)\n    fs = t.size - 0.5\n    qc, rc = t.qubits[0], t.bus\n    yf, yt, yb = 3.3, 2.0, 0.6                                   # feedline, top rail, ground rail\n\n    # feedline from a source to a matched load\n    S.wire(ax, [0.4, 6.0], [yf, yf])\n    S.wire(ax, [0.4, 0.4], [yf, 2.9])\n    S.ac_source(ax, 0.4, 2.75, r=0.15)\n    S.wire(ax, [0.4, 0.4], [2.6, 2.35])\n    S.ground(ax, 0.4, 2.35)\n    S.wire(ax, [6.0, 6.0], [yf, 3.0])\n    S.resistor_v(ax, 6.0, 3.0, 2.5)\n    S.wire(ax, [6.0, 6.0], [2.5, 2.35])\n    S.ground(ax, 6.0, 2.35)\n    ax.text(0.62, 2.75, \"in\", ha=\"left\", va=\"center\", fontsize=fs)\n    ax.text(5.8, 2.75, r\"$Z_0$ = 50 \u03a9\", ha=\"right\", va=\"center\", fontsize=fs)\n\n    with S.tiles():\n        # coupling to the feedline: a port, not a Hamiltonian term, so no tile\n        S.node(ax, 1.8, yf)\n        S.wire(ax, [1.8, 1.8], [yf, 2.655])\n        S.capacitor_v(ax, 1.8, 2.62, tile_kind=False)\n        S.wire(ax, [1.8, 1.8], [2.585, yt])\n        ax.text(1.97, 2.62, rf\"$C_\\kappa$ = {C_K * 1e15:.0f} fF\", ha=\"left\", va=\"center\", fontsize=fs)\n\n        # resonator: L_r and C_r share one tile, the term h f_r a+a\n        S.tile(ax, 1.8, 1.3, 1.5, 1.75, sq.lighten(rc, 0.86))\n        S.wire(ax, [1.2, 2.4], [yt, yt], color=rc)\n        S.wire(ax, [1.2, 2.4], [yb, yb], color=rc)\n        S.wire(ax, [1.2, 1.2], [yt, 1.75], color=rc)\n        S.inductor_v(ax, 1.2, 1.75, 0.85, color=rc, tile_kind=False)\n        S.wire(ax, [1.2, 1.2], [0.85, yb], color=rc)\n        S.wire(ax, [2.4, 2.4], [yt, 1.335], color=rc)\n        S.capacitor_v(ax, 2.4, 1.3, color=rc, tile_kind=False)\n        S.wire(ax, [2.4, 2.4], [1.265, yb], color=rc)\n        S.node(ax, 1.8, yt, color=rc)\n        S.node(ax, 2.4, yt, color=rc)\n        S.wire(ax, [1.8, 1.8], [yb, 0.45], color=rc)\n        S.ground(ax, 1.8, 0.45, color=rc)\n        ax.text(0.98, 1.3, r\"$L_r$\" + \"\\n\" + f\"{L_R * 1e9:.2f} nH\", ha=\"right\", va=\"center\", fontsize=fs, color=rc)\n        ax.text(2.56, 1.3, r\"$C_r$\" + \"\\n\" + f\"{C_R * 1e15:.0f} fF\", ha=\"left\", va=\"center\", fontsize=fs, color=rc)\n\n        # coupling capacitor, the term h g n (a + a+)\n        S.wire(ax, [2.4, 3.415], [yt, yt])\n        S.capacitor_h(ax, 3.45, yt, tile_kind=\"coupling\")\n        S.wire(ax, [3.485, 4.2], [yt, yt])\n        ax.text(3.45, yt + 0.27, rf\"$C_g$ = {C_G * 1e15:.0f} fF\", ha=\"center\", va=\"bottom\", fontsize=fs)\n\n        # transmon: junction (nonlinear tile) and shunt capacitor (capacitive tile)\n        S.wire(ax, [4.2, 5.6], [yt, yt], color=qc)\n        S.wire(ax, [4.2, 5.6], [yb, yb], color=qc)\n        S.wire(ax, [4.2, 4.2], [yt, yb], color=qc)\n        S.junction(ax, 4.2, 1.3)\n        S.wire(ax, [5.6, 5.6], [yt, 1.335], color=qc)\n        S.capacitor_v(ax, 5.6, 1.3, color=qc)\n        S.wire(ax, [5.6, 5.6], [1.265, yb], color=qc)\n        S.node(ax, 4.2, yt, color=qc)\n        S.wire(ax, [4.9, 4.9], [yb, 0.45], color=qc)\n        S.ground(ax, 4.9, 0.45, color=qc)\n        ax.text(4.0, 1.3, r\"$L_J$\" + \"\\n\" + f\"{L_J * 1e9:.0f} nH\", ha=\"right\", va=\"center\", fontsize=fs)\n        ax.text(5.4, 1.3, r\"$C_\\Sigma$\" + \"\\n\" + f\"{C_SIGMA * 1e15:.0f} fF\", ha=\"right\", va=\"center\",\n                fontsize=fs, color=qc)\n\n    # the Hamiltonian, one tile per term, each tile the colour of the element behind it\n    terms = [(r\"$4E_C\\hat n^2$\", rf\"$E_C/h$ = {EC * 1e3:.0f} MHz\", \"capacitive\"),\n             (r\"$-E_J\\cos\\hat\\varphi$\", rf\"$E_J/h$ = {EJ:.1f} GHz\", \"nonlinear\"),\n             (r\"$hf_r\\hat a^\\dagger\\hat a$\", rf\"$f_r$ = {F_R / 1e9:.2f} GHz\", sq.lighten(rc, 0.86)),\n             (r\"$hg\\,\\hat n(\\hat a+\\hat a^\\dagger)$\", rf\"$g/h$ = {g * 1e3:.0f} MHz\", \"coupling\")]\n    ax.set_xlim(-0.1, 6.5)\n    ax.set_ylim(-0.95, 3.5)\n    ax.set_aspect(\"equal\", adjustable=\"box\")\n    ax.apply_aspect()\n    r = fig.canvas.get_renderer()\n    inv = ax.transData.inverted()\n\n    def width(s, size):\n        txt = ax.text(0, 0, s, fontsize=size)\n        bb = inv.transform(txt.get_window_extent(r))\n        txt.remove()\n        return bb[1, 0] - bb[0, 0]\n\n    big, small, pad, plus = fs + 0.5, fs - 1.5, 0.14, 0.26\n    tiles = [max(width(a, big), width(b, small)) + pad for a, b, _ in terms]\n    head = width(r\"$\\hat H =$\", big) + 0.1\n    x = 3.2 - (head + sum(tiles) + plus * (len(tiles) - 1)) / 2          # the row centred under the circuit\n    y = -0.45\n    ax.text(x, y + 0.08, r\"$\\hat H =$\", ha=\"left\", va=\"center\", fontsize=big)\n    x += head\n    for k, ((term, val, kind), w) in enumerate(zip(terms, tiles)):\n        S.tile(ax, x + w / 2, y - 0.03, w, 0.66, kind, z=1)\n        ax.text(x + w / 2, y + 0.08, term, ha=\"center\", va=\"center\", fontsize=big, zorder=3)\n        ax.text(x + w / 2, y - 0.2, val, ha=\"center\", va=\"center\", fontsize=small, color=t.reference, zorder=3)\n        x += w\n        if k < len(terms) - 1:\n            ax.text(x + plus / 2, y + 0.08, \"+\", ha=\"center\", va=\"center\", fontsize=big)\n            x += plus\n    ax.text(4.9, 0.14, rf\"$f_{{01}}$ = {f01:.2f} GHz\", ha=\"center\", va=\"center\", fontsize=fs - 1, color=t.reference)\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "symbols.ac_source",
+    "symbols.blank",
+    "symbols.capacitor_h",
+    "symbols.capacitor_v",
+    "symbols.ground",
+    "symbols.inductor_v",
+    "symbols.junction",
+    "symbols.node",
+    "symbols.resistor_v",
+    "symbols.tile",
+    "symbols.tiles",
+    "symbols.wire"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/72_lumped_circuit.png",
+     "pdf": "figures/field/72_lumped_circuit.pdf",
+     "thumb": "thumbs/field/72_lumped_circuit.jpg",
+     "w": 688,
+     "h": 466,
+     "width_in": 3.44
+    },
+    "folio": {
+     "png": "figures/folio/72_lumped_circuit.png",
+     "pdf": "figures/folio/72_lumped_circuit.pdf",
+     "thumb": "thumbs/folio/72_lumped_circuit.jpg",
+     "w": 688,
+     "h": 466,
+     "width_in": 3.44
+    }
+   },
+   "page": false,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure}[t]\n  \\centering\n  \\scqgraphics[width=\\columnwidth]{72_lumped_circuit}   % figures/<style>/72_lumped_circuit.pdf\n  \\caption{Lumped circuit of a transmon coupled to a quarter-wave readout resonator on a feedline, each Hamiltonian term on the tile of the element that produces it.}\n  \\label{fig:lumped-circuit}\n\\end{figure}\n"
+  },
+  {
+   "id": "73_cryostat_wiring",
+   "num": "73",
+   "title": "Cryostat wiring",
+   "family": "Schematics",
+   "caption": "Wiring of a dilution refrigerator: attenuated and filtered XY, Z and readout-input lines, and a readout output through isolators, a TWPA and a HEMT.",
+   "code": "\"\"\"Wiring of a dilution refrigerator: attenuated and filtered XY, Z and readout-input lines, and a readout output through isolators, a TWPA and a HEMT.\"\"\"\nimport scqfig as sq\nfrom scqfig.schematics import wiring\n\nTITLE = \"Cryostat wiring\"\nFAMILY = \"Schematics\"\n\n\ndef build():\n    fig, ax = sq.figure(\"column\", aspect=1.32)\n    wiring.cryostat_wiring(ax)\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "wiring.cryostat_wiring"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/73_cryostat_wiring.png",
+     "pdf": "figures/field/73_cryostat_wiring.pdf",
+     "thumb": "thumbs/field/73_cryostat_wiring.jpg",
+     "w": 634,
+     "h": 888,
+     "width_in": 3.17
+    },
+    "folio": {
+     "png": "figures/folio/73_cryostat_wiring.png",
+     "pdf": "figures/folio/73_cryostat_wiring.pdf",
+     "thumb": "thumbs/folio/73_cryostat_wiring.jpg",
+     "w": 634,
+     "h": 888,
+     "width_in": 3.17
+    }
+   },
+   "page": false,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure}[t]\n  \\centering\n  \\scqgraphics[width=\\columnwidth]{73_cryostat_wiring}   % figures/<style>/73_cryostat_wiring.pdf\n  \\caption{Wiring of a dilution refrigerator: attenuated and filtered XY, Z and readout-input lines, and a readout output through isolators, a TWPA and a HEMT.}\n  \\label{fig:cryostat-wiring}\n\\end{figure}\n"
+  },
+  {
+   "id": "74_pulse_sequence",
+   "num": "74",
+   "title": "Pulse sequence",
+   "family": "Schematics",
+   "caption": "Pulse sequence of a conditional-phase measurement: DRAG pulses on two qubits, a CZ flux pulse and a dispersive readout with its integration window.",
+   "code": "\"\"\"Pulse sequence of a conditional-phase measurement: DRAG pulses on two qubits, a CZ flux pulse and a dispersive readout with its integration window.\"\"\"\nimport scqfig as sq\nfrom scqfig.schematics import pulses\n\nTITLE = \"Pulse sequence\"\nFAMILY = \"Schematics\"\n\n\ndef build():\n    s = 5.0                                           # Gaussian width (ns); pulses span 4 sigma\n    seq = [dict(row=r\"XY$_1$\", kind=\"drag\", t0=12, sigma=s, amp=0.42, label=r\"$\\pi/2$\"),\n           dict(row=r\"XY$_2$\", kind=\"drag\", t0=12, sigma=s, amp=0.84, label=r\"$\\pi$\"),\n           dict(row=r\"Z$_1$\", kind=\"square\", t0=26, length=40, amp=0.7, rise=3, label=\"CZ\"),\n           dict(row=r\"XY$_1$\", kind=\"drag\", t0=80, sigma=s, amp=0.42, label=r\"$\\pi/2$\"),\n           dict(row=\"RO\", kind=\"readout\", t0=96, length=1000, amp=0.6, rise=8, window=(110, 1080), label=\"readout\")]\n    fig, ax = sq.figure(\"column\", aspect=0.66)\n    pulses.pulse_sequence(ax, [r\"XY$_1$\", r\"XY$_2$\", r\"Z$_1$\", \"RO\"], seq, sync=[24, 68, 92], cut=(170, 1000),\n                          tmax=1110)\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "pulses.pulse_sequence"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/74_pulse_sequence.png",
+     "pdf": "figures/field/74_pulse_sequence.pdf",
+     "thumb": "thumbs/field/74_pulse_sequence.jpg",
+     "w": 671,
+     "h": 440,
+     "width_in": 3.35
+    },
+    "folio": {
+     "png": "figures/folio/74_pulse_sequence.png",
+     "pdf": "figures/folio/74_pulse_sequence.pdf",
+     "thumb": "thumbs/folio/74_pulse_sequence.jpg",
+     "w": 671,
+     "h": 440,
+     "width_in": 3.35
+    }
+   },
+   "page": false,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure}[t]\n  \\centering\n  \\scqgraphics[width=\\columnwidth]{74_pulse_sequence}   % figures/<style>/74_pulse_sequence.pdf\n  \\caption{Pulse sequence of a conditional-phase measurement: DRAG pulses on two qubits, a CZ flux pulse and a dispersive readout with its integration window.}\n  \\label{fig:pulse-sequence}\n\\end{figure}\n"
+  },
+  {
+   "id": "75_level_ladder",
+   "num": "75",
+   "title": "Level ladder and transitions",
+   "family": "Schematics",
+   "caption": "Transmon ladder (E_J/E_C = 40) to scale, with drive photons for f01, f12 and the two-photon f02/2, and the parity-forbidden single-photon 0-2 transition.",
+   "code": "\"\"\"Transmon ladder (E_J/E_C = 40) to scale, with drive photons for f01, f12 and the two-photon f02/2, and the parity-forbidden single-photon 0-2 transition.\"\"\"\nimport scqfig as sq\nfrom scqfig import physics as ph\nfrom scqfig.schematics import motifs, symbols\n\nTITLE = \"Level ladder and transitions\"\nFAMILY = \"Schematics\"\n\nEJ, EC = 12.0, 0.30                                           # GHz\n\n\ndef build():\n    t = sq.theme()\n    E = ph.transmon_spectrum(EJ, EC, nlev=3)                   # [0, f01, f02], computed in the charge basis\n    f01, f02 = E[1], E[2]\n    fig, ax = sq.figure(\"column\", aspect=0.78)\n    symbols.blank(ax)\n    fs = t.size - 0.5\n    x0, x1 = 0.3, 14.4\n    c = [2.5, 6.1, 9.7, 13.0]                                  # transition columns\n    gap = (c[2] - 1.05, c[2] + 1.05)                           # |1> gives way to the virtual level here\n    for n, En in enumerate(E):\n        segs = [(x0, gap[0]), (gap[1], x1)] if n == 1 else [(x0, x1)]\n        for a, b in segs:\n            motifs.ladder(ax, a, b, [En], colors=[t.levels[n]])\n        ax.text(x1 + 0.3, En, rf\"$|{n}\\rangle$\", ha=\"left\", va=\"center\", fontsize=fs + 0.5, color=t.levels[n])\n\n    def photon(xc, y, f, label=None):\n        motifs.wavy(ax, (xc - 2.3, y), (xc - 0.22, y), amp=0.2, waves=f / 1.25, lw=1.0, head=0.4)\n        if label:\n            ax.text(xc - 1.3, y + 0.4, label, ha=\"center\", va=\"bottom\", fontsize=fs - 0.5, color=t.signal,\n                    linespacing=1.15)\n\n    def ghz(f):\n        return f\"{f:.2f} GHz\"\n\n    motifs.transition(ax, (c[0], 0), (c[0], f01))\n    photon(c[0], f01 / 2, f01, r\"$f_{01}$\" + \"\\n\" + ghz(f01))\n    motifs.transition(ax, (c[1], f01), (c[1], f02))\n    photon(c[1], (f01 + f02) / 2, f02 - f01, r\"$f_{12}$\" + \"\\n\" + ghz(f02 - f01))\n    ax.plot([c[2] - 0.9, c[2] + 0.9], [f02 / 2] * 2, color=t.reference, lw=0.9, ls=(0, (3, 2)), zorder=3)\n    ax.text(c[2] + 0.95, f02 / 2 - 0.2, \"virtual\", ha=\"left\", va=\"top\", fontsize=fs - 1.5, color=t.reference)\n    motifs.transition(ax, (c[2], 0), (c[2], f02 / 2))\n    motifs.transition(ax, (c[2], f02 / 2), (c[2], f02))\n    photon(c[2], f02 / 4, f02 / 2, r\"$f_{02}/2$\" + \"\\n\" + ghz(f02 / 2))\n    photon(c[2], 3 * f02 / 4, f02 / 2)\n    motifs.transition(ax, (c[3], 0), (c[3], f02), allowed=False)\n    photon(c[3], f02 / 4, f02, r\"$f_{02}$\" + \"\\n\" + ghz(f02))\n    ax.text(c[3] + 0.3, f02 * 0.75, \"forbidden\", rotation=90, ha=\"left\", va=\"center\", fontsize=fs - 1.5, color=t.ink)\n    sq.note(ax, rf\"$E_J/E_C$ = {EJ / EC:.0f},  $\\alpha/h$ = {(f02 - 2 * f01) * 1e3:.0f} MHz\".replace(\"-\", \"\u2212\"), loc=\"upper left\",\n            color=t.reference)\n    ax.set_xlim(-0.2, x1 + 1.3)\n    ax.set_ylim(-0.6, f02 + 1.5)\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "motifs.ladder",
+    "motifs.transition",
+    "motifs.wavy",
+    "symbols.blank"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/75_level_ladder.png",
+     "pdf": "figures/field/75_level_ladder.pdf",
+     "thumb": "thumbs/field/75_level_ladder.jpg",
+     "w": 671,
+     "h": 501,
+     "width_in": 3.35
+    },
+    "folio": {
+     "png": "figures/folio/75_level_ladder.png",
+     "pdf": "figures/folio/75_level_ladder.pdf",
+     "thumb": "thumbs/folio/75_level_ladder.jpg",
+     "w": 671,
+     "h": 501,
+     "width_in": 3.35
+    }
+   },
+   "page": false,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure}[t]\n  \\centering\n  \\scqgraphics[width=\\columnwidth]{75_level_ladder}   % figures/<style>/75_level_ladder.pdf\n  \\caption{Transmon ladder (E\\_J/E\\_C = 40) to scale, with drive photons for f01, f12 and the two-photon f02/2, and the parity-forbidden single-photon 0-2 transition.}\n  \\label{fig:level-ladder}\n\\end{figure}\n"
+  },
+  {
+   "id": "76_film_stack",
+   "num": "76",
+   "title": "Film stack",
+   "family": "Schematics",
+   "caption": "Cross-section of a tantalum CPW on silicon with its metal-air, metal-substrate and substrate-air interfaces marked.",
+   "code": "\"\"\"Cross-section of a tantalum CPW on silicon with its metal-air, metal-substrate and substrate-air interfaces marked.\"\"\"\nimport scqfig as sq\nfrom scqfig.schematics import chip\n\nTITLE = \"Film stack\"\nFAMILY = \"Schematics\"\n\n\ndef build():\n    fig, ax = sq.figure(\"column\", aspect=0.62)\n    chip.cross_section(ax, [(\"Si (100)\", 525e3, \"substrate\"), (\"Ta (\u03b1)\", 200, \"metal\")],\n                       interfaces={\"MA\": r\"metal\u2013air, Ta$_2$O$_5$\", \"MS\": \"metal\u2013substrate\", \"SA\": r\"substrate\u2013air, SiO$_x$\"})\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "chip.cross_section"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/76_film_stack.png",
+     "pdf": "figures/field/76_film_stack.pdf",
+     "thumb": "thumbs/field/76_film_stack.jpg",
+     "w": 671,
+     "h": 227,
+     "width_in": 3.35
+    },
+    "folio": {
+     "png": "figures/folio/76_film_stack.png",
+     "pdf": "figures/folio/76_film_stack.pdf",
+     "thumb": "thumbs/folio/76_film_stack.jpg",
+     "w": 671,
+     "h": 228,
+     "width_in": 3.35
+    }
+   },
+   "page": false,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure}[t]\n  \\centering\n  \\scqgraphics[width=\\columnwidth]{76_film_stack}   % figures/<style>/76_film_stack.pdf\n  \\caption{Cross-section of a tantalum CPW on silicon with its metal-air, metal-substrate and substrate-air interfaces marked.}\n  \\label{fig:film-stack}\n\\end{figure}\n"
+  },
+  {
+   "id": "77_spin_array",
+   "num": "77",
+   "title": "Qubit array in a uniform field",
+   "family": "Schematics",
+   "caption": "A 3 x 4 qubit array drawn as spins in a uniform field (the wash), with photons arriving from several directions and three qubits excited.",
+   "code": "\"\"\"A 3 x 4 qubit array drawn as spins in a uniform field (the wash), with photons arriving from several directions and three qubits excited.\"\"\"\nimport numpy as np\nfrom matplotlib.patches import FancyBboxPatch\n\nimport scqfig as sq\nfrom scqfig.schematics import motifs, symbols\n\nTITLE = \"Qubit array in a uniform field\"\nFAMILY = \"Schematics\"\n\n\ndef build():\n    t = sq.theme()\n    rng = np.random.default_rng(77)\n    rows, cols = 3, 4\n    excited = set(rng.choice(rows * cols, 3, replace=False).tolist())\n    fig, ax = sq.figure(\"column\", aspect=0.72)\n    symbols.blank(ax)\n    x0, y0, w, h = -0.6, -0.6, cols - 1 + 1.2, rows - 1 + 1.2\n    ax.add_patch(FancyBboxPatch((x0, y0), w, h, boxstyle=\"round,pad=0,rounding_size=0.18\", fc=t.wash, ec=\"none\",\n                                zorder=1))\n    for k in range(rows * cols):\n        x, y = k % cols, rows - 1 - k // cols\n        up = k not in excited\n        hgt = 0.62 if up else -0.62\n        motifs.spin(ax, x, y - hgt / 2, hgt, color=t.qubits[0] if up else t.qubits[1], lw=1.8)\n    for p0, p1 in (((-1.1, 3.4), (-0.3, 2.7)), ((-1.85, 1.0), (-0.7, 1.0)), ((1.25, 3.68), (1.55, 2.7)),\n                   ((4.55, 3.25), (3.7, 2.35)), ((4.65, -0.55), (3.7, 0.1))):                  # all end at the wash\n        motifs.wavy(ax, p0, p1, amp=0.07, waves=4, lw=1.0, head=0.2)\n    fs = t.size - 0.5\n    ax.text(x0 + w - 0.08, y0 + 0.08, \"uniform field\", ha=\"right\", va=\"bottom\", fontsize=fs - 1, color=t.reference)\n    for k, (lab, up) in enumerate(((r\"$|0\\rangle$\", True), (r\"$|1\\rangle$\", False))):\n        yk = -1.05\n        xk = 0.2 + 1.5 * k\n        hgt = 0.3 if up else -0.3\n        motifs.spin(ax, xk, yk - hgt / 2, hgt, color=t.qubits[0] if up else t.qubits[1], lw=1.4)\n        ax.text(xk + 0.18, yk, lab, ha=\"left\", va=\"center\", fontsize=fs)\n    ax.set_xlim(-2.0, cols + 1.0)\n    ax.set_ylim(-1.35, rows + 0.75)\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "motifs.spin",
+    "motifs.wavy",
+    "symbols.blank"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/77_spin_array.png",
+     "pdf": "figures/field/77_spin_array.pdf",
+     "thumb": "thumbs/field/77_spin_array.jpg",
+     "w": 657,
+     "h": 480,
+     "width_in": 3.29
+    },
+    "folio": {
+     "png": "figures/folio/77_spin_array.png",
+     "pdf": "figures/folio/77_spin_array.pdf",
+     "thumb": "thumbs/folio/77_spin_array.jpg",
+     "w": 657,
+     "h": 480,
+     "width_in": 3.29
+    }
+   },
+   "page": false,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure}[t]\n  \\centering\n  \\scqgraphics[width=\\columnwidth]{77_spin_array}   % figures/<style>/77_spin_array.pdf\n  \\caption{A 3 x 4 qubit array drawn as spins in a uniform field (the wash), with photons arriving from several directions and three qubits excited.}\n  \\label{fig:spin-array}\n\\end{figure}\n"
+  },
+  {
+   "id": "78_quantum_circuit",
+   "num": "78",
+   "title": "Quantum circuit",
+   "family": "Schematics",
+   "caption": "GHZ-state preparation: a Hadamard and two CNOTs entangle three qubits, then all three are measured; dashed slices mark the states Psi_1 to Psi_4.",
+   "code": "\"\"\"GHZ-state preparation: a Hadamard and two CNOTs entangle three qubits, then all three are measured; dashed slices mark the states Psi_1 to Psi_4.\"\"\"\nimport scqfig as sq\nfrom scqfig.schematics import QCircuit\n\nTITLE = \"Quantum circuit\"\nFAMILY = \"Schematics\"\n\n\ndef build():\n    c = QCircuit(3, labels=[r\"$|0\\rangle$\"] * 3)\n    c.gate(\"H\", 0)\n    c.slice(r\"$\\Psi_1$\")\n    c.cnot(0, 1)\n    c.slice(r\"$\\Psi_2$\")\n    c.cnot(0, 2)\n    c.slice(r\"$\\Psi_3$\")\n    c.measure([0, 1, 2])\n    c.slice(r\"$\\Psi_4$\")\n    w, h = c.figsize()\n    fig, ax = sq.figure(w, height=h)\n    c.draw(ax)\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "QCircuit"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/78_quantum_circuit.png",
+     "pdf": "figures/field/78_quantum_circuit.pdf",
+     "thumb": "thumbs/field/78_quantum_circuit.jpg",
+     "w": 480,
+     "h": 278,
+     "width_in": 2.4
+    },
+    "folio": {
+     "png": "figures/folio/78_quantum_circuit.png",
+     "pdf": "figures/folio/78_quantum_circuit.pdf",
+     "thumb": "thumbs/folio/78_quantum_circuit.jpg",
+     "w": 478,
+     "h": 278,
+     "width_in": 2.39
+    }
+   },
+   "page": false,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure}[t]\n  \\centering\n  \\scqgraphics[width=\\columnwidth]{78_quantum_circuit}   % figures/<style>/78_quantum_circuit.pdf\n  \\caption{GHZ-state preparation: a Hadamard and two CNOTs entangle three qubits, then all three are measured; dashed slices mark the states Psi\\_1 to Psi\\_4.}\n  \\label{fig:quantum-circuit}\n\\end{figure}\n"
+  },
+  {
+   "id": "79_teleportation",
+   "num": "79",
+   "title": "Teleportation and gate glyphs",
+   "family": "Schematics",
+   "caption": "(a) Teleportation: a Bell pair, a Bell measurement and classically controlled X and Z corrections. (b) The other gate glyphs: rotation, controlled-U with an open control, CZ, SWAP and a three-qubit box.",
+   "code": "\"\"\"(a) Teleportation: a Bell pair, a Bell measurement and classically controlled X and Z corrections. (b) The other gate glyphs: rotation, controlled-U with an open control, CZ, SWAP and a three-qubit box.\"\"\"\nimport scqfig as sq\nfrom scqfig.schematics import QCircuit\n\nTITLE = \"Teleportation and gate glyphs\"\nFAMILY = \"Schematics\"\n\n\ndef teleport():\n    c = QCircuit(3, labels=[r\"$|\\psi\\rangle$\", r\"$|0\\rangle$\", r\"$|0\\rangle$\"], outputs=[None, None, r\"$|\\psi\\rangle$\"])\n    c.gate(\"H\", 1)\n    c.cnot(1, 2)\n    c.group([1, 2], cols=(0, 1), label=\"Bell pair\")\n    c.slice()\n    c.cnot(0, 1)\n    c.gate(\"H\", 0)\n    c.measure([0, 1])\n    c.gate(\"X\", 2, cond=1)\n    c.gate(\"Z\", 2, cond=0)\n    return c\n\n\ndef glyphs():\n    c = QCircuit(3, labels=[r\"$q_0$\", r\"$q_1$\", r\"$q_2$\"])\n    c.gate(r\"$R_x(\\pi/2)$\", 0)\n    c.gate(\"T\", 1)\n    c.controlled(\"U\", [0], 2, open_controls=[1])\n    c.cz(0, 1)\n    c.swap(1, 2)\n    c.multi(\"V\", [0, 1, 2])\n    c.measure(2)\n    return c\n\n\ndef build():\n    a, b = teleport(), glyphs()\n    (wa, ha), (wb, hb) = a.figsize(), b.figsize()\n    fig, (ax_a, ax_b) = sq.figure(max(wa, wb), height=ha + hb + 0.25, nrows=2,\n                                  gridspec_kw={\"height_ratios\": [ha, hb]})\n    a.draw(ax_a)\n    b.draw(ax_b)\n    sq.panel(ax_a, \"a\")\n    sq.panel(ax_b, \"b\")\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "QCircuit"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/79_teleportation.png",
+     "pdf": "figures/field/79_teleportation.pdf",
+     "thumb": "thumbs/field/79_teleportation.jpg",
+     "w": 667,
+     "h": 507,
+     "width_in": 3.33
+    },
+    "folio": {
+     "png": "figures/folio/79_teleportation.png",
+     "pdf": "figures/folio/79_teleportation.pdf",
+     "thumb": "thumbs/folio/79_teleportation.jpg",
+     "w": 668,
+     "h": 507,
+     "width_in": 3.34
+    }
+   },
+   "page": false,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure}[t]\n  \\centering\n  \\scqgraphics[width=\\columnwidth]{79_teleportation}   % figures/<style>/79_teleportation.pdf\n  \\caption{(a) Teleportation: a Bell pair, a Bell measurement and classically controlled X and Z corrections. (b) The other gate glyphs: rotation, controlled-U with an open control, CZ, SWAP and a three-qubit box.}\n  \\label{fig:teleportation}\n\\end{figure}\n"
+  }
+ ],
+ "latex": [
+  {
+   "id": "pgfplots",
+   "title": "pgfplots in the house style",
+   "text": "Native pgfplots axes take the same frame, ticks, fonts, series and colormap as the matplotlib figures. Use the styles scqfig, scqfig data, scqfig model and scqfig ref.",
+   "preamble": "\\usepackage{pgfplots}\n\\pgfplotsset{compat=1.16}\n\\usepackage[field]{scqfig}   % or [folio]\n\\usepackage{sansmath}   % field only: sans tick numbers",
+   "body": "\\begin{tikzpicture}\n\\begin{axis}[scqfig, width=7.2cm, height=4.6cm,\n    xlabel={free evolution ($\\mu$s)}, ylabel={$P_1$},\n    xmin=0, xmax=10, ymin=0, ymax=1, legend pos=north east,\n    tick label style={font=\\sansmath\\sffamily\\footnotesize},   % field only\n    ]\n  \\addplot+[scqfig data, samples=41, domain=0:10]\n    {0.5+0.42*exp(-x/4)*cos(deg(2*pi*0.6*x))+0.02*sin(deg(37*x))};\n  \\addlegendentry{data}\n  \\addplot+[scqfig model, samples=300, domain=0:10]\n    {0.5+0.42*exp(-x/4)*cos(deg(2*pi*0.6*x))};\n  \\addlegendentry{fit}\n\\end{axis}\n\\end{tikzpicture}",
+   "images": {
+    "field": {
+     "png": "latex/pgfplots_field.png",
+     "pdf": "latex/pgfplots_field.pdf"
+    },
+    "folio": {
+     "png": "latex/pgfplots_folio.png",
+     "pdf": "latex/pgfplots_folio.pdf"
+    }
+   },
+   "code": {
+    "field": "\\usepackage{pgfplots}\n\\pgfplotsset{compat=1.16}\n\\usepackage[field]{scqfig}   % or [folio]\n\\usepackage{sansmath}   % field only: sans tick numbers\n\n% in the document\n\\begin{tikzpicture}\n\\begin{axis}[scqfig, width=7.2cm, height=4.6cm,\n    xlabel={free evolution ($\\mu$s)}, ylabel={$P_1$},\n    xmin=0, xmax=10, ymin=0, ymax=1, legend pos=north east,\n    tick label style={font=\\sansmath\\sffamily\\footnotesize},   % field only\n    ]\n  \\addplot+[scqfig data, samples=41, domain=0:10]\n    {0.5+0.42*exp(-x/4)*cos(deg(2*pi*0.6*x))+0.02*sin(deg(37*x))};\n  \\addlegendentry{data}\n  \\addplot+[scqfig model, samples=300, domain=0:10]\n    {0.5+0.42*exp(-x/4)*cos(deg(2*pi*0.6*x))};\n  \\addlegendentry{fit}\n\\end{axis}\n\\end{tikzpicture}\n",
+    "folio": "\\usepackage{pgfplots}\n\\pgfplotsset{compat=1.16}\n\\usepackage[folio]{scqfig}   % or [field]\n\n% in the document\n\\begin{tikzpicture}\n\\begin{axis}[scqfig, width=7.2cm, height=4.6cm,\n    xlabel={free evolution ($\\mu$s)}, ylabel={$P_1$},\n    xmin=0, xmax=10, ymin=0, ymax=1, legend pos=north east,\n    ]\n  \\addplot+[scqfig data, samples=41, domain=0:10]\n    {0.5+0.42*exp(-x/4)*cos(deg(2*pi*0.6*x))+0.02*sin(deg(37*x))};\n  \\addlegendentry{data}\n  \\addplot+[scqfig model, samples=300, domain=0:10]\n    {0.5+0.42*exp(-x/4)*cos(deg(2*pi*0.6*x))};\n  \\addlegendentry{fit}\n\\end{axis}\n\\end{tikzpicture}\n"
+   }
+  },
+  {
+   "id": "quantikz",
+   "title": "quantikz circuits in the house style",
+   "text": "Gate boxes on the nonlinear tile, white meters, slices in the style's model colour with tilted labels. quantikz's default red slice is replaced.",
+   "preamble": "\\usepackage{tikz}\n\\usepackage{quantikz}\n\\usepackage[field]{scqfig}   % or [folio]",
+   "body": "\\begin{quantikz}[scqfig circuit]\n  \\lstick{$|0\\rangle$} & \\gate{H} \\slice[label style=scq slice label]{$\\Psi_1$}\n      & \\ctrl{1} \\slice[label style=scq slice label]{$\\Psi_2$}\n      & \\ctrl{2} \\slice[label style=scq slice label]{$\\Psi_3$} & \\meter{} \\\\\n  \\lstick{$|0\\rangle$} & \\qw & \\targ{} & \\qw & \\meter{} \\\\\n  \\lstick{$|0\\rangle$} & \\qw & \\qw & \\targ{} & \\meter{}\n\\end{quantikz}",
+   "images": {
+    "field": {
+     "png": "latex/quantikz_field.png",
+     "pdf": "latex/quantikz_field.pdf"
+    },
+    "folio": {
+     "png": "latex/quantikz_folio.png",
+     "pdf": "latex/quantikz_folio.pdf"
+    }
+   },
+   "code": {
+    "field": "\\usepackage{tikz}\n\\usepackage{quantikz}\n\\usepackage[field]{scqfig}   % or [folio]\n\n% in the document\n\\begin{quantikz}[scqfig circuit]\n  \\lstick{$|0\\rangle$} & \\gate{H} \\slice[label style=scq slice label]{$\\Psi_1$}\n      & \\ctrl{1} \\slice[label style=scq slice label]{$\\Psi_2$}\n      & \\ctrl{2} \\slice[label style=scq slice label]{$\\Psi_3$} & \\meter{} \\\\\n  \\lstick{$|0\\rangle$} & \\qw & \\targ{} & \\qw & \\meter{} \\\\\n  \\lstick{$|0\\rangle$} & \\qw & \\qw & \\targ{} & \\meter{}\n\\end{quantikz}\n",
+    "folio": "\\usepackage{tikz}\n\\usepackage{quantikz}\n\\usepackage[folio]{scqfig}   % or [field]\n\n% in the document\n\\begin{quantikz}[scqfig circuit]\n  \\lstick{$|0\\rangle$} & \\gate{H} \\slice[label style=scq slice label]{$\\Psi_1$}\n      & \\ctrl{1} \\slice[label style=scq slice label]{$\\Psi_2$}\n      & \\ctrl{2} \\slice[label style=scq slice label]{$\\Psi_3$} & \\meter{} \\\\\n  \\lstick{$|0\\rangle$} & \\qw & \\targ{} & \\qw & \\meter{} \\\\\n  \\lstick{$|0\\rangle$} & \\qw & \\qw & \\targ{} & \\meter{}\n\\end{quantikz}\n"
+   }
+  },
+  {
+   "id": "tiles",
+   "title": "Circuit-element tiles in TikZ",
+   "text": "The pale tiles that sit behind capacitors, junctions and inductors in the matplotlib circuits, as a TikZ style, so Hamiltonian terms in the text can sit on the same tiles.",
+   "preamble": "\\usepackage{tikz}\n\\usepackage[field]{scqfig}   % or [folio]",
+   "body": "\\begin{tikzpicture}\n  \\node[scq tile=capacitive] at (0,0)   {$4E_C\\hat n^2$};\n  \\node[scq tile=nonlinear]  at (2.1,0) {$-E_J\\cos\\hat\\varphi$};\n  \\node[scq tile=inductive]  at (4.3,0) {$\\hbar\\omega_r\\hat a^\\dagger\\hat a$};\n  \\node[scq tile=coupling]   at (6.6,0) {$\\hbar g\\,\\hat n(\\hat a+\\hat a^\\dagger)$};\n\\end{tikzpicture}",
+   "images": {
+    "field": {
+     "png": "latex/tiles_field.png",
+     "pdf": "latex/tiles_field.pdf"
+    },
+    "folio": {
+     "png": "latex/tiles_folio.png",
+     "pdf": "latex/tiles_folio.pdf"
+    }
+   },
+   "code": {
+    "field": "\\usepackage{tikz}\n\\usepackage[field]{scqfig}   % or [folio]\n\n% in the document\n\\begin{tikzpicture}\n  \\node[scq tile=capacitive] at (0,0)   {$4E_C\\hat n^2$};\n  \\node[scq tile=nonlinear]  at (2.1,0) {$-E_J\\cos\\hat\\varphi$};\n  \\node[scq tile=inductive]  at (4.3,0) {$\\hbar\\omega_r\\hat a^\\dagger\\hat a$};\n  \\node[scq tile=coupling]   at (6.6,0) {$\\hbar g\\,\\hat n(\\hat a+\\hat a^\\dagger)$};\n\\end{tikzpicture}\n",
+    "folio": "\\usepackage{tikz}\n\\usepackage[folio]{scqfig}   % or [field]\n\n% in the document\n\\begin{tikzpicture}\n  \\node[scq tile=capacitive] at (0,0)   {$4E_C\\hat n^2$};\n  \\node[scq tile=nonlinear]  at (2.1,0) {$-E_J\\cos\\hat\\varphi$};\n  \\node[scq tile=inductive]  at (4.3,0) {$\\hbar\\omega_r\\hat a^\\dagger\\hat a$};\n  \\node[scq tile=coupling]   at (6.6,0) {$\\hbar g\\,\\hat n(\\hat a+\\hat a^\\dagger)$};\n\\end{tikzpicture}\n"
+   }
+  },
+  {
+   "id": "colours",
+   "title": "Colour roles in running text",
+   "text": "Every role of the active style has a plain name, so text and figures agree: scqAccent, scqSignal, scqBus, scqQubitA, scqLevel0 and the rest.",
+   "preamble": "\\usepackage[field]{scqfig}   % or [folio]",
+   "body": "\\begin{minipage}{9cm}\\raggedright\nAllowed transitions are \\textcolor{scqAccent}{\\textbf{orange}},\ndrive photons \\textcolor{scqSignal}{\\textbf{signal}}, the bus\n\\textcolor{scqBus}{\\textbf{bus}}, and qubits\n\\textcolor{scqQubitA}{\\textbf{Q1}}, \\textcolor{scqQubitB}{\\textbf{Q2}},\n\\textcolor{scqQubitC}{\\textbf{Q3}}.\n\\end{minipage}",
+   "images": {
+    "field": {
+     "png": "latex/colours_field.png",
+     "pdf": "latex/colours_field.pdf"
+    },
+    "folio": {
+     "png": "latex/colours_folio.png",
+     "pdf": "latex/colours_folio.pdf"
+    }
+   },
+   "code": {
+    "field": "\\usepackage[field]{scqfig}   % or [folio]\n\n% in the document\n\\begin{minipage}{9cm}\\raggedright\nAllowed transitions are \\textcolor{scqAccent}{\\textbf{orange}},\ndrive photons \\textcolor{scqSignal}{\\textbf{signal}}, the bus\n\\textcolor{scqBus}{\\textbf{bus}}, and qubits\n\\textcolor{scqQubitA}{\\textbf{Q1}}, \\textcolor{scqQubitB}{\\textbf{Q2}},\n\\textcolor{scqQubitC}{\\textbf{Q3}}.\n\\end{minipage}\n",
+    "folio": "\\usepackage[folio]{scqfig}   % or [field]\n\n% in the document\n\\begin{minipage}{9cm}\\raggedright\nAllowed transitions are \\textcolor{scqAccent}{\\textbf{orange}},\ndrive photons \\textcolor{scqSignal}{\\textbf{signal}}, the bus\n\\textcolor{scqBus}{\\textbf{bus}}, and qubits\n\\textcolor{scqQubitA}{\\textbf{Q1}}, \\textcolor{scqQubitB}{\\textbf{Q2}},\n\\textcolor{scqQubitC}{\\textbf{Q3}}.\n\\end{minipage}\n"
+   }
+  }
+ ],
+ "sty": "% scqfig.sty -- generated by `python -m scqfig.latex` from src/scqfig/themes.py; do not edit by hand.\n% Colours, figure selection and pgfplots/TikZ styles matching the scqfig matplotlib styles.\n%   \\usepackage[field]{scqfig}   or   \\usepackage[folio,figdir=figures]{scqfig}\n\\NeedsTeXFormat{LaTeX2e}\n\\ProvidesPackage{scqfig}[2026/10/23 v0.1.0 figure styles for superconducting-chip papers]\n\\RequirePackage{xcolor}\n\\RequirePackage{graphicx}\n\\RequirePackage{kvoptions}\n\\SetupKeyvalOptions{family=scq,prefix=scq@}\n\\def\\scq@style{field}\\def\\scq@Style{Field}\n\\DeclareVoidOption{field}{\\def\\scq@style{field}\\def\\scq@Style{Field}}\n\\DeclareVoidOption{folio}{\\def\\scq@style{folio}\\def\\scq@Style{Folio}}\n\\DeclareStringOption[figures]{figdir}\n\\ProcessKeyvalOptions*\n\n% ---- palette: four hues, their tints, and greys\n\\definecolor{scqInk}{HTML}{000000}\n\\definecolor{scqBlue}{HTML}{1F5FBF}\n\\definecolor{scqMagenta}{HTML}{C2378F}\n\\definecolor{scqPurple}{HTML}{5E2A84}\n\\definecolor{scqOrange}{HTML}{E69F00}\n\\definecolor{scqCharcoal}{HTML}{3D3D3D}\n\\definecolor{scqGrey}{HTML}{6F6F6F}\n\\definecolor{scqSilver}{HTML}{9A9A9A}\n\\definecolor{scqLight}{HTML}{D4D4D4}\n\\definecolor{scqTint}{HTML}{ECECEC}\n\n% ---- roles of the field style\n\\definecolor{scqFieldInk}{HTML}{000000}\n\\definecolor{scqFieldData}{HTML}{000000}\n\\definecolor{scqFieldModel}{HTML}{1F5FBF}\n\\definecolor{scqFieldSim}{HTML}{1F5FBF}\n\\definecolor{scqFieldReference}{HTML}{6F6F6F}\n\\definecolor{scqFieldAssumed}{HTML}{9A9A9A}\n\\definecolor{scqFieldAccent}{HTML}{E69F00}\n\\definecolor{scqFieldSignal}{HTML}{C2378F}\n\\definecolor{scqFieldBus}{HTML}{5E2A84}\n\\definecolor{scqFieldWash}{HTML}{F7E5F0}\n\\definecolor{scqFieldLight}{HTML}{D4D4D4}\n\\definecolor{scqFieldTint}{HTML}{ECECEC}\n\\definecolor{scqFieldOverlay}{HTML}{1F5FBF}\n\\definecolor{scqFieldQubitA}{HTML}{1F5FBF}\n\\definecolor{scqFieldQubitB}{HTML}{C2378F}\n\\definecolor{scqFieldQubitC}{HTML}{E69F00}\n\\definecolor{scqFieldQubitD}{HTML}{5E2A84}\n\\definecolor{scqFieldQubitE}{HTML}{6F6F6F}\n\\definecolor{scqFieldLevel0}{HTML}{5E2A84}\n\\definecolor{scqFieldLevel1}{HTML}{1F5FBF}\n\\definecolor{scqFieldLevel2}{HTML}{C2378F}\n\\definecolor{scqFieldLevel3}{HTML}{E69F00}\n\\definecolor{scqFieldLevel4}{HTML}{6F6F6F}\n\\definecolor{scqFieldSeriesA}{HTML}{1F5FBF}\n\\definecolor{scqFieldSeriesB}{HTML}{C2378F}\n\\definecolor{scqFieldSeriesC}{HTML}{E69F00}\n\\definecolor{scqFieldSeriesD}{HTML}{5E2A84}\n\\definecolor{scqFieldSeriesE}{HTML}{6F6F6F}\n\\definecolor{scqFieldTileNonlinear}{HTML}{E2D9E9}\n\\definecolor{scqFieldTileCapacitive}{HTML}{DBE5F5}\n\\definecolor{scqFieldTileInductive}{HTML}{F9E8C2}\n\\definecolor{scqFieldTileCoupling}{HTML}{E6E6E6}\n\\definecolor{scqFieldChipSubstrate}{HTML}{F5F2F8}\n\\definecolor{scqFieldChipEdge}{HTML}{9A9A9A}\n\\definecolor{scqFieldChipPad}{HTML}{C2378F}\n\\definecolor{scqFieldChipResonator}{HTML}{5E2A84}\n\\definecolor{scqFieldChipFeedline}{HTML}{1A1A1A}\n\\definecolor{scqFieldChipDrive}{HTML}{1F5FBF}\n\\definecolor{scqFieldChipFlux}{HTML}{E69F00}\n\\definecolor{scqFieldChipCoupler}{HTML}{6A6A6A}\n\\definecolor{scqFieldChipJunction}{HTML}{000000}\n\\definecolor{scqFieldChipGround}{HTML}{DCDCDC}\n\n% ---- roles of the folio style\n\\definecolor{scqFolioInk}{HTML}{000000}\n\\definecolor{scqFolioData}{HTML}{000000}\n\\definecolor{scqFolioModel}{HTML}{000000}\n\\definecolor{scqFolioSim}{HTML}{1F5FBF}\n\\definecolor{scqFolioReference}{HTML}{6F6F6F}\n\\definecolor{scqFolioAssumed}{HTML}{9A9A9A}\n\\definecolor{scqFolioAccent}{HTML}{E69F00}\n\\definecolor{scqFolioSignal}{HTML}{5E2A84}\n\\definecolor{scqFolioBus}{HTML}{3D3D3D}\n\\definecolor{scqFolioWash}{HTML}{ECECEC}\n\\definecolor{scqFolioLight}{HTML}{D4D4D4}\n\\definecolor{scqFolioTint}{HTML}{ECECEC}\n\\definecolor{scqFolioOverlay}{HTML}{E69F00}\n\\definecolor{scqFolioQubitA}{HTML}{1F5FBF}\n\\definecolor{scqFolioQubitB}{HTML}{E69F00}\n\\definecolor{scqFolioQubitC}{HTML}{5E2A84}\n\\definecolor{scqFolioQubitD}{HTML}{6F6F6F}\n\\definecolor{scqFolioQubitE}{HTML}{000000}\n\\definecolor{scqFolioLevel0}{HTML}{000000}\n\\definecolor{scqFolioLevel1}{HTML}{1F5FBF}\n\\definecolor{scqFolioLevel2}{HTML}{5E2A84}\n\\definecolor{scqFolioLevel3}{HTML}{6F6F6F}\n\\definecolor{scqFolioLevel4}{HTML}{C2378F}\n\\definecolor{scqFolioSeriesA}{HTML}{000000}\n\\definecolor{scqFolioSeriesB}{HTML}{1F5FBF}\n\\definecolor{scqFolioSeriesC}{HTML}{6F6F6F}\n\\definecolor{scqFolioSeriesD}{HTML}{E69F00}\n\\definecolor{scqFolioSeriesE}{HTML}{5E2A84}\n\\definecolor{scqFolioTileNonlinear}{HTML}{E2E2E2}\n\\definecolor{scqFolioTileCapacitive}{HTML}{EEEEEE}\n\\definecolor{scqFolioTileInductive}{HTML}{F4F4F4}\n\\definecolor{scqFolioTileCoupling}{HTML}{E8E8E8}\n\\definecolor{scqFolioChipSubstrate}{HTML}{F4F4F4}\n\\definecolor{scqFolioChipEdge}{HTML}{9A9A9A}\n\\definecolor{scqFolioChipPad}{HTML}{8C8C8C}\n\\definecolor{scqFolioChipResonator}{HTML}{3D3D3D}\n\\definecolor{scqFolioChipFeedline}{HTML}{000000}\n\\definecolor{scqFolioChipDrive}{HTML}{1F5FBF}\n\\definecolor{scqFolioChipFlux}{HTML}{E69F00}\n\\definecolor{scqFolioChipCoupler}{HTML}{6F6F6F}\n\\definecolor{scqFolioChipJunction}{HTML}{000000}\n\\definecolor{scqFolioChipGround}{HTML}{E2E2E2}\n\n% ---- the active style's roles under plain names (scqAccent, scqQubitA, scqTileCapacitive, ...)\n\\colorlet{scqInk}{scq\\scq@Style Ink}\n\\colorlet{scqData}{scq\\scq@Style Data}\n\\colorlet{scqModel}{scq\\scq@Style Model}\n\\colorlet{scqSim}{scq\\scq@Style Sim}\n\\colorlet{scqReference}{scq\\scq@Style Reference}\n\\colorlet{scqAssumed}{scq\\scq@Style Assumed}\n\\colorlet{scqAccent}{scq\\scq@Style Accent}\n\\colorlet{scqSignal}{scq\\scq@Style Signal}\n\\colorlet{scqBus}{scq\\scq@Style Bus}\n\\colorlet{scqWash}{scq\\scq@Style Wash}\n\\colorlet{scqLight}{scq\\scq@Style Light}\n\\colorlet{scqTint}{scq\\scq@Style Tint}\n\\colorlet{scqOverlay}{scq\\scq@Style Overlay}\n\\colorlet{scqQubitA}{scq\\scq@Style QubitA}\n\\colorlet{scqQubitB}{scq\\scq@Style QubitB}\n\\colorlet{scqQubitC}{scq\\scq@Style QubitC}\n\\colorlet{scqQubitD}{scq\\scq@Style QubitD}\n\\colorlet{scqQubitE}{scq\\scq@Style QubitE}\n\\colorlet{scqLevel0}{scq\\scq@Style Level0}\n\\colorlet{scqLevel1}{scq\\scq@Style Level1}\n\\colorlet{scqLevel2}{scq\\scq@Style Level2}\n\\colorlet{scqLevel3}{scq\\scq@Style Level3}\n\\colorlet{scqLevel4}{scq\\scq@Style Level4}\n\\colorlet{scqSeriesA}{scq\\scq@Style SeriesA}\n\\colorlet{scqSeriesB}{scq\\scq@Style SeriesB}\n\\colorlet{scqSeriesC}{scq\\scq@Style SeriesC}\n\\colorlet{scqSeriesD}{scq\\scq@Style SeriesD}\n\\colorlet{scqSeriesE}{scq\\scq@Style SeriesE}\n\\colorlet{scqTileNonlinear}{scq\\scq@Style TileNonlinear}\n\\colorlet{scqTileCapacitive}{scq\\scq@Style TileCapacitive}\n\\colorlet{scqTileInductive}{scq\\scq@Style TileInductive}\n\\colorlet{scqTileCoupling}{scq\\scq@Style TileCoupling}\n\\colorlet{scqChipSubstrate}{scq\\scq@Style ChipSubstrate}\n\\colorlet{scqChipEdge}{scq\\scq@Style ChipEdge}\n\\colorlet{scqChipPad}{scq\\scq@Style ChipPad}\n\\colorlet{scqChipResonator}{scq\\scq@Style ChipResonator}\n\\colorlet{scqChipFeedline}{scq\\scq@Style ChipFeedline}\n\\colorlet{scqChipDrive}{scq\\scq@Style ChipDrive}\n\\colorlet{scqChipFlux}{scq\\scq@Style ChipFlux}\n\\colorlet{scqChipCoupler}{scq\\scq@Style ChipCoupler}\n\\colorlet{scqChipJunction}{scq\\scq@Style ChipJunction}\n\\colorlet{scqChipGround}{scq\\scq@Style ChipGround}\n\n% ---- the figure of the active style: \\scqgraphics[width=\\columnwidth]{t1_decay} loads\n%      <figdir>/<style>/t1_decay, so one package option switches every figure\n\\newcommand{\\scqstyle}{\\scq@style}\n\\newcommand{\\scqgraphics}[2][]{\\includegraphics[#1]{\\scq@figdir/\\scq@style/#2}}\n\n% ---- pgfplots: axis styles `scqfig field`, `scqfig folio` and `scqfig` (the active one),\n%      plot styles `scqfig data`, `scqfig model`, `scqfig ref`\n\\AtBeginDocument{\\@ifpackageloaded{pgfplots}{%\n  \\pgfplotscreateplotcyclelist{scqfig field}{%\n    {scqFieldSeriesA,solid,mark=*,mark options={solid,fill=scqFieldSeriesA}},%\n    {scqFieldSeriesB,solid,mark=square*,mark options={solid,fill=scqFieldSeriesB}},%\n    {scqFieldSeriesC,solid,mark=diamond*,mark options={solid,fill=scqFieldSeriesC}},%\n    {scqFieldSeriesD,solid,mark=triangle*,mark options={solid,fill=scqFieldSeriesD}},%\n    {scqFieldSeriesE,solid,mark=triangle*,mark options={solid,fill=scqFieldSeriesE,rotate=180}}}\n  \\pgfplotsset{scqfig field/.style={axis lines=box,tick align=inside,xtick pos=both,ytick pos=both,\n    axis line style={line width=0.7pt,draw=scqFieldInk},\n    every tick/.style={line width=0.59pt,scqFieldInk},\n    major tick length=3.2pt,minor tick length=1.8pt,\n    tick label style={font=\\sffamily\\footnotesize},label style={font=\\sffamily\\small},\n    legend style={font=\\sffamily\\footnotesize,draw=scqFieldInk,fill=white},\n    every axis plot/.append style={line width=1.1pt,mark size=1.6pt},\n    cycle list name=scqfig field,\n    colormap={scqfig field}{rgb255(0)=(253,249,252) rgb255(300)=(232,179,212) rgb255(580)=(194,55,143) rgb255(820)=(94,42,132) rgb255(1000)=(0,0,0)}},\n    scqfig field data/.style={only marks,mark=*,scqFieldData,mark options={solid,fill=scqFieldData}},\n    scqfig field model/.style={no marks,solid,scqFieldModel,line width=1.1pt},\n    scqfig field ref/.style={no marks,scqFieldReference,dash pattern=on 4pt off 2pt,line width=0.7pt},\n  }\n  \\pgfplotscreateplotcyclelist{scqfig folio}{%\n    {scqFolioSeriesA,solid,mark=*,mark options={solid,fill=white}},%\n    {scqFolioSeriesB,dashed,mark=square*,mark options={solid,fill=white}},%\n    {scqFolioSeriesC,dash dot,mark=triangle*,mark options={solid,fill=white}},%\n    {scqFolioSeriesD,dotted,mark=diamond*,mark options={solid,fill=white}},%\n    {scqFolioSeriesE,dash pattern=on 5pt off 1.5pt on 1pt off 1.5pt on 1pt off 1.5pt,mark=triangle*,mark options={solid,fill=white,rotate=180}}}\n  \\pgfplotsset{scqfig folio/.style={axis lines*=left,axis line style={-},tick align=outside,xtick pos=left,ytick pos=left,\n    axis line style={line width=0.6pt,draw=scqFolioInk},\n    every tick/.style={line width=0.51pt,scqFolioInk},\n    major tick length=3.2pt,minor tick length=1.8pt,\n    tick label style={font=\\rmfamily\\footnotesize},label style={font=\\rmfamily\\small},\n    legend style={font=\\rmfamily\\footnotesize,draw=none,fill=white},\n    every axis plot/.append style={line width=0.9pt,mark size=1.6pt},\n    cycle list name=scqfig folio,\n    colormap={scqfig folio}{rgb255(0)=(255,255,255) rgb255(400)=(154,183,226) rgb255(750)=(31,95,191) rgb255(1000)=(0,0,0)}},\n    scqfig folio data/.style={only marks,mark=*,scqFolioData,mark options={solid,fill=white}},\n    scqfig folio model/.style={no marks,solid,scqFolioModel,line width=0.9pt},\n    scqfig folio ref/.style={no marks,scqFolioReference,dash pattern=on 4pt off 2pt,line width=0.7pt},\n  }\n  \\pgfplotsset{scqfig/.style={scqfig \\scq@style},\n    scqfig data/.style={scqfig \\scq@style\\space data},\n    scqfig model/.style={scqfig \\scq@style\\space model},\n    scqfig ref/.style={scqfig \\scq@style\\space ref}}%\n}{}%\n\\@ifpackageloaded{tikz}{%\n  \\tikzset{scq tile/.style={rounded corners=2pt,inner sep=3pt,scq tile fill/#1},\n    scq tile/.default=capacitive,\n    scq tile fill/nonlinear/.style={fill=scqTileNonlinear},\n    scq tile fill/capacitive/.style={fill=scqTileCapacitive},\n    scq tile fill/inductive/.style={fill=scqTileInductive},\n    scq tile fill/coupling/.style={fill=scqTileCoupling}}%\n  % quantikz: \\begin{quantikz}[scqfig circuit] draws gates, meters, slices and groups like QCircuit\n  \\tikzset{scq slice label/.style={rotate=30,anchor=south west,inner sep=1pt}}%\n  \\tikzset{scqfig circuit field/.style={\n    operator/.append style={fill=scqFieldTileNonlinear,draw=scqFieldInk,rounded corners=1.5pt},\n    meter/.append style={fill=white,draw=scqFieldInk,rounded corners=1.5pt},\n    ggroup/.append style={draw=scqFieldReference,dash pattern=on 3pt off 2pt,rounded corners=3pt},\n    slice/.style={thickness,scqFieldModel,dash pattern=on 4pt off 2.5pt,align=center},\n    slice label style={scq slice label}}}%\n  \\tikzset{scqfig circuit folio/.style={\n    operator/.append style={fill=scqFolioTileNonlinear,draw=scqFolioInk},\n    meter/.append style={fill=white,draw=scqFolioInk},\n    ggroup/.append style={draw=scqFolioReference,dash pattern=on 3pt off 2pt,rounded corners=3pt},\n    slice/.style={thickness,scqFolioModel,dash pattern=on 4pt off 2.5pt,align=center},\n    slice label style={scq slice label}}}%\n  \\tikzset{scqfig circuit/.style={scqfig circuit \\scq@style}}%\n}{}}\n\n\\endinput\n",
+ "readme": {
+  "why": [
+   {
+    "text": "A superconducting-chip paper draws the same figures again and again:\n- spectroscopy against flux, avoided crossings and T1 decays;\n- IQ blobs, frequency plans and chip layouts;\n- wiring diagrams and pulse sequences."
+   },
+   {
+    "text": "Each group restyles them by hand, and the restyling rarely survives the next paper."
+   },
+   {
+    "text": "scqfig draws each of them in a consistent house style, at print size, from data you pass in.\nLevels, wavefunctions, chevrons, Wigner functions and response curves come from solvers in\n`scqfig.physics`, not from sketches."
+   }
+  ],
+  "install": [
+   {
+    "code": "pip install -e .            # from a checkout\npip install -e \".[test]\"    # with pytest\n",
+    "lang": "sh"
+   },
+   {
+    "text": "It needs Python 3.9 or later, numpy, scipy and matplotlib 3.6 or later. LaTeX is optional; you need\nit for the gallery PDF and for `usetex=True`."
+   }
+  ],
+  "quickstart": [
+   {
+    "code": "import numpy as np\nimport scqfig as sq\n\nsq.use(\"folio\")                                   # or \"field\"\nt = np.linspace(0, 240, 41)\np = 0.93 * np.exp(-t / 48) + 0.03 + np.random.default_rng(0).normal(0, 0.01, t.size)\n\nfig, ax = sq.figure(\"column\", aspect=0.62)        # 3.4 in wide: drop in at \\columnwidth\nfit = sq.plots.t1_decay(ax, t, p)                 # draws data, fit and \"T1 = 47.3 \u00b1 0.6 \u00b5s\"\nsq.save(fig, \"figures/t1\")                        # figures/t1.pdf and figures/t1.png\nprint(fit[\"T\"], fit.errors[\"T\"])\n",
+    "lang": "py"
+   },
+   {
+    "text": "Every plot function draws on an Axes you pass in and returns what you need next: the fit, the mesh\nand colour bar, or the artists. Panels compose freely:"
+   },
+   {
+    "code": "fig, (a, b) = sq.figure(\"page\", aspect=0.3, ncols=2)\nsq.plots.ramsey(a, t, p_ramsey)\nsq.plots.rb(b, m, seqs, interleaved=seqs_int)     # one row of survival per random sequence\nsq.panel(a, \"a\"); sq.panel(b, \"b\")\n",
+    "lang": "py"
+   }
+  ]
+ },
+ "palette": {
+  "ink": "#000000",
+  "blue": "#1f5fbf",
+  "magenta": "#c2378f",
+  "purple": "#5e2a84",
+  "orange": "#e69f00",
+  "charcoal": "#3d3d3d",
+  "grey": "#6f6f6f",
+  "silver": "#9a9a9a",
+  "light": "#d4d4d4",
+  "tint": "#ececec"
+ },
+ "hues": [
+  "blue",
+  "magenta",
+  "purple",
+  "orange"
+ ],
+ "styles": {
+  "field": {
+   "roles": {
+    "ink": "#000000",
+    "data": "#000000",
+    "model": "#1f5fbf",
+    "sim": "#1f5fbf",
+    "reference": "#6f6f6f",
+    "accent": "#e69f00",
+    "signal": "#c2378f",
+    "bus": "#5e2a84",
+    "wash": "#f7e5f0",
+    "overlay": "#1f5fbf"
+   },
+   "qubits": [
+    "#1f5fbf",
+    "#c2378f",
+    "#e69f00",
+    "#5e2a84",
+    "#6f6f6f"
+   ],
+   "levels": [
+    "#5e2a84",
+    "#1f5fbf",
+    "#c2378f",
+    "#e69f00",
+    "#6f6f6f"
+   ],
+   "series": [
+    "#1f5fbf",
+    "#c2378f",
+    "#e69f00",
+    "#5e2a84",
+    "#6f6f6f"
+   ],
+   "tiles": {
+    "nonlinear": "#e2d9e9",
+    "capacitive": "#dbe5f5",
+    "inductive": "#f9e8c2",
+    "coupling": "#e6e6e6"
+   },
+   "chip": {
+    "substrate": "#f5f2f8",
+    "edge": "#9a9a9a",
+    "pad": "#c2378f",
+    "resonator": "#5e2a84",
+    "feedline": "#1a1a1a",
+    "drive": "#1f5fbf",
+    "flux": "#e69f00",
+    "coupler": "#6a6a6a",
+    "junction": "#000000",
+    "ground": "#dcdcdc"
+   },
+   "cmap": [
+    [
+     0.0,
+     "#fdf9fc"
+    ],
+    [
+     0.3,
+     "#e8b3d4"
+    ],
+    [
+     0.58,
+     "#c2378f"
+    ],
+    [
+     0.82,
+     "#5e2a84"
+    ],
+    [
+     1.0,
+     "#000000"
+    ]
+   ],
+   "cmap_div": [
+    [
+     0.0,
+     "#1f5fbf"
+    ],
+    [
+     0.5,
+     "#ffffff"
+    ],
+    [
+     1.0,
+     "#c2378f"
+    ]
+   ],
+   "notes": {
+    "face": "Helvetica (Arial, DejaVu Sans as fallbacks)",
+    "frame": "closed box, ticks inward on four sides",
+    "data": "filled black points, blue fits",
+    "series": "colour",
+    "map": "pale magenta to purple to ink",
+    "tiles": "pale blue, lilac and amber by element kind",
+    "letters": "bold (a)"
+   }
+  },
+  "folio": {
+   "roles": {
+    "ink": "#000000",
+    "data": "#000000",
+    "model": "#000000",
+    "sim": "#1f5fbf",
+    "reference": "#6f6f6f",
+    "accent": "#e69f00",
+    "signal": "#5e2a84",
+    "bus": "#3d3d3d",
+    "wash": "#ececec",
+    "overlay": "#e69f00"
+   },
+   "qubits": [
+    "#1f5fbf",
+    "#e69f00",
+    "#5e2a84",
+    "#6f6f6f",
+    "#000000"
+   ],
+   "levels": [
+    "#000000",
+    "#1f5fbf",
+    "#5e2a84",
+    "#6f6f6f",
+    "#c2378f"
+   ],
+   "series": [
+    "#000000",
+    "#1f5fbf",
+    "#6f6f6f",
+    "#e69f00",
+    "#5e2a84"
+   ],
+   "tiles": {
+    "nonlinear": "#e2e2e2",
+    "capacitive": "#eeeeee",
+    "inductive": "#f4f4f4",
+    "coupling": "#e8e8e8"
+   },
+   "chip": {
+    "substrate": "#f4f4f4",
+    "edge": "#9a9a9a",
+    "pad": "#8c8c8c",
+    "resonator": "#3d3d3d",
+    "feedline": "#000000",
+    "drive": "#1f5fbf",
+    "flux": "#e69f00",
+    "coupler": "#6f6f6f",
+    "junction": "#000000",
+    "ground": "#e2e2e2"
+   },
+   "cmap": [
+    [
+     0.0,
+     "#ffffff"
+    ],
+    [
+     0.4,
+     "#9ab7e2"
+    ],
+    [
+     0.75,
+     "#1f5fbf"
+    ],
+    [
+     1.0,
+     "#000000"
+    ]
+   ],
+   "cmap_div": [
+    [
+     0.0,
+     "#1f5fbf"
+    ],
+    [
+     0.5,
+     "#ffffff"
+    ],
+    [
+     1.0,
+     "#e69f00"
+    ]
+   ],
+   "notes": {
+    "face": "STIX Two, to match a Times or STIX body",
+    "frame": "open L frame, ticks outward",
+    "data": "open black points, black fits",
+    "series": "line style first, then colour",
+    "map": "white to pale blue to blue to ink",
+    "tiles": "greys",
+    "letters": "upright (a)"
+   }
+  }
+ }
+}

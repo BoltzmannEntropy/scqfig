@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>scqfig</title>
+<meta name="description" content="Publication figures for superconducting-qubit and chip papers in two matched styles, with a companion LaTeX package. Every example figure with its Python and LaTeX code.">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/site.css">
+<script type="importmap">
+{"imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+}}
+</script>
+<script type="module" src="assets/app.js"></script>
+</head>
+<body>
+<header class="appbar">
+  <a class="brand" href="#/gallery" aria-label="scqfig home">
+    <svg viewBox="0 0 32 32" aria-hidden="true"><use href="assets/favicon.svg#mark"/></svg>
+    <span><b>scqfig</b><small id="ver"></small></span>
+  </a>
+  <nav class="tabs" aria-label="Sections">
+    <a class="tab" href="#/gallery" data-view="gallery">Gallery<small id="count">figures</small></a>
+    <a class="tab" href="#/latex" data-view="latex">LaTeX<small>native package</small></a>
+    <a class="tab" href="#/styles" data-view="styles">Styles<small>field and folio</small></a>
+    <a class="tab" href="#/start" data-view="start">Start<small>install and use</small></a>
+  </nav>
+  <div class="global-ctrl">
+    <div class="seg" role="group" aria-label="Figure style">
+      <button type="button" data-style="field" aria-pressed="true">field</button>
+      <button type="button" data-style="folio" aria-pressed="false">folio</button>
+    </div>
+    <input type="search" id="q" placeholder="Search figures, captions, functions" aria-label="Search figures">
+  </div>
+</header>
+<main id="main">
+  <section id="gallery" class="view" aria-label="Gallery"></section>
+  <section id="page" class="view" hidden></section>
+</main>
+<footer class="statusbar" id="status">Loading figures…</footer>
+<noscript><p class="noscript">This site needs JavaScript to list the figures. The same figures are in the repository under gallery/.</p></noscript>
+</body>
+</html>

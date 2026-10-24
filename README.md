@@ -208,6 +208,21 @@ python examples/31_rabi.py --style folio   # a single figure next to the script
 PYTHONPATH=src python -m pytest -q         # physics, fits, styles, LaTeX, every example in both styles
 ```
 
+## Website
+
+`docs/` holds a static site for GitHub Pages: every example figure in both styles with its Python
+source, a LaTeX include snippet and the commands to run it, the native pgfplots, TikZ and quantikz
+styles, and both palettes. The gallery opens on a three.js wafer with one die per figure and falls
+back to a plain grid without WebGL.
+
+```bash
+python examples/build_gallery.py   # render the figures first
+python tools/build_site.py         # copy them into docs/ and write docs/data/site.json
+python -m http.server -d docs 8000 # preview at http://localhost:8000
+```
+
+To publish, set the repository's Pages source to the `main` branch and the `/docs` folder.
+
 ## Contributing
 
 [CONTRIBUTING.md](CONTRIBUTING.md) covers the layout, the plot-function and example templates, the
