@@ -107,10 +107,26 @@ function stageCaption() {
     + '<span class="short">Drag to turn. Tap a die to lift it, tap again to open it.</span>';
 }
 
+// what the library is, for a visitor who lands on the gallery first; the counts come from the build
+const introHTML = d => `
+  <section class="intro" aria-label="About scqfig">
+    <h1>Figures for superconducting-qubit and chip papers</h1>
+    <p>scqfig is a Python library, built on matplotlib, that draws the figures these papers keep repeating:
+      spectroscopy against flux, coherence decays, IQ blobs, frequency plans, chip layouts, cryostat wiring,
+      pulse sequences and gate-model circuits. Levels, wavefunctions, chevrons and Wigner functions come from
+      solvers in <code>scqfig.physics</code>, not from sketches.</p>
+    <p>Every figure comes in two matched styles, <b>field</b> and <b>folio</b>, drawn at print width and switched
+      with one call. The companion LaTeX package <code>scqfig.sty</code> gives TikZ, pgfplots and quantikz the same
+      palette. Below are all ${d.examples.length} example figures in ${d.families.length} families, each with its
+      Python and LaTeX code.</p>
+    <p class="intro-links"><a class="btn" href="#/start">Install and use</a><a class="btn quiet" href="#/latex">LaTeX
+      package</a><a class="btn quiet" href="#/styles">Compare the styles</a></p>
+  </section>`;
+
 function buildGallery() {
   const d = S.data, counts = {};
   d.examples.forEach(e => { counts[e.family] = (counts[e.family] || 0) + 1; });
-  $('#gallery').innerHTML = `
+  $('#gallery').innerHTML = `${introHTML(d)}
     <div class="stage-grid">
       <div class="stage loading" id="stage">
         <div class="in-stage-panel"><label><input type="checkbox" id="spin"> Spin</label>
@@ -455,8 +471,7 @@ function setStyle(st) {
 function status() {
   const d = S.data;
   $('#status').innerHTML = `<span><b>scqfig ${d.version}</b></span><span>${d.examples.length} example figures</span>
-    <span>${d.latex.length} native LaTeX demos</span><span>style <b>${S.style}</b></span>
-    <span class="credit">Part of a research on dark matter conducted by Shlomo Kashani</span><span class="r">${esc(S.gl)}</span>`;
+    <span>${d.latex.length} native LaTeX demos</span><span>style <b>${S.style}</b></span><span class="r">${esc(S.gl)}</span>`;
 }
 
 async function init() {

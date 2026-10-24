@@ -34,6 +34,9 @@ code, pre { font-family: var(--mono); font-size: 12.5px }
 .brand svg { width: 26px; height: 26px }
 .brand b { font-family: var(--serif); font-size: 19px; letter-spacing: .01em }
 .brand small { color: var(--muted); font-size: 11px; margin-left: 6px }
+.credit { margin: 0; font-family: var(--serif); font-size: 17px; line-height: 1.25; color: var(--ink); padding-left: 14px;
+  border-left: 1px solid var(--rule) }
+@media (max-width: 640px) { .credit { flex-basis: 100%; padding-left: 0; border-left: 0; font-size: 15px } }
 .tabs { display: flex; gap: 4px; flex-wrap: wrap }
 .tab { background: transparent; border: 1px solid transparent; color: var(--muted); padding: 6px 11px; border-radius: 8px }
 .tab small { color: var(--muted); font-size: 11px; margin-left: 5px; font-weight: 400 }
@@ -97,6 +100,10 @@ ul.fx-list input { margin: 0; accent-color: var(--accent) }
 .peek b { display: block; margin: 8px 0 2px; font-family: var(--serif); font-size: 15px }
 .peek .fns { margin-top: 6px }
 
+.intro { display: grid; gap: 8px; margin: 4px 0 16px; max-width: 92ch }
+.intro h1 { margin: 0 }
+.intro p { color: #cdd4de; margin: 0; font-size: 15px; line-height: 1.55 }
+.intro .intro-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px }
 .cards-head { display: flex; align-items: baseline; gap: 12px; margin: 22px 0 10px; flex-wrap: wrap }
 .cards-head h2 { margin: 0 }
 .cards-head span { color: var(--muted); font-size: 12px }
@@ -204,9 +211,6 @@ details.src pre { margin: 0; padding: 14px 16px; overflow: auto; max-height: 70v
   display: flex; gap: 16px; flex-wrap: wrap }
 .statusbar b { color: var(--ink); font-weight: 500 }
 .statusbar .r { margin-left: auto }
-.statusbar .credit { color: var(--ink) }
-@media (min-width: 641px) { .statusbar { position: sticky; bottom: 0; z-index: 20 } }
-@media (max-width: 640px) { .statusbar .credit { order: -1; flex-basis: 100% } }
 .noscript { padding: 20px; color: var(--muted) }
 
 @media (max-width: 1080px) {

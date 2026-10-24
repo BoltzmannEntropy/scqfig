@@ -1,6 +1,6 @@
 {
  "version": "0.1.0",
- "build": "a14778f744",
+ "build": "836f06a1f8",
  "families": [
   {
    "name": "Spectrum",
@@ -1584,7 +1584,10 @@
     "lang": "sh"
    },
    {
-    "text": "It needs Python 3.9 or later, numpy, scipy and matplotlib 3.6 or later. LaTeX is optional; you need\nit for the gallery PDF and for `usetex=True`."
+    "text": "scqfig is not on PyPI yet, so install it from a checkout of this repository."
+   },
+   {
+    "text": "It needs Python 3.9, numpy 1.22, scipy 1.8 and matplotlib 3.6, or any later version of each. LaTeX\nis optional; you need it for the gallery PDF and for `usetex=True`."
    }
   ],
   "quickstart": [

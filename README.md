@@ -1,15 +1,64 @@
 # scqfig
 
-Publication figures for superconducting-qubit and chip papers. scqfig has 43 plot types and schematics, each with a demo, in
-two matched styles that you switch with one call, plus a LaTeX package that shares the figures'
-palette.
+**Publication figures for superconducting-qubit and chip papers, in two matched styles, with a
+companion LaTeX package.**
+
+![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-1f5fbf)
+![matplotlib 3.6+](https://img.shields.io/badge/matplotlib-3.6%2B-5e2a84)
+![License: MIT](https://img.shields.io/badge/license-MIT-c2378f)
+
+*Part of a research on dark matter conducted by Shlomo Kashani.*
+
+scqfig is a Python library, built on matplotlib, that draws the figures a superconducting-chip paper
+keeps repeating: spectroscopy and coherence decays, readout and benchmarking, frequency plans, chip
+plans, cryostat wiring and gate-model circuits. Each plot type has a runnable example. Every figure
+comes in two matched styles that you switch with one call, and a generated LaTeX package gives TikZ,
+pgfplots and quantikz the same palette.
 
 | field | folio |
 |---|---|
 | ![field style](gallery/contact_field.png) | ![folio style](gallery/contact_folio.png) |
 
 The full catalogue, with every example in both styles side by side, is in
-[`gallery/gallery.pdf`](gallery/gallery.pdf).
+[`gallery/gallery.pdf`](gallery/gallery.pdf). The [website](#website) shows each figure with its
+Python and LaTeX code.
+
+## Contents
+
+- [Highlights](#highlights)
+- [Why](#why)
+- [Install](#install)
+- [Quick start](#quick-start)
+- [Two styles](#two-styles)
+- [Use in LaTeX](#use-in-latex)
+- [Gate-model circuits](#gate-model-circuits)
+- [Package layout](#package-layout)
+- [Plot catalogue](#plot-catalogue)
+- [Rules the library keeps](#rules-the-library-keeps)
+- [Development](#development)
+- [Website](#website)
+- [Contributing](#contributing)
+- [Citing](#citing)
+- [License](#license)
+
+## Highlights
+
+- **Computed physics.** `scqfig.physics` diagonalises the transmon in the charge basis and supplies
+  dispersive shifts, Purcell limits, notch-resonator S21, Wigner functions and Rabi dynamics. The
+  curves on a figure follow from its parameters.
+- **Fits that report themselves.** `t1_decay`, `ramsey`, `rb` and `coherence_decays` fit the data,
+  draw the fit and print each result with its error on the panel. They return the fit too.
+- **Two matched styles.** field uses a sans face and a closed frame and separates series by colour.
+  folio uses a serif face and an open frame and separates series by line style first.
+- **Print size.** Figures are drawn at their printed width (`column`, `page` and the APS, Nature,
+  IEEE and thesis widths in `scqfig.WIDTHS`), so they go into a paper without scaling.
+- **Schematics.** Chip plans and oblique chip views, lumped circuits, cryostat wiring, pulse
+  sequences, level ladders, film stacks and gate-model circuits.
+- **A LaTeX companion.** `latex/scqfig.sty` comes from the same palette. One package option
+  switches every figure in a paper between the styles, and presets give native pgfplots, TikZ and
+  quantikz the matching look.
+- **An enforced palette.** `scqfig.check.violations(fig)` flags any colour outside the palette, and
+  the tests run it on every example in both styles.
 
 ## Why
 
@@ -31,8 +80,10 @@ pip install -e .            # from a checkout
 pip install -e ".[test]"    # with pytest
 ```
 
-It needs Python 3.9 or later, numpy, scipy and matplotlib 3.6 or later. LaTeX is optional; you need
-it for the gallery PDF and for `usetex=True`.
+scqfig is not on PyPI yet, so install it from a checkout of this repository.
+
+It needs Python 3.9, numpy 1.22, scipy 1.8 and matplotlib 3.6, or any later version of each. LaTeX
+is optional; you need it for the gallery PDF and for `usetex=True`.
 
 ## Quick start
 
@@ -135,7 +186,22 @@ To typeset a circuit in LaTeX instead, load quantikz next to the package and pas
 The preset replaces quantikz's red slices with the style's model colour. `scq slice label` tilts one
 slice label; under `slice all` every label tilts by itself. Tested with quantikz 0.9.6.
 
+## Package layout
+
+| Module | What it holds |
+|---|---|
+| `scqfig` | `use`, `style`, `figure`, `panel`, `save`, `series`, `WIDTHS` and the two themes |
+| `scqfig.plots` | one function per plot type, grouped in `spectrum`, `design`, `readout`, `timedomain`, `states`, `noise` and `processor` |
+| `scqfig.physics` | solvers behind the plots: `transmon_levels`, `charge_dispersion`, `dispersive_shift`, `purcell_t1`, `notch_s21`, `wigner`, `rabi_population` and more |
+| `scqfig.fit` | the fit models and a `Fit` result that carries values and errors |
+| `scqfig.schematics` | `chip`, `wiring`, `pulses`, `symbols`, `motifs` and `QCircuit` |
+| `scqfig.check` | the palette checker |
+| `scqfig.latex` | writes `latex/scqfig.sty` from the palette |
+
 ## Plot catalogue
+
+`examples/build_gallery.py` writes this table from the examples themselves. Edit the example's
+docstring and `TITLE`, not the table.
 
 <!-- catalogue:start -->
 | # | Plot | What it shows | Example |
@@ -199,12 +265,24 @@ slice label; under `slice all` every label tilts by itself. Tested with quantikz
   laid on the page by one affine map. A uniform field is a colour wash, never a local glow.
 - **Print size.** Font sizes in `themes.py` are the printed sizes.
 
-## Gallery and tests
+## Development
+
+```text
+src/scqfig/     the library (plots/, schematics/, physics, fit, themes, check, latex)
+examples/       one runnable script per plot type, plus build_gallery.py
+gallery/        rendered figures in both styles, contact sheets and gallery.pdf
+latex/          scqfig.sty, generated by python -m scqfig.latex
+tests/          pytest suite
+tools/          build_site.py for the website
+docs/           the GitHub Pages site
+```
 
 ```bash
+pip install -e ".[test]"                   # editable install with pytest
 python examples/build_gallery.py           # every example in both styles, contact sheets, gallery.pdf
 python examples/build_gallery.py --only 31 # one example
 python examples/31_rabi.py --style folio   # a single figure next to the script
+python -m scqfig.latex                     # regenerate latex/scqfig.sty after a palette change
 PYTHONPATH=src python -m pytest -q         # physics, fits, styles, LaTeX, every example in both styles
 ```
 
@@ -227,6 +305,19 @@ To publish, set the repository's Pages source to the `main` branch and the `/doc
 
 [CONTRIBUTING.md](CONTRIBUTING.md) covers the layout, the plot-function and example templates, the
 marker grammar and the checks a new plot type must pass.
+
+## Citing
+
+If scqfig drew figures in your paper, please cite it:
+
+```bibtex
+@software{kashani_scqfig_2026,
+  author  = {Kashani, Shlomo},
+  title   = {scqfig: publication figures for superconducting-qubit and chip papers},
+  year    = {2026},
+  version = {0.1.0}
+}
+```
 
 ## License
 
