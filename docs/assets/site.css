@@ -204,6 +204,9 @@ details.src pre { margin: 0; padding: 14px 16px; overflow: auto; max-height: 70v
   display: flex; gap: 16px; flex-wrap: wrap }
 .statusbar b { color: var(--ink); font-weight: 500 }
 .statusbar .r { margin-left: auto }
+.statusbar .credit { color: var(--ink) }
+@media (min-width: 641px) { .statusbar { position: sticky; bottom: 0; z-index: 20 } }
+@media (max-width: 640px) { .statusbar .credit { order: -1; flex-basis: 100% } }
 .noscript { padding: 20px; color: var(--muted) }
 
 @media (max-width: 1080px) {

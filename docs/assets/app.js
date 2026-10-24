@@ -455,7 +455,8 @@ function setStyle(st) {
 function status() {
   const d = S.data;
   $('#status').innerHTML = `<span><b>scqfig ${d.version}</b></span><span>${d.examples.length} example figures</span>
-    <span>${d.latex.length} native LaTeX demos</span><span>style <b>${S.style}</b></span><span class="r">${esc(S.gl)}</span>`;
+    <span>${d.latex.length} native LaTeX demos</span><span>style <b>${S.style}</b></span>
+    <span class="credit">Part of a research on dark matter conducted by Shlomo Kashani</span><span class="r">${esc(S.gl)}</span>`;
 }
 
 async function init() {
