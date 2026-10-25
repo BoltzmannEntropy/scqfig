@@ -295,6 +295,27 @@ def test_nonlinear_element_sits_on_the_nonlinear_tile():
     assert matplotlib.colors.to_rgba(sq.theme().tiles["nonlinear"]) in fills
 
 
+@pytest.mark.parametrize("style", STYLES)
+@pytest.mark.parametrize("raises", [False, True])
+def test_nested_tiles_restore_outer_context_and_exit(style, raises):
+    with sq.style(style):
+        ax = _glyph_axes()
+        with symbols.tiles():
+            symbols.capacitor_v(ax, -0.6, 0.0)
+            try:
+                with symbols.tiles():
+                    symbols.capacitor_v(ax, 0.0, 0.0)
+                    if raises:
+                        raise RuntimeError("leave nested context")
+            except RuntimeError:
+                pass
+            symbols.capacitor_v(ax, 0.6, 0.0)
+        symbols.capacitor_v(ax, 0.0, 0.6)
+        assert len(ax.patches) == 3
+        assert all(p.get_facecolor() == matplotlib.colors.to_rgba(sq.theme().tiles["capacitive"])
+                   for p in ax.patches)
+
+
 @pytest.mark.parametrize("up", [True, False])
 def test_current_source_arrow_points_along_the_current(up):
     ax = _glyph_axes()
