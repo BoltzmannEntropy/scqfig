@@ -8,7 +8,7 @@
   <br><br>
   <img src="https://img.shields.io/badge/python-3.9%2B-1f5fbf" alt="Python 3.9+"/>
   <img src="https://img.shields.io/badge/matplotlib-3.6%2B-5e2a84" alt="matplotlib 3.6+"/>
-  <img src="https://img.shields.io/badge/examples-47-e69f00" alt="47 examples"/>
+  <img src="https://img.shields.io/badge/examples-74-e69f00" alt="74 examples"/>
   <img src="https://img.shields.io/badge/license-MIT-c2378f" alt="License: MIT"/>
   <br><br>
 </div>
@@ -19,7 +19,8 @@
 
 scqfig is a Python library, built on matplotlib, that draws the figures a superconducting-chip paper
 keeps repeating: spectroscopy and coherence decays, readout and benchmarking, frequency plans, chip
-plans, cryostat wiring and gate-model circuits. Each plot type has a runnable example. Every figure
+plans, cryostat wiring and gate-model circuits, dark-matter reach, comparison and budget charts, and
+recipe grids and flow diagrams. Each plot type has a runnable example. Every figure
 comes in two matched styles that you switch with one call, and a generated LaTeX package gives TikZ,
 pgfplots and quantikz the same palette.
 
@@ -33,7 +34,7 @@ shows each figure with its Python and LaTeX code.
 
 ## Website UI
 
-The [gallery site](https://boltzmannentropy.github.io/scqfig.github.io/) lays the 47 example figures out as
+The [gallery site](https://boltzmannentropy.github.io/scqfig.github.io/) lays the 74 example figures out as
 dies on a three.js wafer, and a sidebar lists every example by family. Pick a die or a sidebar entry
 to open its figure, switch every figure between field and folio with one toggle, and copy the Python
 source or the LaTeX include.
@@ -238,6 +239,11 @@ docstring and `TITLE`, not the table.
 | 02 | Charge dispersion | Charge dispersion of the three lowest levels as E_J/E_C grows from the Cooper-pair box to the transmon. | [`02_charge_dispersion.py`](examples/02_charge_dispersion.py) |
 | 03 | Flux-tuned spectroscopy | Two-tone spectroscopy of a SQUID transmon against flux, with the exact f01 and f02/2 drawn over the data (synthetic data). | [`03_flux_spectroscopy.py`](examples/03_flux_spectroscopy.py) |
 | 04 | Avoided crossing | Vacuum-Rabi splitting: resonator transmission as a tunable qubit crosses it, with the bare modes dashed and 2g marked (synthetic data). | [`04_avoided_crossing.py`](examples/04_avoided_crossing.py) |
+| 05 | Scaling with E_J/E_C | Transmon frequency, anharmonicity and charge dispersion against E_J/E_C, exact in the charge basis with the large-ratio asymptotes dashed and two designs marked (computed). | [`05_ratio_scaling.py`](examples/05_ratio_scaling.py) |
+| 06 | Parity bands | Even and odd charge-parity branches of a charge-sensitive transmon at E_J/E_C = 20: the 0-1 frequency with its splitting 2 chi_0 and the zero-contrast offsets, and the first excited level (computed). | [`06_parity_bands.py`](examples/06_parity_bands.py) |
+| 07 | Flux tuning | f01 of a SQUID transmon against flux for a symmetric SQUID and a 20 % junction asymmetry, with the sweet spot and the flux that tunes it 1 GHz lower (computed). | [`07_flux_tuning.py`](examples/07_flux_tuning.py) |
+| 08 | Dressed lines | Dressed one-excitation frequencies of a transmon (E_C = 250 MHz) and a 7.5 GHz resonator coupled with g = 100 MHz, swept through the crossing, with the splitting and a design point marked (computed). | [`08_dressed_lines.py`](examples/08_dressed_lines.py) |
+| 09 | Junction design | Qubit frequency against junction resistance for two transmons on an aluminium junction (gap 180 µeV), with L_J on the top axis, a 4-6 GHz band, an allowed L_J window and the designs with a 3 % junction scatter (computed). | [`09_junction_curve.py`](examples/09_junction_curve.py) |
 | 10 | Frequency plan | Frequency plan of a three-qubit chain: each transmon's f01 and f12, the readout resonators inside the Purcell-filter passband, and the collision windows each qubit's f01 must avoid (designed values). | [`10_frequency_plan.py`](examples/10_frequency_plan.py) |
 | 11 | Collision map | Collision map of two coupled transmons: forbidden bands of the f_q2 against f_q1 plane, with three design points and their 20 MHz fabrication scatter; one point sits on a two-photon band (designed values). | [`11_collision_map.py`](examples/11_collision_map.py) |
 | 12 | Capacitance matrix | Maxwell capacitance matrix of two transmons, their readout resonators and the feedline, coloured by \|C\| on a log scale (simulated values). | [`12_capacitance_matrix.py`](examples/12_capacitance_matrix.py) |
@@ -246,6 +252,8 @@ docstring and `TITLE`, not the table.
 | 15 | Purcell limit | Purcell limit on T1 against qubit frequency for a 7.15 GHz readout resonator (kappa = 1.5 MHz, g = 85 MHz), without and with a Q = 25 bandpass filter (computed). | [`15_purcell_limit.py`](examples/15_purcell_limit.py) |
 | 16 | Convergence | Eigenmode frequency of a readout resonator against adaptive mesh pass, with the relative change per pass and a 0.02 % target (synthetic data). | [`16_convergence.py`](examples/16_convergence.py) |
 | 17 | Black-box quantization | Black-box quantization of the transmon and readout resonator of example 72: (a) the susceptance the junction sees, whose rising zeros are the modes and whose slopes set their impedances; (b) the first-order Kerr matrix, with exact diagonalization of the same circuit in brackets (computed). | [`17_black_box.py`](examples/17_black_box.py) |
+| 18 | Frequency lines | Frequency plan of a three-qubit sensor chip on one axis: f01 and f12 lines with their fabrication scatter, one flux scan, the collision windows of the tunable qubit, the readout resonators in a Purcell passband, the 20 mK thermal floor and the rest-energy axis (designed values). | [`18_frequency_lines.py`](examples/18_frequency_lines.py) |
+| 19 | Design map | Scan-rate gain R = eta^2 dnu/Gamma of a photon counter over a quantum-limited amplifier on the plane of dark-count rate (over the signal linewidth) and efficiency, with R = 1 drawn heavier and three illustrative devices, one an efficiency lower bound (computed map, synthetic points). | [`19_design_map.py`](examples/19_design_map.py) |
 | 20 | S21 of a resonator | Notch-resonator transmission as magnitude, phase and circle, with one complex fit and the cable delay, amplitude and phase calibrated out (synthetic data). | [`20_s21_resonator.py`](examples/20_s21_resonator.py) |
 | 21 | Quality factor vs power | Internal quality factor of a resonator against mean photon number, with a fit of the saturable two-level-system model (synthetic data). | [`21_quality_vs_power.py`](examples/21_quality_vs_power.py) |
 | 22 | Dispersive readout | Dispersive readout: resonator transmission with the qubit in \|0> and in \|1>, the 2chi shift computed for g = 85 MHz and Delta = -2.09 GHz, and the readout frequency between the two dips (synthetic data). | [`22_dispersive_readout.py`](examples/22_dispersive_readout.py) |
@@ -268,6 +276,7 @@ docstring and `TITLE`, not the table.
 | 51 | Error budget | CZ-gate error budget: contributions, their sum, and the measured error with the unexplained part hatched. | [`51_error_budget.py`](examples/51_error_budget.py) |
 | 52 | Correlated error bursts | Correlated error bursts: detections per qubit over time, with the flagged fraction and burst marks above (synthetic data from a toy burst model). | [`52_burst_raster.py`](examples/52_burst_raster.py) |
 | 53 | Error correlations | Pairwise correlation of error detections across a 24-qubit chain; bursts correlate neighbours (synthetic data from a toy burst model). | [`53_error_correlation.py`](examples/53_error_correlation.py) |
+| 59 | Dark-photon reach | Kinetic-mixing reach of a qubit dark-photon search against frequency for one and sixteen sensors at 20 and 50 mK, from an illustrative counting model with thermal dark counts, an excluded region and a synthetic measured limit, with the dark-photon mass on the top axis (computed). | [`59_reach.py`](examples/59_reach.py) |
 | 60 | Device map | Device map of a 3 x 4 qubit grid with T1 on the qubits and CZ error on the couplers (synthetic data). | [`60_device_map.py`](examples/60_device_map.py) |
 | 61 | Error distributions | Cumulative distributions of single-qubit, CZ and readout errors across a 54-qubit processor, medians marked (synthetic data). | [`61_error_cdf.py`](examples/61_error_cdf.py) |
 | 70 | Chip plan | Plan view of a two-qubit chip: Xmons joined by a tunable coupler, readout resonators on a feedline, drive and flux lines, airbridges. | [`70_chip_plan.py`](examples/70_chip_plan.py) |
@@ -281,6 +290,25 @@ docstring and `TITLE`, not the table.
 | 78 | Quantum circuit | GHZ-state preparation: a Hadamard and two CNOTs entangle three qubits, then all three are measured; dashed slices mark the states Psi_1 to Psi_4. | [`78_quantum_circuit.py`](examples/78_quantum_circuit.py) |
 | 79 | Teleportation and gate glyphs | (a) Teleportation: a Bell pair, a Bell measurement and classically controlled X and Z corrections. (b) The other gate glyphs: rotation, controlled-U with an open control, CZ, SWAP and a three-qubit box. | [`79_teleportation.py`](examples/79_teleportation.py) |
 | 80 | Black-box circuit | Black-box quantization in four steps for the device of example 72: (a) the transmon coupled to its readout resonator; (b) the junction split into its linear inductance and its nonlinear remainder; (c) the linear part as one admittance, probed by a swept current source; (d) that admittance beside the nonlinear element, whose zero-point phase each mode sets (computed). | [`80_black_box_circuit.py`](examples/80_black_box_circuit.py) |
+| 81 | Recipe grid | A generic transmon design recipe in eight numbered steps: each box holds instruction lines, a mini-plot from toy models and the tools the step uses, arrows run through the grid and two optional steps sit in dashed boxes below. | [`81_recipe_grid.py`](examples/81_recipe_grid.py) |
+| 82 | Step guide | A generic validation guide in two columns: the numbered steps run down each column with a mini-plot beside the text and the tools as labelled chips, and two optional steps sit in dashed side boxes joined to their step. | [`82_step_guide.py`](examples/82_step_guide.py) |
+| 83 | Hamiltonian terms | A generic transmon-resonator Hamiltonian: (a) every term on the tile of the circuit element that produces it, bracketed by origin, (b) the one-excitation block as a bracketed matrix with its bare and dressed frequencies, (c) the drive term and the inputs that stay assumed (illustrative numbers). | [`83_hamiltonian_terms.py`](examples/83_hamiltonian_terms.py) |
+| 84 | Design flow | A generic chip design flow on a three-by-three grid: each box lists its quantities with a status tag (specified, assumed, simulated, derived, measured), arrows snake through the steps and a dashed arrow carries the measured frequency back to the junction (illustrative numbers). | [`84_design_flow.py`](examples/84_design_flow.py) |
+| 85 | Screening flow | A generic literature-screening flow chart: reports pass a screening box, the exclusions branch off a trunk, a dotted arrow marks the citation search that adds reports to the full-text set, and the kept reports split into labelled categories (made-up counts). | [`85_screening_flow.py`](examples/85_screening_flow.py) |
+| 86 | Mask cell with magnifiers | Xmon cell drawn to scale: a claw couples the quarter-wave resonator, a mask-level SQUID bridges the bottom gap, and two circular magnifiers show the claw and the SQUID, still to scale (designed geometry). | [`86_mask_zoom.py`](examples/86_mask_zoom.py) |
+| 87 | Bowtie sensor | Resonator-free bowtie sensor: (a) the two wedge islands to scale beside a feedline, with a charge line below and a schematic magnifier on the junction; (b) its circuit, with the gate set by a dc source through C_g (designed geometry). | [`87_bowtie_sensor.py`](examples/87_bowtie_sensor.py) |
+| 88 | Cavity plan | Two-chamber 3D cavity in plan view, to scale: a storage and a readout chamber joined by a trench that holds a transmon chip with two antenna pads, a coupling pin through the readout wall, and a uniform field washed over both chambers (designed geometry). | [`88_cavity_plan.py`](examples/88_cavity_plan.py) |
+| 89 | Topologies and a coloured circuit | (a) Coupling graphs of five chip topologies: two qubits without a coupler, a chain, a star, a shared bus and a 2 x 3 lattice. (b) The four-qubit chain's sensing circuit, each wire in its qubit's colour: GHZ encoding, a shaded exposure window where a field acts on every wire at once, decoding and readout. | [`89_topology_protocol.py`](examples/89_topology_protocol.py) |
+| 90 | Stacked budgets | Dark-count budget of four photon counters split by source with each total printed beside its bar, and the share of four value classes in three study groups (synthetic numbers). | [`90_stacked_budget.py`](examples/90_stacked_budget.py) |
+| 91 | Efficiency chain | Detection efficiency of three photon counters as a product of four factors on a log axis with the measured efficiency marked, and parameter values per report stacked by status and grouped by study type (synthetic numbers). | [`91_efficiency_chain.py`](examples/91_efficiency_chain.py) |
+| 92 | Factor budget | Signal of two devices against a reference design as signed log factors with the net change, and one device's budget as bars coloured by sign (synthetic numbers). | [`92_factor_bars.py`](examples/92_factor_bars.py) |
+| 93 | Grouped bars | Logarithmic sensitivities of a transmon's frequency, anharmonicity, coupling and dispersive shift to four design parameters (computed), and surface participation of two designs with the change printed over each pair (synthetic numbers). | [`93_grouped_bars.py`](examples/93_grouped_bars.py) |
+| 94 | Tornado | One-at-a-time sensitivity of a projected coupling reach to six design inputs, each moved to the ends of its range, with the range and the design step that sets each input (computed from a power-law model). | [`94_tornado.py`](examples/94_tornado.py) |
+| 95 | Bar rows | Background probability per measurement in two studies, with a hatched upper limit, open simulated terms and the values printed beside the bars, and measured reduction factors drawn out from 1 with published values as grey ticks (synthetic numbers). | [`95_bar_rows.py`](examples/95_bar_rows.py) |
+| 96 | Dot rows and bounds | Predicted (open) against measured (filled) efficiency per detector, energy thresholds per sensor as points and ranges with where each energy is counted, and efficiency against dark-count rate with arrows on the two bounds (synthetic numbers). | [`96_dot_rows.py`](examples/96_dot_rows.py) |
+| 97 | Study strips | Four quantities across six devices on strips that share the device rows, each on its own log axis; filled markers are measured, open markers simulated, and n.r. marks a quantity a source does not report (synthetic numbers). | [`97_study_strips.py`](examples/97_study_strips.py) |
+| 98 | Ratio strip and stems | Predicted over measured values by parameter type with each point's status and published scatters as grey bars, and forecast (open) against measured lifetime per device joined by a stem, grouped by chip (synthetic numbers). | [`98_ratio_strip.py`](examples/98_ratio_strip.py) |
+| 99 | Timeline | Reports by year in five research lines, one marker per report shaped by its kind; the sparse years before 2018 share a compressed stretch of the axis, and reports of one line and year sit side by side (synthetic record). | [`99_timeline.py`](examples/99_timeline.py) |
 <!-- catalogue:end -->
 
 ## Rules the library keeps

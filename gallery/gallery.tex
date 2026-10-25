@@ -75,7 +75,37 @@ Every example in both styles: \textcolor{scqBlue}{\textbf{field}} (left) and \te
 \begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/04_avoided_crossing.pdf}\end{minipage}\hfill
 \begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/04_avoided_crossing.pdf}\end{minipage}
 \end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{05\quad Scaling with E\_J/E\_C}\hfill\texttt{05\_ratio\_scaling.py}\par
+{\small Transmon frequency, anharmonicity and charge dispersion against E\_J/E\_C, exact in the charge basis with the large-ratio asymptotes dashed and two designs marked (computed).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/05_ratio_scaling.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/05_ratio_scaling.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{06\quad Parity bands}\hfill\texttt{06\_parity\_bands.py}\par
+{\small Even and odd charge-parity branches of a charge-sensitive transmon at E\_J/E\_C = 20: the 0-1 frequency with its splitting 2 chi\_0 and the zero-contrast offsets, and the first excited level (computed).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/06_parity_bands.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/06_parity_bands.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{07\quad Flux tuning}\hfill\texttt{07\_flux\_tuning.py}\par
+{\small f01 of a SQUID transmon against flux for a symmetric SQUID and a 20 \% junction asymmetry, with the sweet spot and the flux that tunes it 1 GHz lower (computed).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/07_flux_tuning.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/07_flux_tuning.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{08\quad Dressed lines}\hfill\texttt{08\_dressed\_lines.py}\par
+{\small Dressed one-excitation frequencies of a transmon (E\_C = 250 MHz) and a 7.5 GHz resonator coupled with g = 100 MHz, swept through the crossing, with the splitting and a design point marked (computed).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/08_dressed_lines.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/08_dressed_lines.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
 \section*{\color{scqPurple}Design}
+\begin{minipage}{\textwidth}
+\textbf{09\quad Junction design}\hfill\texttt{09\_junction\_curve.py}\par
+{\small Qubit frequency against junction resistance for two transmons on an aluminium junction (gap 180 $\mu$eV), with L\_J on the top axis, a 4-6 GHz band, an allowed L\_J window and the designs with a 3 \% junction scatter (computed).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/09_junction_curve.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/09_junction_curve.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
 \begin{minipage}{\textwidth}
 \textbf{10\quad Frequency plan}\hfill\texttt{10\_frequency\_plan.py}\par
 {\small Frequency plan of a three-qubit chain: each transmon's f01 and f12, the readout resonators inside the Purcell-filter passband, and the collision windows each qubit's f01 must avoid (designed values).}\par\smallskip
@@ -123,6 +153,18 @@ Every example in both styles: \textcolor{scqBlue}{\textbf{field}} (left) and \te
 {\small Black-box quantization of the transmon and readout resonator of example 72: (a) the susceptance the junction sees, whose rising zeros are the modes and whose slopes set their impedances; (b) the first-order Kerr matrix, with exact diagonalization of the same circuit in brackets (computed).}\par\smallskip
 \begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/17_black_box.pdf}\end{minipage}\hfill
 \begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/17_black_box.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{18\quad Frequency lines}\hfill\texttt{18\_frequency\_lines.py}\par
+{\small Frequency plan of a three-qubit sensor chip on one axis: f01 and f12 lines with their fabrication scatter, one flux scan, the collision windows of the tunable qubit, the readout resonators in a Purcell passband, the 20 mK thermal floor and the rest-energy axis (designed values).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/18_frequency_lines.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/18_frequency_lines.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{19\quad Design map}\hfill\texttt{19\_design\_map.py}\par
+{\small Scan-rate gain R = eta\^{}2 dnu/Gamma of a photon counter over a quantum-limited amplifier on the plane of dark-count rate (over the signal linewidth) and efficiency, with R = 1 drawn heavier and three illustrative devices, one an efficiency lower bound (computed map, synthetic points).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/19_design_map.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/19_design_map.pdf}\end{minipage}
 \end{minipage}\par\bigskip\medskip
 \section*{\color{scqPurple}Readout}
 \begin{minipage}{\textwidth}
@@ -260,6 +302,13 @@ Every example in both styles: \textcolor{scqBlue}{\textbf{field}} (left) and \te
 \begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/53_error_correlation.pdf}\end{minipage}\hfill
 \begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/53_error_correlation.pdf}\end{minipage}
 \end{minipage}\par\bigskip\medskip
+\section*{\color{scqPurple}Dark matter}
+\begin{minipage}{\textwidth}
+\textbf{59\quad Dark-photon reach}\hfill\texttt{59\_reach.py}\par
+{\small Kinetic-mixing reach of a qubit dark-photon search against frequency for one and sixteen sensors at 20 and 50 mK, from an illustrative counting model with thermal dark counts, an excluded region and a synthetic measured limit, with the dark-photon mass on the top axis (computed).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/59_reach.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/59_reach.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
 \section*{\color{scqPurple}Processor}
 \begin{minipage}{\textwidth}
 \textbf{60\quad Device map}\hfill\texttt{60\_device\_map.py}\par
@@ -339,5 +388,120 @@ Every example in both styles: \textcolor{scqBlue}{\textbf{field}} (left) and \te
 {\small Black-box quantization in four steps for the device of example 72: (a) the transmon coupled to its readout resonator; (b) the junction split into its linear inductance and its nonlinear remainder; (c) the linear part as one admittance, probed by a swept current source; (d) that admittance beside the nonlinear element, whose zero-point phase each mode sets (computed).}\par\smallskip
 \begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/80_black_box_circuit.pdf}\end{minipage}\hfill
 \begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/80_black_box_circuit.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{81\quad Recipe grid}\hfill\texttt{81\_recipe\_grid.py}\par
+{\small A generic transmon design recipe in eight numbered steps: each box holds instruction lines, a mini-plot from toy models and the tools the step uses, arrows run through the grid and two optional steps sit in dashed boxes below.}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/81_recipe_grid.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/81_recipe_grid.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{82\quad Step guide}\hfill\texttt{82\_step\_guide.py}\par
+{\small A generic validation guide in two columns: the numbered steps run down each column with a mini-plot beside the text and the tools as labelled chips, and two optional steps sit in dashed side boxes joined to their step.}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/82_step_guide.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/82_step_guide.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{83\quad Hamiltonian terms}\hfill\texttt{83\_hamiltonian\_terms.py}\par
+{\small A generic transmon-resonator Hamiltonian: (a) every term on the tile of the circuit element that produces it, bracketed by origin, (b) the one-excitation block as a bracketed matrix with its bare and dressed frequencies, (c) the drive term and the inputs that stay assumed (illustrative numbers).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/83_hamiltonian_terms.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/83_hamiltonian_terms.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{84\quad Design flow}\hfill\texttt{84\_design\_flow.py}\par
+{\small A generic chip design flow on a three-by-three grid: each box lists its quantities with a status tag (specified, assumed, simulated, derived, measured), arrows snake through the steps and a dashed arrow carries the measured frequency back to the junction (illustrative numbers).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/84_design_flow.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/84_design_flow.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{85\quad Screening flow}\hfill\texttt{85\_screening\_flow.py}\par
+{\small A generic literature-screening flow chart: reports pass a screening box, the exclusions branch off a trunk, a dotted arrow marks the citation search that adds reports to the full-text set, and the kept reports split into labelled categories (made-up counts).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/85_screening_flow.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/85_screening_flow.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{86\quad Mask cell with magnifiers}\hfill\texttt{86\_mask\_zoom.py}\par
+{\small Xmon cell drawn to scale: a claw couples the quarter-wave resonator, a mask-level SQUID bridges the bottom gap, and two circular magnifiers show the claw and the SQUID, still to scale (designed geometry).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/86_mask_zoom.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/86_mask_zoom.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{87\quad Bowtie sensor}\hfill\texttt{87\_bowtie\_sensor.py}\par
+{\small Resonator-free bowtie sensor: (a) the two wedge islands to scale beside a feedline, with a charge line below and a schematic magnifier on the junction; (b) its circuit, with the gate set by a dc source through C\_g (designed geometry).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/87_bowtie_sensor.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/87_bowtie_sensor.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{88\quad Cavity plan}\hfill\texttt{88\_cavity\_plan.py}\par
+{\small Two-chamber 3D cavity in plan view, to scale: a storage and a readout chamber joined by a trench that holds a transmon chip with two antenna pads, a coupling pin through the readout wall, and a uniform field washed over both chambers (designed geometry).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/88_cavity_plan.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/88_cavity_plan.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{89\quad Topologies and a coloured circuit}\hfill\texttt{89\_topology\_protocol.py}\par
+{\small (a) Coupling graphs of five chip topologies: two qubits without a coupler, a chain, a star, a shared bus and a 2 x 3 lattice. (b) The four-qubit chain's sensing circuit, each wire in its qubit's colour: GHZ encoding, a shaded exposure window where a field acts on every wire at once, decoding and readout.}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/89_topology_protocol.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/89_topology_protocol.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\section*{\color{scqPurple}Comparison}
+\begin{minipage}{\textwidth}
+\textbf{90\quad Stacked budgets}\hfill\texttt{90\_stacked\_budget.py}\par
+{\small Dark-count budget of four photon counters split by source with each total printed beside its bar, and the share of four value classes in three study groups (synthetic numbers).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/90_stacked_budget.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/90_stacked_budget.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{91\quad Efficiency chain}\hfill\texttt{91\_efficiency\_chain.py}\par
+{\small Detection efficiency of three photon counters as a product of four factors on a log axis with the measured efficiency marked, and parameter values per report stacked by status and grouped by study type (synthetic numbers).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/91_efficiency_chain.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/91_efficiency_chain.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{92\quad Factor budget}\hfill\texttt{92\_factor\_bars.py}\par
+{\small Signal of two devices against a reference design as signed log factors with the net change, and one device's budget as bars coloured by sign (synthetic numbers).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/92_factor_bars.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/92_factor_bars.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{93\quad Grouped bars}\hfill\texttt{93\_grouped\_bars.py}\par
+{\small Logarithmic sensitivities of a transmon's frequency, anharmonicity, coupling and dispersive shift to four design parameters (computed), and surface participation of two designs with the change printed over each pair (synthetic numbers).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/93_grouped_bars.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/93_grouped_bars.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{94\quad Tornado}\hfill\texttt{94\_tornado.py}\par
+{\small One-at-a-time sensitivity of a projected coupling reach to six design inputs, each moved to the ends of its range, with the range and the design step that sets each input (computed from a power-law model).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/94_tornado.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/94_tornado.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{95\quad Bar rows}\hfill\texttt{95\_bar\_rows.py}\par
+{\small Background probability per measurement in two studies, with a hatched upper limit, open simulated terms and the values printed beside the bars, and measured reduction factors drawn out from 1 with published values as grey ticks (synthetic numbers).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/95_bar_rows.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/95_bar_rows.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{96\quad Dot rows and bounds}\hfill\texttt{96\_dot\_rows.py}\par
+{\small Predicted (open) against measured (filled) efficiency per detector, energy thresholds per sensor as points and ranges with where each energy is counted, and efficiency against dark-count rate with arrows on the two bounds (synthetic numbers).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/96_dot_rows.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/96_dot_rows.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{97\quad Study strips}\hfill\texttt{97\_study\_strips.py}\par
+{\small Four quantities across six devices on strips that share the device rows, each on its own log axis; filled markers are measured, open markers simulated, and n.r. marks a quantity a source does not report (synthetic numbers).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/97_study_strips.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/97_study_strips.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{98\quad Ratio strip and stems}\hfill\texttt{98\_ratio\_strip.py}\par
+{\small Predicted over measured values by parameter type with each point's status and published scatters as grey bars, and forecast (open) against measured lifetime per device joined by a stem, grouped by chip (synthetic numbers).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/98_ratio_strip.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/98_ratio_strip.pdf}\end{minipage}
+\end{minipage}\par\bigskip\medskip
+\begin{minipage}{\textwidth}
+\textbf{99\quad Timeline}\hfill\texttt{99\_timeline.py}\par
+{\small Reports by year in five research lines, one marker per report shaped by its kind; the sparse years before 2018 share a compressed stretch of the axis, and reports of one line and year sit side by side (synthetic record).}\par\smallskip
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{field/99_timeline.pdf}\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{folio/99_timeline.pdf}\end{minipage}
 \end{minipage}\par\bigskip\medskip
 \end{document}
