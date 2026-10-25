@@ -4,6 +4,7 @@ Figures are drawn at print size, so the font sizes in themes.py are the printed 
 figure from figure("column") goes into the paper at width=\\columnwidth without scaling."""
 import argparse
 import contextlib
+import dataclasses
 import os
 import pathlib
 
@@ -180,13 +181,15 @@ def rc_params(t, usetex=False):
     return rc
 
 
-def use(name="field", usetex=False):
+def use(name="field", usetex=False, **overrides):
     """Switch every later figure to style `name` ("field" or "folio"). usetex=True sets all text with
-    LaTeX in the matching face (helvet + sansmath, or stix2), at the cost of slower rendering."""
+    LaTeX in the matching face (helvet + sansmath, or stix2), at the cost of slower rendering.
+    Keyword overrides replace Theme fields for this session, for example use("field", size=8.5) for a
+    document whose figures are set half a point larger. Returns the active Theme."""
     if name not in THEMES:
         raise ValueError(f"unknown style {name!r}; choose one of {sorted(THEMES)}")
     _register_cmaps()
-    t = THEMES[name]
+    t = dataclasses.replace(THEMES[name], **overrides) if overrides else THEMES[name]
     mpl.rcParams.update(rc_params(t, usetex))
     _current[0] = t
     _applied[0] = True
@@ -194,13 +197,13 @@ def use(name="field", usetex=False):
 
 
 @contextlib.contextmanager
-def style(name, usetex=False):
+def style(name, usetex=False, **overrides):
     """Draw inside the block in style `name`, then restore the previous style and settings."""
     prev = _current[0]
     with mpl.rc_context():
-        use(name, usetex)
+        t = use(name, usetex, **overrides)
         try:
-            yield THEMES[name]
+            yield t
         finally:
             _current[0] = prev
 
@@ -242,6 +245,28 @@ def panel(ax, letter, inside=False, x=None, y=None, fontsize=None):
                          ha="left", va="bottom", fontsize=fs, weight=t.letter_weight)
     return ax.set_title(s, loc="left", fontsize=fs, fontweight=t.letter_weight,
                         **({"x": x} if x is not None else {}))
+
+
+def title(ax, letter, text=None, finding=None):
+    """Panel letter at the upper-left corner of the frame, flush right against it. With both a title
+    and a one-line finding, the letter and the title sit on one line above the frame and the finding
+    in grey on the line below; a bare title is ignored, since the caption names the panel."""
+    t = theme()
+    s = t.letter.format(letter)
+    if text and finding:
+        a = ax.text(0.0, 1.10, f"{s}  {text}", transform=ax.transAxes, ha="left", va="bottom",
+                    fontsize=t.size + 0.5, weight="bold")
+        b = ax.text(0.0, 1.02, finding, transform=ax.transAxes, ha="left", va="bottom", fontsize=t.size - 0.7,
+                    color=t.reference)
+        return a, b
+    return ax.text(-0.02, 1.02, s, transform=ax.transAxes, ha="right", va="bottom", fontsize=t.size + 0.5,
+                   weight=t.letter_weight)
+
+
+def fig_letter(fig, x, y, letter):
+    """Panel letter at figure coordinates (x, y), for panels that are not a single axes."""
+    t = theme()
+    return fig.text(x, y, t.letter.format(letter), fontsize=t.size + 0.5, va="bottom", weight=t.letter_weight)
 
 
 # ---- the marker grammar ---------------------------------------------------------------------

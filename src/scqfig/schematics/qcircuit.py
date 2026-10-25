@@ -1,7 +1,9 @@
 """Gate-model quantum circuits in the active style, in the manner of quantikz: wires with input
 labels, gate boxes on pale tiles, controls and targets, SWAP and CZ, multi-qubit boxes, measurement
 meters that turn a wire classical, classically controlled gates, dashed slices with tilted labels,
-and dashed groups around a stretch of the circuit.
+dashed groups around a stretch of the circuit, and shaded column windows (an exposure, an idle).
+wire_colors gives each wire its own colour (theme().qubits, say); the glyphs on one wire take it,
+and the vertical connectors and multi-wire boxes stay ink.
 
     c = QCircuit(3, labels=[r"$|0\\rangle$"] * 3)
     c.gate("H", 0); c.slice(r"$\\Psi_1$")
@@ -17,7 +19,7 @@ labels keep their size relative to the boxes."""
 import re
 
 import numpy as np
-from matplotlib.patches import Arc, Circle, FancyBboxPatch
+from matplotlib.patches import Arc, Circle, FancyBboxPatch, Rectangle
 
 from ..core import theme
 from .symbols import arrow
@@ -44,11 +46,14 @@ class QCircuit:
     GAP = 0.5         # space between neighbouring columns
     SLICE_GAP = 0.3   # extra space where a slice sits
 
-    def __init__(self, n, labels=None, outputs=None):
+    def __init__(self, n, labels=None, outputs=None, wire_colors=None):
         self.n = int(n)
         self.labels = list(labels) if labels is not None else [None] * self.n
         self.outputs = list(outputs) if outputs is not None else [None] * self.n
-        self.ops, self.slices, self.groups = [], [], []
+        if wire_colors is not None and len(wire_colors) != self.n:
+            raise ValueError(f"wire_colors needs one colour per wire ({self.n}), got {len(wire_colors)}")
+        self.wire_colors = list(wire_colors) if wire_colors is not None else None
+        self.ops, self.slices, self.groups, self.windows = [], [], [], []
         self._free = [0] * self.n
         self._floor = 0
         self._measured = {}
@@ -158,6 +163,16 @@ class QCircuit:
         self.groups.append(dict(q=(min(qs), max(qs)), cols=tuple(cols), label=label))
         return self
 
+    def window(self, cols, label=None, fill=None):
+        """A shaded window behind every wire over columns cols = (first, last), or one column, with an
+        optional label centred above it: a stretch where something acts on all qubits at once (an
+        exposure, an idle). fill defaults to theme().wash. It does not move any operation."""
+        a, b = (cols, cols) if np.ndim(cols) == 0 else tuple(cols)
+        if not all(isinstance(c, (int, np.integer)) for c in (a, b)) or not 0 <= a <= b:
+            raise ValueError(f"cols must be a column or (first, last) with 0 <= first <= last, got {cols!r}")
+        self.windows.append(dict(cols=(int(a), int(b)), label=label, fill=fill))
+        return self
+
     # ---- layout --------------------------------------------------------------------------------
 
     def _op_width(self, op):
@@ -185,7 +200,8 @@ class QCircuit:
         lab = max([0.17 * _visible_len(s) + 0.2 for s in self.labels if s] + [0.0])
         out = max([0.17 * _visible_len(s) + 0.2 for s in self.outputs if s] + [0.0])
         top = 0.62 + (0.75 if any(s["label"] for s in self.slices) else 0.0) + \
-            (0.35 if any(g["label"] and g["q"][0] == 0 for g in self.groups) else 0.0)
+            (0.35 if any(g["label"] and g["q"][0] == 0 for g in self.groups) or
+             any(wd["label"] for wd in self.windows) else 0.0)
         bottom = -(self.n - 1) - 0.62
         return x, w, (left - lab, right + out, bottom, top), left, right
 
@@ -209,12 +225,17 @@ class QCircuit:
         fs = fontsize or t.size + 1.5
         x, w, (X0, X1, Y0, Y1), left, right = self._layout()
         y = -np.arange(self.n, dtype=float)
-        out = {k: [] for k in ("boxes", "controls", "targets", "meters", "slices", "groups", "classical", "swaps")}
+        out = {k: [] for k in ("boxes", "controls", "targets", "meters", "slices", "groups", "classical", "swaps",
+                               "windows")}
         out.update(x=x, y=y)
         round_ = "round,pad=0,rounding_size=0.07" if t.name == "field" else "square,pad=0"
 
-        def box(cx, cy, bw, bh, fc, z=3):
-            p = FancyBboxPatch((cx - bw / 2, cy - bh / 2), bw, bh, boxstyle=round_, fc=fc, ec=ink, lw=lw, zorder=z)
+        def col(q):
+            return self.wire_colors[q] if self.wire_colors is not None else ink
+
+        def box(cx, cy, bw, bh, fc, z=3, ec=None):
+            p = FancyBboxPatch((cx - bw / 2, cy - bh / 2), bw, bh, boxstyle=round_, fc=fc, ec=ec or ink, lw=lw,
+                               zorder=z)
             ax.add_patch(p)
             out["boxes"].append(p)
             return p
@@ -228,22 +249,35 @@ class QCircuit:
         def vline(cx, ya, yb, z=2):
             ax.plot([cx, cx], [ya, yb], color=ink, lw=lw, ls="-", zorder=z, solid_capstyle="butt")
 
-        def dot(cx, cy, open_=False):
-            c = Circle((cx, cy), 0.075, fc="white" if open_ else ink, ec=ink, lw=lw, zorder=4)
+        def dot(cx, q, open_=False):
+            c = Circle((cx, y[q]), 0.075, fc="white" if open_ else col(q), ec=col(q), lw=lw, zorder=4)
             ax.add_patch(c)
             out["controls"].append(c)
+
+        # windows: shaded columns behind the wires
+        for wd in self.windows:
+            ca, cb = wd["cols"]
+            if cb >= len(x):
+                raise ValueError(f"window cols {wd['cols']} run past the last column ({len(x) - 1})")
+            xa, xb = x[ca] - w[ca] / 2 - self.GAP / 2, x[cb] + w[cb] / 2 + self.GAP / 2
+            ya, yb = y[-1] - self.BOX / 2 - 0.16, self.BOX / 2 + 0.16
+            p = Rectangle((xa, ya), xb - xa, yb - ya, fc=wd["fill"] or t.wash, ec="none", lw=0, zorder=0.5)
+            ax.add_patch(p)
+            if wd["label"]:
+                ax.text((xa + xb) / 2, yb + 0.05, wd["label"], ha="center", va="bottom", fontsize=t.size, color=ink)
+            out["windows"].append(p)
 
         # wires: quantum up to the meter, a double classical line after it
         for q in range(self.n):
             xm = x[self._measured[q]] if q in self._measured else None
-            ax.plot([left, right if xm is None else xm], [y[q]] * 2, color=ink, lw=lw, ls="-", zorder=1)
+            ax.plot([left, right if xm is None else xm], [y[q]] * 2, color=col(q), lw=lw, ls="-", zorder=1)
             if xm is not None:
                 for s in (-0.035, 0.035):
-                    ax.plot([xm, right], [y[q] + s] * 2, color=ink, lw=0.6, ls="-", zorder=1)
+                    ax.plot([xm, right], [y[q] + s] * 2, color=col(q), lw=0.6, ls="-", zorder=1)
             if self.labels[q]:
-                ax.text(left - 0.1, y[q], self.labels[q], ha="right", va="center", fontsize=fs, color=ink)
+                ax.text(left - 0.1, y[q], self.labels[q], ha="right", va="center", fontsize=fs, color=col(q))
             if self.outputs[q]:
-                ax.text(right + 0.1, y[q], self.outputs[q], ha="left", va="center", fontsize=fs, color=ink)
+                ax.text(right + 0.1, y[q], self.outputs[q], ha="left", va="center", fontsize=fs, color=col(q))
 
         for op in self.ops:
             cx = x[op["col"]]
@@ -258,8 +292,8 @@ class QCircuit:
                         ax.plot([cx + s, cx + s], [yc, yb], color=ink, lw=0.6, ls="-", zorder=2)
                     ax.add_patch(Circle((cx, yc), 0.06, fc=ink, ec=ink, lw=0, zorder=4))
                     out["classical"].append(op)
-                box(cx, y[q], bw, self.BOX, fill_of(op))
-                ax.text(cx, y[q], _math(op["name"]), ha="center", va="center", fontsize=fs, color=ink, zorder=5)
+                box(cx, y[q], bw, self.BOX, fill_of(op), ec=col(q))
+                ax.text(cx, y[q], _math(op["name"]), ha="center", va="center", fontsize=fs, color=col(q), zorder=5)
             elif kind == "multi":
                 lo, hi = y[op["q"][0]], y[op["q"][-1]]
                 bw = max(self.BOX, self._op_width(op))
@@ -269,38 +303,39 @@ class QCircuit:
                 rows = op["controls"] + op["open"] + [op["target"]]
                 vline(cx, y[min(rows)], y[max(rows)])
                 for c in op["controls"]:
-                    dot(cx, y[c])
+                    dot(cx, c)
                 for c in op["open"]:
-                    dot(cx, y[c], open_=True)
-                yt = y[op["target"]]
+                    dot(cx, c, open_=True)
+                tq = op["target"]
+                yt, ct = y[tq], col(tq)
                 if op["name"] is None:
                     r = 0.17
-                    ax.add_patch(Circle((cx, yt), r, fc="white", ec=ink, lw=lw, zorder=4))
-                    ax.plot([cx - r, cx + r], [yt, yt], color=ink, lw=lw, ls="-", zorder=5)
-                    ax.plot([cx, cx], [yt - r, yt + r], color=ink, lw=lw, ls="-", zorder=5)
+                    ax.add_patch(Circle((cx, yt), r, fc="white", ec=ct, lw=lw, zorder=4))
+                    ax.plot([cx - r, cx + r], [yt, yt], color=ct, lw=lw, ls="-", zorder=5)
+                    ax.plot([cx, cx], [yt - r, yt + r], color=ct, lw=lw, ls="-", zorder=5)
                     out["targets"].append(op)
                 else:
-                    box(cx, yt, max(self.BOX, self._op_width(op)), self.BOX, fill_of(op))
-                    ax.text(cx, yt, _math(op["name"]), ha="center", va="center", fontsize=fs, color=ink, zorder=5)
+                    box(cx, yt, max(self.BOX, self._op_width(op)), self.BOX, fill_of(op), ec=ct)
+                    ax.text(cx, yt, _math(op["name"]), ha="center", va="center", fontsize=fs, color=ct, zorder=5)
             elif kind == "cz":
                 a, b = op["q"]
                 vline(cx, y[a], y[b])
-                dot(cx, y[a])
-                dot(cx, y[b])
+                dot(cx, a)
+                dot(cx, b)
             elif kind == "swap":
                 a, b = op["q"]
                 vline(cx, y[a], y[b])
                 s = 0.11
                 for q in (a, b):
-                    ax.plot([cx - s, cx + s], [y[q] - s, y[q] + s], color=ink, lw=lw * 1.2, ls="-", zorder=4)
-                    ax.plot([cx - s, cx + s], [y[q] + s, y[q] - s], color=ink, lw=lw * 1.2, ls="-", zorder=4)
+                    ax.plot([cx - s, cx + s], [y[q] - s, y[q] + s], color=col(q), lw=lw * 1.2, ls="-", zorder=4)
+                    ax.plot([cx - s, cx + s], [y[q] + s, y[q] - s], color=col(q), lw=lw * 1.2, ls="-", zorder=4)
                 out["swaps"].append(op)
             elif kind == "measure":
                 q = op["q"][0]
-                yq = y[q]
-                box(cx, yq, 0.72, 0.54, "white")
-                ax.add_patch(Arc((cx, yq - 0.13), 0.46, 0.46, theta1=25, theta2=155, color=ink, lw=lw, zorder=5))
-                arrow(ax, (cx, yq - 0.13), (cx + 0.2, yq + 0.17), color=ink, lw=lw, ms=5, zorder=6)
+                yq, cq = y[q], col(q)
+                box(cx, yq, 0.72, 0.54, "white", ec=cq)
+                ax.add_patch(Arc((cx, yq - 0.13), 0.46, 0.46, theta1=25, theta2=155, color=cq, lw=lw, zorder=5))
+                arrow(ax, (cx, yq - 0.13), (cx + 0.2, yq + 0.17), color=cq, lw=lw, ms=5, zorder=6)
                 out["meters"].append(op)
 
         for g in self.groups:

@@ -1,12 +1,15 @@
 """Small exact models behind the plots, so that every curve, level and wavefunction a figure shows is
-computed, never sketched: the transmon in the charge basis, SQUID tuning, Jaynes-Cummings and
-dispersive formulas, the Purcell limit, notch-resonator scattering, TLS-limited quality factors,
-normal modes and black-box quantization of lumped circuits, Fock-space states with their Wigner
-functions, and Bloch-vector dynamics.
+computed, never sketched: the transmon in the charge basis with its charge-parity branches and
+large-E_J/E_C asymptotes, SQUID tuning, junction inductance from normal-state resistance,
+Jaynes-Cummings, dispersive formulas and the exact dressed transmon-resonator spectrum, the Purcell
+limit, notch-resonator scattering, TLS-limited quality factors, normal modes and black-box
+quantization of lumped circuits, Fock-space states with their Wigner functions, Bloch-vector
+dynamics, thermal occupation and the mass-frequency conversion of dark-matter searches.
 
 Units: energies and frequencies in GHz (E/h), times in the reciprocal unit (ns), except purcell_t1,
 which returns microseconds. Flux is in units of the flux quantum. Circuit elements (capacitance,
-inductance, susceptance) are in SI units."""
+inductance, resistance, susceptance) are in SI units, superconducting gaps in eV, temperatures in K
+and boson rest energies in µeV."""
 from math import factorial
 
 import numpy as np
@@ -14,7 +17,7 @@ from scipy.linalg import eigh
 from scipy.optimize import brentq
 from scipy.special import eval_genlaguerre
 
-_H, _E = 6.62607015e-34, 1.602176634e-19
+_H, _E, _KB = 6.62607015e-34, 1.602176634e-19, 1.380649e-23
 _HBAR, _PHI0 = _H / (2 * np.pi), _H / (2 * _E)
 _RQ = _H / (4 * _E ** 2)                                 # superconducting resistance quantum h/4e^2
 
@@ -49,6 +52,54 @@ def charge_dispersion(EJ, EC, ng, nlev=3, ncut=20):
     return np.array([transmon_levels(EJ, EC, g, ncut, nlev)[0] for g in np.atleast_1d(ng)])
 
 
+def parity_branches(EJ, EC, ng, nlev=3, ncut=20):
+    """Levels of the even and odd charge-parity states against offset charge. A quasiparticle that
+    tunnels across the junction shifts the offset charge by half a Cooper pair, so the odd branch is
+    the even one at n_g + 1/2. Returns (even, odd), each of shape (len(ng), nlev)."""
+    ng = np.atleast_1d(np.asarray(ng, float))
+    return charge_dispersion(EJ, EC, ng, nlev, ncut), charge_dispersion(EJ, EC, ng + 0.5, nlev, ncut)
+
+
+def level_dispersion(EJ, EC, m=0, ncut=30):
+    """Exact charge dispersion of level m, eps_m = E_m(n_g = 1/2) - E_m(n_g = 0) (GHz): positive for
+    even m and negative for odd m. The 0-1 transition swings peak to peak by |eps_1 - eps_0|, which a
+    charge-parity measurement calls 2 chi_0."""
+    def one(ej):
+        return transmon_levels(ej, EC, 0.5, ncut, m + 1)[0][m] - transmon_levels(ej, EC, 0.0, ncut, m + 1)[0][m]
+    EJ = np.asarray(EJ, float)
+    out = np.array([one(ej) for ej in EJ.ravel()]).reshape(EJ.shape)
+    return out if out.ndim else float(out)
+
+
+def koch_dispersion(EJ, EC, m=0):
+    """Asymptotic charge dispersion of level m for E_J >> E_C (Koch et al. 2007, Eq. 2.5):
+    eps_m = (-1)^m EC 2^(4m+5)/m! sqrt(2/pi) (EJ/2EC)^(m/2+3/4) exp(-sqrt(8 EJ/EC)), in the unit of EC."""
+    r = np.asarray(EJ, float) / EC
+    return ((-1) ** m * EC * 2.0 ** (4 * m + 5) / factorial(m) * np.sqrt(2 / np.pi) * (r / 2) ** (m / 2 + 0.75)
+            * np.exp(-np.sqrt(8 * r)))
+
+
+def transmon_asymptotic(EJ, EC):
+    """Leading large-E_J/E_C forms of the transmon (Koch et al. 2007): f01 = sqrt(8 EJ EC) - EC and
+    alpha = -EC. Returns (f01, alpha) in the unit of EC."""
+    EJ = np.asarray(EJ, float)
+    return np.sqrt(8 * EJ * EC) - EC, 0.0 * EJ - EC
+
+
+def ej_for_f01(f01, EC, ncut=30):
+    """Josephson energy (GHz) that gives a transmon of charging energy EC the 0-1 frequency f01, by
+    root finding on the exact charge-basis spectrum at n_g = 0. f01 rises from 4 EC at E_J = 0, so a
+    target at or below 4 EC has no solution and raises ValueError."""
+    f01 = float(f01)
+    if f01 <= 4 * EC:
+        raise ValueError(f"f01 = {f01:g} is not above 4 EC = {4 * EC:g}, the lowest f01 any E_J gives")
+    gap = lambda ej: transmon_spectrum(ej, EC, ncut=ncut, nlev=2)[1] - f01
+    hi = max(f01 ** 2 / (8 * EC), EC)
+    while gap(hi) < 0:
+        hi *= 2
+    return brentq(gap, 0.0, hi, xtol=1e-12, rtol=1e-13)
+
+
 def squid_ej(flux, EJmax, d=0.0):
     """Josephson energy of a SQUID with junction asymmetry d = (EJ1 - EJ2)/(EJ1 + EJ2)."""
     x = np.pi * np.asarray(flux, float)
@@ -59,6 +110,34 @@ def tunable_frequencies(flux, EJmax, EC, d=0.0, nlev=3, ncut=20):
     """Transitions f01, f02, ... of a SQUID transmon against flux, exact; shape (len(flux), nlev-1)."""
     return np.array([transmon_spectrum(EJ, EC, ncut=ncut, nlev=nlev)[1:]
                      for EJ in np.atleast_1d(squid_ej(flux, EJmax, d))])
+
+
+def flux_at_frequency(f01, EJmax, EC, d=0.0, ncut=20):
+    """Flux (in Phi_0, between 0 and 1/2) at which a SQUID transmon's f01 equals the target, found on
+    the exact spectrum. The tuning curve is even in flux, so -flux works as well. A target above the
+    sweet-spot f01 or below the f01 at half a flux quantum raises ValueError."""
+    f = lambda x: tunable_frequencies(x, EJmax, EC, d, nlev=2, ncut=ncut)[0, 0] - f01
+    top, bottom = f(0.0), f(0.5)
+    if top < 0 or bottom > 0:
+        raise ValueError(f"f01 = {f01:g} lies outside the tuning range {f01 + bottom:.4g} to {f01 + top:.4g}")
+    if bottom == 0:
+        return 0.5
+    return brentq(f, 0.0, 0.5, xtol=1e-13)
+
+
+# ---- junctions ---------------------------------------------------------------------------------
+
+def lj_from_rn(Rn, gap):
+    """Josephson inductance (H) of a junction of normal-state resistance Rn (ohm), from the
+    Ambegaokar-Baratoff relation at zero temperature, Ic Rn = pi Delta / 2e, with the superconducting
+    gap Delta in eV: L_J = Phi0 / (2 pi Ic) = hbar Rn / (pi e Delta)."""
+    return _HBAR * np.asarray(Rn, float) / (np.pi * _E * gap)
+
+
+def rn_from_lj(LJ, gap):
+    """Normal-state resistance (ohm) of a junction of Josephson inductance LJ (H); the inverse of
+    lj_from_rn for the gap Delta in eV."""
+    return np.asarray(LJ, float) * np.pi * _E * gap / _HBAR
 
 
 # ---- coupling to a resonator ------------------------------------------------------------------
@@ -75,6 +154,47 @@ def dispersive_shift(fq, fr, g, alpha):
     resonator frequencies with the qubit in |0> and |1> differ by 2 chi (Koch et al. 2007)."""
     D = np.asarray(fq, float) - fr
     return g ** 2 * alpha / (D * (D + alpha))
+
+
+def transmon_dressed(fq, fr, g, EC, nlev=6, nfock=8, ncut=30, rwa=False):
+    """Exact dressed spectrum of a transmon of charging energy EC coupled to a resonator at fr, against
+    the bare qubit frequency fq (all GHz). For each fq the transmon's E_J comes from ej_for_f01, its
+    levels and charge matrix elements from the charge basis, and the coupling is
+    g (n_ij / n_01) (a + a^dagger), so g is the 0-1 coupling. rwa=True keeps only the
+    excitation-conserving terms between neighbouring levels, which turns the result into the exact
+    solution of the rotating-wave model with the transmon's own n_12/n_01.
+
+    Returns {"f": shape (len(fq), 2), the two dressed one-excitation frequencies in ascending order,
+    "chi": the dispersive shift (E11 - E10 - E01 + E00)/2 in the convention of dispersive_shift, from
+    eigenstates labelled by their largest bare component and so meaningful only away from resonance,
+    "alpha": the bare anharmonicity, "lam": n_12/n_01}."""
+    if nlev < 3 or nfock < 3:
+        raise ValueError("transmon_dressed needs nlev >= 3 and nfock >= 3 to resolve chi")
+    fq = np.atleast_1d(np.asarray(fq, float))
+    a = np.diag(np.sqrt(np.arange(1, nfock)), 1)
+    n = np.arange(-ncut, ncut + 1)
+    i10, i01 = nfock, 1                                             # bare |1,0> and |0,1> in the product basis
+    f, chi, alpha, lam = np.empty((fq.size, 2)), np.empty(fq.size), np.empty(fq.size), np.empty(fq.size)
+    for k, f0 in enumerate(fq):
+        E, V = transmon_levels(ej_for_f01(f0, EC, ncut), EC, ncut=ncut, nlev=nlev)
+        E = E - E[0]
+        c = V.T @ (n[:, None] * V)
+        c = c / c[0, 1]
+        if rwa:
+            low = np.diag(np.diag(c, 1), 1)                          # |i><i+1|, lowers the transmon
+            coupling = np.kron(low, a.T) + np.kron(low.T, a)
+        else:
+            coupling = np.kron(c, a + a.T)
+        H = np.kron(np.diag(E), np.eye(nfock)) + np.kron(np.eye(nlev), fr * np.diag(np.arange(nfock))) + g * coupling
+        w, U = np.linalg.eigh(H)
+        level = lambda i, j: w[np.argmax(np.abs(U[i * nfock + j]))]
+        one = np.sort(np.argsort(U[i10] ** 2 + U[i01] ** 2)[-2:])  # the two states richest in one excitation
+        E00 = level(0, 0)
+        f[k] = np.sort(w[one]) - E00
+        chi[k] = (level(1, 1) - level(1, 0) - level(0, 1) + E00) / 2
+        alpha[k] = E[2] - 2 * E[1]
+        lam[k] = abs(c[1, 2])
+    return {"f": f, "chi": chi, "alpha": alpha, "lam": lam}
 
 
 def purcell_t1(fq, fr, g, kappa, filter_q=None):
@@ -103,6 +223,33 @@ def tls_qi(nbar, F_delta, nc, beta=0.5, Q_other=np.inf):
     """Internal quality factor limited by saturable two-level systems:
     1/Qi = F delta / (1 + nbar/nc)^beta + 1/Q_other."""
     return 1.0 / (F_delta / (1 + np.asarray(nbar, float) / nc) ** beta + 1.0 / Q_other)
+
+
+# ---- thermal occupation and dark-matter conversions -------------------------------------------
+
+def thermal_population(f, T):
+    """Bose-Einstein occupation 1 / (exp(h f / k T) - 1) of a mode at frequency f (GHz) and
+    temperature T (K); zero at T = 0."""
+    f, T = np.asarray(f, float), np.asarray(T, float)
+    with np.errstate(divide="ignore", over="ignore"):
+        x = _H * f * 1e9 / (_KB * T)
+        return 1.0 / np.expm1(x)
+
+
+def thermal_frequency(nbar, T):
+    """Frequency (GHz) at which a mode at temperature T (K) holds nbar thermal photons; the inverse of
+    thermal_population."""
+    return _KB * np.asarray(T, float) * np.log1p(1.0 / np.asarray(nbar, float)) / _H / 1e9
+
+
+def mass_from_frequency(f):
+    """Rest energy m c^2 (µeV) of a boson whose Compton frequency is f (GHz): m c^2 = h f."""
+    return np.asarray(f, float) * _H * 1e9 / _E * 1e6
+
+
+def frequency_from_mass(m):
+    """Compton frequency (GHz) of a boson of rest energy m (µeV); the inverse of mass_from_frequency."""
+    return np.asarray(m, float) * 1e-6 * _E / _H / 1e9
 
 
 # ---- circuits: normal modes and black-box quantization ----------------------------------------

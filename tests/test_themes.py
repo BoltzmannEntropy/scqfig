@@ -59,3 +59,28 @@ def test_marker_grammar_differs_by_style():
         assert sq.data_kw()["mfc"] == sq.theme().data
     with sq.style("folio"):
         assert sq.data_kw()["mfc"] == "white"
+
+
+def test_overrides_replace_theme_fields_for_the_session_only():
+    with sq.style("field", size=8.5) as t:
+        assert t.size == 8.5 and sq.theme().size == 8.5
+        assert mpl.rcParams["xtick.labelsize"] == 8.5 and mpl.rcParams["axes.labelsize"] == 9.0
+    assert THEMES["field"].size == 8.0
+    with pytest.raises(TypeError):
+        sq.use("field", no_such_field=1)
+
+
+def test_fourth_qubit_never_matches_the_bus():
+    for t in THEMES.values():
+        assert t.qubits[3] != t.bus
+
+
+def test_title_draws_letter_alone_or_with_a_grey_finding():
+    with sq.style("field"):
+        fig, ax = sq.figure("column")
+        a = sq.title(ax, "a", "ignored without a finding")
+        assert a.get_text() == "(a)" and a.get_ha() == "right"
+        head, finding = sq.title(ax, "b", "Couplings", "every model overestimates them")
+        assert head.get_text() == "(b)  Couplings" and finding.get_color() == sq.theme().reference
+        f = sq.fig_letter(fig, 0.1, 0.9, "c")
+        assert f.get_text() == "(c)" and f.get_fontweight() == "bold"

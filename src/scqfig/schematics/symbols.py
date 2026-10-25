@@ -31,6 +31,22 @@ def _kind(tile_kind, default):
     return tile_kind or None
 
 
+def tiles_on():
+    """True inside a `with tiles():` block."""
+    return _TILES_ON[0]
+
+
+def bg(kind="capacitive"):
+    """Fill that masks a wire behind an element: its tile colour inside tiles(), else white."""
+    return theme().tiles.get(kind, kind) if _TILES_ON[0] else "white"
+
+
+def auto_tile(ax, x, y, w, h, kind):
+    """A tile that appears only inside tiles(), for elements that a figure draws with its own code."""
+    if _TILES_ON[0]:
+        tile(ax, x, y, w, h, kind)
+
+
 def _ink(color):
     return theme().ink if color is None else color
 
@@ -154,6 +170,22 @@ def ac_source(ax, x, y, r=0.13, color=None):
     ax.add_patch(Circle((x, y), r, fc="white", ec=_ink(color), lw=0.9, zorder=5))
     t = np.linspace(-1, 1, 60)
     ax.plot(x + 0.7 * r * t, y + 0.35 * r * np.sin(np.pi * t), color=_ink(color), lw=0.8, ls="-", zorder=6)
+
+
+def dc_source(ax, x, y, r=0.13, up=True, color=None):
+    """dc voltage source for a vertical wire through (x, y): a ring with a plus sign inside towards its
+    positive terminal (up, or down for up=False) and a minus sign opposite. Returns (ring, signs), the
+    signs being the three Line2D strokes."""
+    if not r > 0:
+        raise ValueError(f"r must be positive, got {r!r}")
+    c = _ink(color)
+    ring = Circle((x, y), r, fc="white", ec=c, lw=0.9, zorder=5)
+    ax.add_patch(ring)
+    s, d = 0.2 * r, 0.42 * r if up else -0.42 * r
+    kw = dict(color=c, lw=0.8, ls="-", solid_capstyle="butt", zorder=6)
+    signs = (ax.plot([x - s, x + s], [y + d, y + d], **kw)[0], ax.plot([x, x], [y + d - s, y + d + s], **kw)[0],
+             ax.plot([x - s, x + s], [y - d, y - d], **kw)[0])
+    return ring, signs
 
 
 def current_source(ax, x, y, r=0.13, up=True, color=None):

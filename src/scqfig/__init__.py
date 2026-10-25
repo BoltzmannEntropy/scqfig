@@ -8,8 +8,8 @@
     sq.save(fig, "figures/t1")
 """
 from . import fit, physics, plots, schematics  # noqa: F401
-from .core import (WIDTHS, assumed_kw, data_kw, demo_main, figure, log_minor, model_kw, note,  # noqa: F401
-                   panel, pm, ref_kw, save, series, sim_kw, style, theme, use)
+from .core import (WIDTHS, assumed_kw, data_kw, demo_main, fig_letter, figure, log_minor, model_kw,  # noqa: F401
+                   note, panel, pm, ref_kw, save, series, sim_kw, style, theme, title, use)
 from .themes import FIELD, FOLIO, PALETTE, THEMES, lighten  # noqa: F401
 
 __version__ = "0.1.0"

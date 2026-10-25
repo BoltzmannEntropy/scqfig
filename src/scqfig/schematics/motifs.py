@@ -1,11 +1,13 @@
 """Schematic motifs of circuit-QED figures: chips on a slanted slab, wavefunctions filled on their
-levels inside a potential, transitions, photons as wavy arrows, level ladders and qubits as spins.
+levels inside a potential, transitions, photons as wavy arrows, level ladders, qubits as spins and
+regions of uniform field.
 
-Two rules keep them truthful. A chip goes through one rigid affine map (Oblique, onto_plane), so it
+Three rules keep them truthful. A chip goes through one rigid affine map (Oblique, onto_plane), so it
 keeps its proportions and never bends. A well panel fills densities that a solver computed
-(physics.phase_densities), never a sketched bump."""
+(physics.phase_densities), never a sketched bump. A uniform field is a flat wash (wash), never a
+radial glow."""
 import numpy as np
-from matplotlib.patches import Polygon
+from matplotlib.patches import FancyBboxPatch, Polygon, Rectangle
 from matplotlib.transforms import Affine2D
 
 from ..core import theme
@@ -159,6 +161,38 @@ def ladder(ax, x0, x1, levels, colors=None, labels=None, lw=2.0, fs=None, z=4):
         ax.plot([x0, x1], [E, E], color=c, lw=lw, ls="-", solid_capstyle="butt", zorder=z)
         if labels:
             ax.text(x1 + 0.04 * (x1 - x0), E, labels[n], ha="left", va="center", fontsize=fs or t.size, color=c)
+
+
+_WASH_LOC = {"lower left": (0, 0, "left", "bottom"), "upper left": (0, 1, "left", "top"),
+             "lower right": (1, 0, "right", "bottom"), "upper right": (1, 1, "right", "top"),
+             "center": (0.5, 0.5, "center", "center")}
+
+
+def wash(ax, x, y, w, h, *, label=None, loc="lower left", rounded=False, z=0.0, fs=None):
+    """A region of uniform field: a flat w by h fill in theme().wash with its lower-left corner at (x, y),
+    drawn under everything else (z). The field is the same at every point, so the fill is flat, never a
+    radial glow or arrows at positions. label sits inside at loc ("lower left", "upper left", "lower
+    right", "upper right" or "center") in the signal colour. rounded=True rounds the corners. Returns
+    (patch, label or None)."""
+    if not (w > 0 and h > 0):
+        raise ValueError(f"a wash needs a positive size, got {w!r} by {h!r}")
+    if loc not in _WASH_LOC:
+        raise ValueError(f"loc must be one of {sorted(_WASH_LOC)}, got {loc!r}")
+    t = theme()
+    if rounded:
+        p = FancyBboxPatch((x, y), w, h, boxstyle=f"round,pad=0,rounding_size={0.08 * min(w, h)}", fc=t.wash,
+                           ec="none", lw=0, zorder=z)
+    else:
+        p = Rectangle((x, y), w, h, fc=t.wash, ec="none", lw=0, zorder=z)
+    ax.add_patch(p)
+    text = None
+    if label:
+        fx, fy, ha, va = _WASH_LOC[loc]
+        pad = 0.04 * min(w, h)
+        tx = x + fx * w + (pad if ha == "left" else -pad if ha == "right" else 0.0)
+        ty = y + fy * h + (pad if va == "bottom" else -pad if va == "top" else 0.0)
+        text = ax.text(tx, ty, label, ha=ha, va=va, fontsize=fs or t.size, color=t.signal, zorder=z + 0.1)
+    return p, text
 
 
 def spin(ax, x, y, h, color=None, w=None, lw=2.0, z=6):

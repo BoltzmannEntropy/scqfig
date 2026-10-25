@@ -16,8 +16,8 @@ from matplotlib.colors import to_hex
 from . import __version__
 from .themes import PALETTE, THEMES
 
-ROLES = ("ink", "data", "model", "sim", "reference", "assumed", "accent", "signal", "bus", "wash", "light", "tint",
-         "overlay")
+ROLES = ("ink", "data", "model", "sim", "reference", "assumed", "accent", "signal", "bus", "drive", "wash", "light",
+         "tint", "overlay")
 
 
 def cname(key):

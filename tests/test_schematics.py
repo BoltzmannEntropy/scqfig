@@ -329,6 +329,18 @@ def test_admittance_box_is_a_labelled_white_box_centred_on_its_point():
     assert text.get_text() == r"$Y(\omega)$" and text.get_position() == (0.1, 0.2)
 
 
+def test_tile_helpers_follow_the_tiles_block():
+    fig, ax = plt.subplots()
+    assert not symbols.tiles_on() and symbols.bg("inductive") == "white"
+    symbols.auto_tile(ax, 0, 0, 1, 1, "capacitive")
+    assert not ax.patches
+    with symbols.tiles():
+        assert symbols.tiles_on()
+        assert symbols.bg("inductive") == sq.theme().tiles["inductive"]
+        symbols.auto_tile(ax, 0, 0, 1, 1, "capacitive")
+    assert len(ax.patches) == 1 and not symbols.tiles_on()
+
+
 # ---- exports and the colour rule -------------------------------------------------------------
 
 def test_every_export_is_callable():

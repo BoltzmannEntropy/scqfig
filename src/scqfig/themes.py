@@ -64,6 +64,7 @@ class Theme:
     accent: str              # highlights, allowed transitions, bursts
     signal: str              # drive tones, photons, external fields
     bus: str                 # resonators, buses and feedlines in schematics
+    drive: str               # drive and control lines (XY, Z, pump) in circuit schematics
     wash: str                # a uniform field over a region
     light: str
     tint: str
@@ -107,11 +108,13 @@ FIELD = Theme(
     accent=P["orange"],
     signal=P["magenta"],
     bus=P["purple"],
+    drive="#1a1a1a",
     wash=lighten("magenta", 0.87),
     light=P["light"],
     tint=P["tint"],
     levels=(P["purple"], P["blue"], P["magenta"], P["orange"], P["grey"]),
-    qubits=(P["blue"], P["magenta"], P["orange"], P["purple"], P["grey"]),
+    # The fourth qubit is grey, a parked or auxiliary element, so that it never matches the purple bus.
+    qubits=(P["blue"], P["magenta"], P["orange"], "#8c8c8c", P["purple"]),
     tiles={"nonlinear": lighten("purple", 0.82), "capacitive": lighten("blue", 0.84),
            "inductive": lighten("orange", 0.76), "coupling": "#e6e6e6"},
     chip={"substrate": lighten("purple", 0.94), "edge": P["silver"], "pad": P["magenta"],
@@ -150,6 +153,7 @@ FOLIO = Theme(
     accent=P["orange"],
     signal=P["purple"],
     bus=P["charcoal"],
+    drive=P["ink"],
     wash=P["tint"],
     light=P["light"],
     tint=P["tint"],

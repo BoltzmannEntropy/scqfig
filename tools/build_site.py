@@ -42,8 +42,10 @@ FAMILIES = [  # name, colour of its marker on the dark UI, one line
     ("Time domain", PALETTE["orange"], "Rabi, chevrons, Ramsey, echo, benchmarking, coherence over time, TLS maps."),
     ("States", lighten("blue", 0.6), "Bloch spheres, Wigner functions, density matrices."),
     ("Noise and errors", lighten("magenta", 0.5), "Noise spectra, error budgets, correlated bursts and correlations."),
+    ("Dark matter", lighten("magenta", 0.3), "Coupling reach against frequency, measured limits, dark-photon mass axis."),
     ("Processor", PALETTE["silver"], "Device maps and error distributions across a chip."),
-    ("Schematics", lighten("purple", 0.62), "Chips in plan and oblique view, circuits, wiring, pulses, level diagrams, gate circuits."),
+    ("Schematics", lighten("purple", 0.62), "Chips in plan and oblique view, circuits, wiring, pulses, level diagrams, gate circuits, recipe grids, flow diagrams."),
+    ("Comparison", lighten("orange", 0.35), "Stacked, grouped and factor bars, tornados, dot rows, ratio strips, paired stems, timelines."),
 ]
 
 STYLE_NOTES = {
