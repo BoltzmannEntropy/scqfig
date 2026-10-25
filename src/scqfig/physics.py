@@ -127,9 +127,22 @@ def port_susceptance(f, C, Linv, port=0):
     port."""
     w = 2e9 * np.pi * np.atleast_1d(np.asarray(f, float))[:, None, None]
     K = w * np.asarray(C, float) - np.asarray(Linv, float) / w          # Y = i K
-    e = np.zeros((len(w), K.shape[1], 1))
-    e[:, port] = 1.0
-    B = 1.0 / np.linalg.solve(K, e)[:, port, 0]
+    internal = np.delete(np.arange(K.shape[1]), port)
+    Kii = K[:, internal[:, None], internal]
+    Kip = K[:, internal, port, None]
+    # Eliminate only internal nodes: the full K is singular at a valid zero of B.
+    try:
+        B = K[:, port, port] - (K[:, port, internal, None] * np.linalg.solve(Kii, Kip)).sum(axis=(1, 2))
+    except np.linalg.LinAlgError:
+        # At a series pole Kii can be singular while K is invertible. Evaluate each
+        # frequency separately so a grid may contain both poles and mode zeros.
+        B = np.empty(len(w))
+        e = np.eye(K.shape[1])[:, port]
+        for j, k in enumerate(K):
+            try:
+                B[j] = k[port, port] - k[port, internal] @ np.linalg.solve(Kii[j], Kip[j, :, 0])
+            except np.linalg.LinAlgError:
+                B[j] = 1.0 / np.linalg.solve(k, e)[port]
     return B if np.ndim(f) else B[0]
 
 
@@ -256,14 +269,18 @@ def rabi_trajectory(rabi, detuning, t, v0=(0.0, 0.0, 1.0)):
     """Bloch vector under a drive of Rabi rate `rabi` detuned by `detuning` (both in cycles per time
     unit), starting from v0: precession about (rabi, 0, detuning) at the generalised Rabi rate."""
     W = np.hypot(rabi, detuning)
-    return rotate(v0, (rabi, 0.0, detuning), 2 * np.pi * W * np.asarray(t, float))
+    # At zero rate any nonzero axis gives the same stationary rotation.
+    axis = (rabi, 0.0, detuning) if W else (1.0, 0.0, 0.0)
+    return rotate(v0, axis, 2 * np.pi * W * np.asarray(t, float))
 
 
 def rabi_population(rabi, detuning, t):
     """Excited population after driving |0> for time t at Rabi rate `rabi` and detuning (cycles per
     time unit): Omega^2/W^2 sin^2(pi W t) with W = sqrt(Omega^2 + Delta^2) (the Rabi chevron)."""
-    W2 = np.asarray(rabi, float) ** 2 + np.asarray(detuning, float) ** 2
-    return rabi ** 2 / W2 * np.sin(np.pi * np.sqrt(W2) * np.asarray(t, float)) ** 2
+    rabi = np.asarray(rabi, float)
+    W2 = rabi ** 2 + np.asarray(detuning, float) ** 2
+    amplitude = np.divide(rabi ** 2, W2, out=np.zeros_like(W2), where=W2 != 0)
+    return amplitude * np.sin(np.pi * np.sqrt(W2) * np.asarray(t, float)) ** 2
 
 
 def rb_decay(m, p, A=0.5, B=0.5):

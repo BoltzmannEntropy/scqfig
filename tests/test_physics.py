@@ -132,6 +132,26 @@ def test_rb_decay_model():
 def test_rabi_population_resonant_and_detuned():
     assert ph.rabi_population(1.0, 0.0, 0.5) == pytest.approx(1.0)
     assert ph.rabi_population(1.0, 1.0, 1 / (2 * np.sqrt(2))) == pytest.approx(0.5)
+    with np.errstate(divide="raise", invalid="raise"):
+        assert ph.rabi_population(0.0, 0.0, 0.5) == 0.0
+        population = ph.rabi_population(np.array([[0.0], [1.0]]), 0.0, [0.0, 0.25, 0.5])
+    np.testing.assert_allclose(population, [[0, 0, 0], [0, 0.5, 1]])
+
+
+@pytest.mark.parametrize("t, expected", [
+    (0.5, [[0.6, 0.0, 0.8]]),
+    ([0.0, 0.25, 1.0], [[0.6, 0.0, 0.8]] * 3),
+    ([[0.0], [0.25], [1.0]], [[[0.6, 0.0, 0.8]]] * 3),
+])
+def test_rabi_trajectory_without_drive_or_detuning_is_stationary(t, expected):
+    v0 = (0.6, 0.0, 0.8)
+    with np.errstate(divide="raise", invalid="raise"):
+        v = ph.rabi_trajectory(0.0, 0.0, t, v0=v0)
+    np.testing.assert_array_equal(v, expected)
+    assert ph.rabi_trajectory(0.0, 0.5, t, v0=v0).shape == v.shape
+    # With detuning but no drive, a transverse initial component still precesses.
+    np.testing.assert_allclose(ph.rabi_trajectory(0.0, 0.5, 1.0, v0=v0),
+                               [[-0.6, 0.0, 0.8]], atol=1e-12)
 
 
 # ---- circuits: normal modes and black-box quantization ---------------------------------------
@@ -175,6 +195,42 @@ def test_port_susceptance_of_a_parallel_lc():
     w = 2 * np.pi * f * 1e9
     B = ph.port_susceptance(f, np.array([[C]]), np.array([[1 / L]]))
     np.testing.assert_allclose(B, w * C - 1 / (w * L), rtol=1e-12)
+
+
+def test_parallel_lc_at_exact_resonance_and_black_box_grid_point():
+    C, f0 = 50e-15, 5.0
+    w0 = 2e9 * np.pi * f0
+    Linv = w0 * (w0 * C)
+    B = lambda f: ph.port_susceptance(f, [[C]], [[Linv]])
+    assert B(f0) == 0.0
+    f = np.array([4.0, f0, 6.0])
+    w = 2e9 * np.pi * f
+    np.testing.assert_allclose(B(f), w * C - Linv / w, atol=1e-18)
+    bb = ph.black_box(B, ph.ej_from_lj(1 / Linv), np.linspace(1, 10, 91))
+    np.testing.assert_allclose(bb["f"], [f0], rtol=1e-12)
+    assert bb["K"][0, 0] == pytest.approx(-charging_energy(C), rel=1e-6)
+
+
+@pytest.mark.parametrize("port", [0, 1, -1])
+def test_port_susceptance_coupled_resonance_and_series_pole(port):
+    # At 5 GHz K = [[a, -a], [-a, a]] is singular but the port admittance is zero.
+    w0 = 2e9 * np.pi * 5.0
+    a = w0 * 50e-15
+    C = np.array([[2 * a, -a], [-a, 3 * a]]) / w0
+    Linv = np.diag([w0 * a, w0 * (2 * a)])
+    f = np.array([4.0, 5.0, 6.0])
+    w = 2e9 * np.pi * f
+    K = w[:, None, None] * C - Linv / w[:, None, None]
+    p = port % 2
+    expected = K[:, p, p] - K[:, p, 1 - p] ** 2 / K[:, 1 - p, 1 - p]
+    np.testing.assert_allclose(ph.port_susceptance(f, C, Linv, port=port), expected, atol=1e-18)
+    assert ph.port_susceptance(5.0, C, Linv, port=port) == pytest.approx(0.0, abs=1e-18)
+    # A series pole has singular internal K, but nonsingular full K: retain infinite B.
+    Linv[1 - p, 1 - p] = w0 * (w0 * C[1 - p, 1 - p])
+    with np.errstate(divide="ignore"):
+        B = ph.port_susceptance(f, C, Linv, port=port)
+    assert np.isinf(B[1])
+    assert np.isfinite(B[[0, 2]]).all()
 
 
 def test_black_box_finds_the_normal_modes_and_their_zero_point_flux():

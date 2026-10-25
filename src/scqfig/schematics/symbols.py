@@ -18,11 +18,12 @@ _TILES_ON = [False]
 @contextlib.contextmanager
 def tiles():
     """Inside this block elements sit on their tiles; pass tile_kind=False to suppress one."""
+    previous = _TILES_ON[0]
     _TILES_ON[0] = True
     try:
         yield
     finally:
-        _TILES_ON[0] = False
+        _TILES_ON[0] = previous
 
 
 def _kind(tile_kind, default):
