@@ -5,12 +5,12 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "scqfig"
 version = "0.1.0"
-description = "Publication figures for superconducting-qubit and chip papers, in two matched styles, with a companion LaTeX package"
+description = "Figures for dark-matter research with superconducting qubits, from the dark-matter signal to the sensor chip and the search reach, in two matched styles, with a companion LaTeX package"
 readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.9"
 dependencies = ["numpy>=1.22", "scipy>=1.8", "matplotlib>=3.6"]
-keywords = ["superconducting qubits", "transmon", "matplotlib", "publication figures", "LaTeX", "circuit QED"]
+keywords = ["dark matter", "axion", "dark photon", "haloscope", "superconducting qubits", "transmon", "matplotlib", "publication figures", "LaTeX", "circuit QED"]
 classifiers = [
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",

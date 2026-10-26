@@ -35,14 +35,15 @@ STYLES = ("field", "folio")
 DPI = 200                                   # gallery PNG resolution (examples/build_gallery.py)
 PAGE_WIDTH_IN = 4.6                         # wider renders are page-width figures
 
-FAMILIES = [  # name, colour of its marker on the dark UI, one line
+FAMILIES = [  # name, colour of its marker on the dark UI, one line; dark matter first, the library's purpose
+    ("Dark matter", lighten("magenta", 0.3), "Rotation curves, the occupation number, line shape and field trace of the "
+     "dark-matter wave, and the coupling reach with measured limits and a dark-photon mass axis."),
     ("Spectrum", lighten("blue", 0.3), "Levels, wavefunctions, charge dispersion, flux spectroscopy, avoided crossings."),
     ("Design", lighten("purple", 0.35), "Frequency plans, collisions, capacitance, loss participation, Purcell and dispersive design."),
     ("Readout", lighten("magenta", 0.15), "Resonator S21, quality factors, dispersive response, single-shot readout."),
     ("Time domain", PALETTE["orange"], "Rabi, chevrons, Ramsey, echo, benchmarking, coherence over time, TLS maps."),
     ("States", lighten("blue", 0.6), "Bloch spheres, Wigner functions, density matrices."),
     ("Noise and errors", lighten("magenta", 0.5), "Noise spectra, error budgets, correlated bursts and correlations."),
-    ("Dark matter", lighten("magenta", 0.3), "Coupling reach against frequency, measured limits, dark-photon mass axis."),
     ("Processor", PALETTE["silver"], "Device maps and error distributions across a chip."),
     ("Schematics", lighten("purple", 0.62), "Chips in plan and oblique view, circuits, wiring, pulses, level diagrams, gate circuits, recipe grids, flow diagrams."),
     ("Comparison", lighten("orange", 0.35), "Stacked, grouped and factor bars, tornados, dot rows, ratio strips, paired stems, timelines."),

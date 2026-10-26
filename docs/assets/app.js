@@ -110,11 +110,14 @@ function stageCaption() {
 // what the library is, for a visitor who lands on the gallery first; the counts come from the build
 const introHTML = d => `
   <section class="intro" aria-label="About scqfig">
-    <h1>Figures for superconducting-qubit and chip papers</h1>
-    <p>scqfig is a Python library, built on matplotlib, that draws the figures these papers keep repeating:
-      spectroscopy against flux, coherence decays, IQ blobs, frequency plans, chip layouts, cryostat wiring,
-      pulse sequences and gate-model circuits. Levels, wavefunctions, chevrons and Wigner functions come from
-      solvers in <code>scqfig.physics</code>, not from sketches.</p>
+    <h1>Figures for dark-matter research with superconducting qubits</h1>
+    <p>scqfig is a Python library, built on matplotlib, that generates the plots of a dark-matter search with
+      superconducting qubits. It covers the dark-matter signal itself, with rotation curves, the occupation number
+      that makes light dark matter a wave, its line shape and field trace, and the kinetic-mixing reach of a search.
+      It covers the sensor chip, with spectroscopy, frequency plans, capacitance matrices, chip and cavity plans and
+      cryostat wiring, and the measurement, with coherence decays, readout, radiation bursts and gate-model circuits.
+      Levels, wavefunctions, line shapes and Wigner functions come from solvers in <code>scqfig.physics</code>,
+      not from sketches.</p>
     <p>Every figure comes in two matched styles, <b>field</b> and <b>folio</b>, drawn at print width and switched
       with one call. The companion LaTeX package <code>scqfig.sty</code> gives TikZ, pgfplots and quantikz the same
       palette. Below are all ${d.examples.length} example figures in ${d.families.length} families, each with its

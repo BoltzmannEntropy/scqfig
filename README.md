@@ -3,26 +3,34 @@
   <h1>scqfig</h1>
   <code>v0.1.0</code>&nbsp;&nbsp;Python · matplotlib · LaTeX (TikZ, pgfplots, quantikz)
   <br><br>
-  <p><b>Publication figures for superconducting-qubit and chip papers,<br>in two matched styles, with a companion LaTeX package.</b></p>
+  <p><b>Figures for dark-matter research with superconducting qubits,<br>from the dark-matter signal to the sensor chip and the search reach,<br>in two matched styles, with a companion LaTeX package.</b></p>
   <a href="https://boltzmannentropy.github.io/scqfig.github.io/"><strong>Open the gallery</strong></a>&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;<a href="gallery/gallery.pdf"><strong>Gallery PDF</strong></a>&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;<a href="#quick-start"><strong>Quick start</strong></a>
   <br><br>
   <img src="https://img.shields.io/badge/python-3.9%2B-1f5fbf" alt="Python 3.9+"/>
   <img src="https://img.shields.io/badge/matplotlib-3.6%2B-5e2a84" alt="matplotlib 3.6+"/>
-  <img src="https://img.shields.io/badge/examples-74-e69f00" alt="74 examples"/>
+  <img src="https://img.shields.io/badge/built%20for-dark--matter%20research-c2378f" alt="Built for dark-matter research"/>
+  <img src="https://img.shields.io/badge/examples-78-e69f00" alt="78 examples"/>
   <img src="https://img.shields.io/badge/license-MIT-c2378f" alt="License: MIT"/>
   <br><br>
 </div>
 
-> **Research context.** scqfig was developed as part of Shlomo Kashani's research on dark matter
-> detection. That research is not yet published. The example figures use synthetic, simulated,
-> designed or computed values, not data from that work.
+> **Built for dark-matter research.** scqfig generates the plots that a dark-matter search with
+> superconducting qubits needs, for papers, theses, tutorials and talks. It was developed as part of
+> Shlomo Kashani's research on dark-matter detection, which is not yet published. The example figures
+> use synthetic, simulated, designed or computed values, not data from that work.
 
-scqfig is a Python library, built on matplotlib, that draws the figures a superconducting-chip paper
-keeps repeating: spectroscopy and coherence decays, readout and benchmarking, frequency plans, chip
-plans, cryostat wiring and gate-model circuits, dark-matter reach, comparison and budget charts, and
-recipe grids and flow diagrams. Each plot type has a runnable example. Every figure
-comes in two matched styles that you switch with one call, and a generated LaTeX package gives TikZ,
-pgfplots and quantikz the same palette.
+scqfig is a Python library, built on matplotlib, that draws the figures of a dark-matter search with
+superconducting qubits, from the sky to the chip and back to a limit.
+- **The dark-matter signal.** Galaxy rotation curves, the occupation number that makes light dark
+  matter a wave, the line shape and field trace of that wave, and the kinetic-mixing reach of a
+  search with measured limits and a dark-photon mass axis.
+- **The sensor chip.** Spectroscopy, charge-parity bands, frequency plans and collision maps,
+  capacitance matrices, chip plans and oblique views, cavity plans, cryostat wiring and lumped circuits.
+- **The measurement.** Coherence decays, readout and IQ blobs, benchmarking, noise spectra, radiation
+  bursts, gate-model circuits, comparison and budget charts, recipe grids and flow diagrams.
+
+Each plot type has a runnable example. Every figure comes in two matched styles that you switch
+with one call, and a generated LaTeX package gives TikZ, pgfplots and quantikz the same palette.
 
 | field | folio |
 |---|---|
@@ -34,7 +42,7 @@ shows each figure with its Python and LaTeX code.
 
 ## Website UI
 
-The [gallery site](https://boltzmannentropy.github.io/scqfig.github.io/) lays the 74 example figures out as
+The [gallery site](https://boltzmannentropy.github.io/scqfig.github.io/) lays the 78 example figures out as
 dies on a three.js wafer, and a sidebar lists every example by family. Pick a die or a sidebar entry
 to open its figure, switch every figure between field and folio with one toggle, and copy the Python
 source or the LaTeX include.
@@ -90,10 +98,10 @@ source or the LaTeX include.
 
 ## Why
 
-A superconducting-chip paper draws the same figures again and again:
-- spectroscopy against flux, avoided crossings and T1 decays;
-- IQ blobs, frequency plans and chip layouts;
-- wiring diagrams and pulse sequences.
+A dark-matter search with superconducting qubits draws the same figures again and again:
+- the signal, with rotation curves, occupation numbers, line shapes and reach plots;
+- the chip, with spectroscopy against flux, avoided crossings, frequency plans and chip layouts;
+- the measurement, with T1 decays, IQ blobs, wiring diagrams and pulse sequences.
 
 Each group restyles them by hand, and the restyling rarely survives the next paper.
 
@@ -276,6 +284,10 @@ docstring and `TITLE`, not the table.
 | 51 | Error budget | CZ-gate error budget: contributions, their sum, and the measured error with the unexplained part hatched. | [`51_error_budget.py`](examples/51_error_budget.py) |
 | 52 | Correlated error bursts | Correlated error bursts: detections per qubit over time, with the flagged fraction and burst marks above (synthetic data from a toy burst model). | [`52_burst_raster.py`](examples/52_burst_raster.py) |
 | 53 | Error correlations | Pairwise correlation of error detections across a 24-qubit chain; bursts correlate neighbours (synthetic data from a toy burst model). | [`53_error_correlation.py`](examples/53_error_correlation.py) |
+| 55 | Rotation curve | Rotation curve of a model spiral galaxy: the speed that the visible matter alone would give falls off outside the disk, while a dark halo keeps the total flat near 220 km/s (illustrative model, synthetic points). | [`55_rotation_curve.py`](examples/55_rotation_curve.py) |
+| 56 | Occupation number | Dark-matter particles per de Broglie volume against rest energy for 0.45 GeV/cm³ and 220 km/s: below about 40 eV each cell holds many particles and the dark matter acts as one classical wave, which covers the 1 to 10 GHz band of qubit searches (computed). | [`56_occupation_number.py`](examples/56_occupation_number.py) |
+| 57 | Dark-matter line shape | Line shape of a 5 GHz dark-matter wave for isotropic Maxwell speeds with v0 = 220 km/s: the line is a few kHz wide, one part in a million of its frequency, with a mean offset of 2.0 kHz (computed). | [`57_dm_lineshape.py`](examples/57_dm_lineshape.py) |
+| 58 | Dark-matter field trace | Amplitude and phase of a 5 GHz dark-matter wave built from 400 tones with standard-halo velocities: both wander on the 200 µs coherence time, twice the length of the shaded 100 µs qubit shot (simulated, seeded). | [`58_dm_field_trace.py`](examples/58_dm_field_trace.py) |
 | 59 | Dark-photon reach | Kinetic-mixing reach of a qubit dark-photon search against frequency for one and sixteen sensors at 20 and 50 mK, from an illustrative counting model with thermal dark counts, an excluded region and a synthetic measured limit, with the dark-photon mass on the top axis (computed). | [`59_reach.py`](examples/59_reach.py) |
 | 60 | Device map | Device map of a 3 x 4 qubit grid with T1 on the qubits and CZ error on the couplers (synthetic data). | [`60_device_map.py`](examples/60_device_map.py) |
 | 61 | Error distributions | Cumulative distributions of single-qubit, CZ and readout errors across a 54-qubit processor, medians marked (synthetic data). | [`61_error_cdf.py`](examples/61_error_cdf.py) |
@@ -376,7 +388,7 @@ If scqfig drew figures in your paper, please cite it:
 ```bibtex
 @software{kashani_scqfig_2026,
   author  = {Kashani, Shlomo},
-  title   = {scqfig: publication figures for superconducting-qubit and chip papers},
+  title   = {scqfig: figures for dark-matter research with superconducting qubits},
   year    = {2026},
   version = {0.1.0}
 }

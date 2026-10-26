@@ -1,5 +1,6 @@
-"""scqfig: publication figures for superconducting-qubit and chip papers, in two matched styles
-(field and folio), with a companion LaTeX package that shares the palette.
+"""scqfig: figures for dark-matter research with superconducting qubits, from the dark-matter signal
+to the sensor chip and the search reach, in two matched styles (field and folio), with a companion
+LaTeX package that shares the palette.
 
     import scqfig as sq
     sq.use("folio")                       # or "field"
