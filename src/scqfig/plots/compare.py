@@ -5,7 +5,8 @@ timelines. Rows are categories (studies, devices, loss channels), so every funct
 Shared conventions. Row charts list their rows from the top. A status names how a value was obtained
 and picks its marker by the grammar of core: "measured" filled (open in folio), "simulated" open,
 "assumed" open grey, "fitted" small grey, "excluded" a grey cross for a value drawn but not counted,
-and "upper" or "lower" an open marker with an arrow toward the side where the true value lies.
+"upper" or "lower" an open marker with an arrow toward the side where the true value lies, and
+"inferred" a light-filled marker for a value derived indirectly from measurements.
 columns adds text columns right of the frame: {header: one string per row}, or a list of
 (header, strings) pairs; "" leaves a column without a header. groups gives one label per row, and
 each run of equal consecutive labels forms a group."""
@@ -25,9 +26,9 @@ from ..themes import lighten
 __all__ = ["stacked_bars", "factor_bars", "grouped_bars", "tornado", "bar_rows", "dot_rows", "study_strips",
            "ratio_strip", "paired_stems", "timeline", "limit_arrow"]
 
-STATUSES = ("measured", "simulated", "assumed", "fitted", "upper", "lower", "excluded")
+STATUSES = ("measured", "simulated", "assumed", "fitted", "upper", "lower", "excluded", "inferred")
 _WORDS = {"measured": "measured", "simulated": "simulated", "assumed": "assumed", "fitted": "fitted",
-          "upper": "upper bound", "lower": "lower bound", "excluded": "not counted"}
+          "upper": "upper bound", "lower": "lower bound", "excluded": "not counted", "inferred": "inferred"}
 _HATCH = ("", "////", "....", "xxxx", "\\\\\\\\", "++")      # folio tells segments apart in greyscale
 _DIRS = {"up": (0, 1), "down": (0, -1), "left": (-1, 0), "right": (1, 0)}
 
@@ -97,6 +98,8 @@ def _marker(status, color=None, ms=None):
     _check_status(status)
     if status == "measured":
         return data_kw(color, ms=ms)
+    if status == "inferred":
+        return data_kw(color, ms=ms, mfc=t.light)
     if status in ("simulated", "upper", "lower"):
         return sim_kw(color, ms=ms)
     if status == "assumed":
@@ -122,11 +125,37 @@ def _status_handles(present, names=None, color=None, horizontal=False):
     return out
 
 
+def _shape_handles(present, names=None, horizontal=False):
+    """Legend handles for the (status, shape) pairs present, in the order of STATUSES, the status's own
+    marker first and then the other shapes in order of first appearance. names maps a status or a
+    (status, shape) pair to its label; a label of None leaves the entry out, and entries that share a
+    label show once. A pair without a shape shows as _status_handles draws it; a bound drawn with a
+    shape of its own shows that shape."""
+    names = names or {}
+    out, seen = [], set()
+    for s in STATUSES:
+        for st, shape in sorted(present, key=lambda p: p[1] is not None):     # stable: keeps first appearance
+            if st != s:
+                continue
+            label = names[(st, shape)] if (st, shape) in names else names.get(st, _WORDS[st])
+            if label is None or label in seen:
+                continue
+            seen.add(label)
+            if shape is None:
+                out += _status_handles({st}, {st: label}, horizontal=horizontal)
+            else:
+                out.append(Line2D([], [], label=label, **{**_marker(st), "marker": shape}))
+    return out
+
+
 def _legend(ax, handles, where):
     """Legend of handles: above the frame, at most three to a line, for where=True; inside at loc
-    `where` for a string."""
+    `where` for a string; a mapping passes its keywords to ax.legend (loc, bbox_to_anchor, ncol,
+    frameon, ...), for a key placed beside or below the frame."""
     if not where or not handles:
         return None
+    if isinstance(where, Mapping):
+        return ax.legend(handles=handles, **{"loc": "best", **where})
     if where is True:
         lines = -(-len(handles) // 3)
         return ax.legend(handles=handles, loc="lower center", bbox_to_anchor=(0.5, 1.0), ncol=-(-len(handles) // lines),
@@ -263,7 +292,7 @@ def _span(v, log):
 # ---- bars -------------------------------------------------------------------------------------
 
 def stacked_bars(ax, rows, segments, *, horizontal=True, normalize=False, log=False, hatches=None, totals=False,
-                 fmt="{:.3g}", markers=None, groups=None, columns=None, width=0.62, legend=True):
+                 fmt="{:.3g}", markers=None, groups=None, columns=None, width=0.62, legend=True, colors=None):
     """Stacked bars, one per row, of segments {name: one value per row} in segment order. Positive values
     stack from the base in the positive direction and negative values in the negative direction.
     normalize=True divides each row by its total, so the bars show shares (a row that sums to zero
@@ -271,7 +300,9 @@ def stacked_bars(ax, rows, segments, *, horizontal=True, normalize=False, log=Fa
     each bar starts at 1, and each factor carries it to the running product, factors above 1 to the
     right and below 1 to the left. NaN values, and non-positive factors under log, are left out.
     Segments take tints of the series colours with ink edges; folio adds hatches, and hatches (one per
-    segment, "" for none) replaces them to single out a class. totals=True (or a header string)
+    segment, "" for none) replaces them to single out a class; colors (one theme role such as "light"
+    or "accent", or a colour, per segment) fills the segments as given instead of the tints, for
+    classes a caption names by colour. totals=True (or a header string)
     prints each row's total, the product under log, with fmt in a column right of the frame, or above
     each bar when vertical. markers {label: one value per row, NaN for none} overlays a marker per row,
     a measured total say, filled in field and open in folio. groups adds a header above each group of
@@ -283,8 +314,11 @@ def stacked_bars(ax, rows, segments, *, horizontal=True, normalize=False, log=Fa
     rows = list(rows)
     n, names = len(rows), list(segments)
     _need(n, **{f"segment {k!r}": segments[k] for k in names})
-    _need(len(names), "segments", hatches=hatches)
+    _need(len(names), "segments", hatches=hatches, colors=colors)
     _need(n, **{f"marker {k!r}": v for k, v in (markers or {}).items()})
+    fills = [_fill(k, hatches) for k in range(len(names))]
+    for k, c in enumerate(colors or ()):
+        fills[k]["color"] = _role_color(c)
     pairs = _pairs(columns)
     for header, strings in pairs:
         _need(n, **{f"column {header!r}": strings})
@@ -308,7 +342,7 @@ def stacked_bars(ax, rows, segments, *, horizontal=True, normalize=False, log=Fa
         start = np.where(v >= 0, up, down)
         end = start + v
         a, b = (10.0 ** start, 10.0 ** end) if log else (start, end)
-        kw = _fill(k, hatches)
+        kw = fills[k]
         bar = (ax.barh(pos, b - a, left=a, height=width, label=name, **kw) if horizontal
                else ax.bar(pos, b - a, bottom=a, width=width, label=name, **kw))
         _hide_empty(bar, v)
@@ -341,18 +375,20 @@ def stacked_bars(ax, rows, segments, *, horizontal=True, normalize=False, log=Fa
         line(0.0, color=t.ink, lw=0.6, zorder=3)
     if normalize and not (L < 0).any():
         (ax.set_xlim if horizontal else ax.set_ylim)(0, 1.0 if horizontal or not totals else 1.12)
-    leg = _legend(ax, [_patch(_fill(k, hatches), name) for k, name in enumerate(names)] + mk, legend)
+    leg = _legend(ax, [_patch(fills[k], name) for k, name in enumerate(names)] + mk, legend)
     return {"bars": bars, "totals": total, "pos": pos, "texts": texts, "markers": mk, "headers": heads, "legend": leg}
 
 
 def factor_bars(ax, labels, factors, *, log10=True, net=True, net_label="net", horizontal=True, values=True,
-                digits=1, hatches=None, width=0.7, legend=True):
+                digits=1, hatches=None, width=0.7, legend=True, colors=None):
     """Signed factor bars: one row per input with a bar from 0 of length log10(factor) on a linear axis,
     so a factor above 1 points right (or up) and one below 1 left (or down), each labelled 10^x at its
     end with `digits` decimals. factors is one value per row, or {series name: one value per row} for
     series side by side within each row (a second device, say). A single series is coloured by sign,
     gains in the sim colour and losses in the accent colour; several series take the segment fills of
-    stacked_bars. log10=False draws the values as given, for factors already in logarithms or for
+    stacked_bars, with hatches (one per series) as there. colors (one theme role such as "light", or a
+    colour, per series) fills every bar of a series as given, with an ink edge, in place of either
+    choice. log10=False draws the values as given, for factors already in logarithms or for
     additive contributions. net=True adds a row below a dotted rule with each series' sum, the log of
     the total factor. NaN, and non-positive factors under log10, are left out of bars and sums.
     Returns {"bars": [BarContainer per series], "net": {series: sum} (key None for a single series),
@@ -362,8 +398,11 @@ def factor_bars(ax, labels, factors, *, log10=True, net=True, net_label="net", h
     n = len(labels)
     series = dict(factors) if isinstance(factors, Mapping) else {None: factors}
     _need(n, **{f"series {k!r}": v for k, v in series.items()})
-    _need(len(series), "series", hatches=hatches)
+    _need(len(series), "series", hatches=hatches, colors=colors)
     m = len(series)
+    fills = [_fill(k, hatches) for k in range(m)]
+    for k, c in enumerate(colors or ()):
+        fills[k]["color"] = _role_color(c)
     rows = labels + ([net_label] if net else [])
     pos = np.arange(len(rows), dtype=float)
     if net:
@@ -379,11 +418,11 @@ def factor_bars(ax, labels, factors, *, log10=True, net=True, net_label="net", h
         vals = np.r_[v, nets[name]] if net else v
         draw = np.nan_to_num(vals)
         y = pos + (k - (m - 1) / 2) * h
-        if m == 1:
+        if m == 1 and colors is None:
             cs = [t.sim if x >= 0 else t.accent for x in draw]
             kw = dict(color=[lighten(c, 0.35) for c in cs] or None, edgecolor=cs or None, lw=0.6)
         else:
-            kw = _fill(k, hatches)
+            kw = fills[k]
         bar = ax.barh(y, draw, height=h, **kw) if horizontal else ax.bar(y, draw, width=h, **kw)
         _hide_empty(bar, vals)
         bars.append(bar)
@@ -401,12 +440,12 @@ def factor_bars(ax, labels, factors, *, log10=True, net=True, net_label="net", h
     (ax.set_xlim if horizontal else ax.set_ylim)(allv.min() - pad, allv.max() + pad)
     if log10:
         (ax.set_xlabel if horizontal else ax.set_ylabel)(r"$\log_{10}$ factor")
-    leg = _legend(ax, [_patch(_fill(k, hatches), str(nm)) for k, nm in enumerate(series)], legend) if m > 1 else None
+    leg = _legend(ax, [_patch(fills[k], str(nm)) for k, nm in enumerate(series)], legend) if m > 1 else None
     return {"bars": bars, "net": nets, "texts": texts, "pos": pos, "legend": leg}
 
 
 def grouped_bars(ax, groups, series, *, log=False, horizontal=False, values=False, fmt="{:.3g}", ratios=False,
-                 hatches=None, width=0.8, legend=True, colors=None):
+                 hatches=None, width=0.8, legend=True, colors=None, pack=False, ratio_fmt=None, label_fs=None):
     """Bars side by side: one cluster per group and one bar per series {name: one value per group}, in
     the segment fills of stacked_bars; colors (one theme role such as "light" or "sim", or a colour, per
     series) fills them as given instead, for series a caption names by colour. log=True puts the values
@@ -415,6 +454,11 @@ def grouped_bars(ax, groups, series, *, log=False, horizontal=False, values=Fals
     beyond the last series of each group, its ratio to the first series ("×12"), for the change between
     two variants; it replaces that series' value labels. A zero line marks values of both signs.
     horizontal=True runs the groups from the top. legend names the series when there are several.
+    pack=True closes the gaps a missing value (NaN, or non-positive under log) leaves: each group centres
+    the bars it has, so a group with a value of one series only (a single reference bar) gets one centred
+    bar, and ratios then compare the first and last bars a group has. ratio_fmt formats the ratio labels:
+    a format string for the number after "×", or a function of the ratio that returns the whole label.
+    label_fs sets the size of the value and ratio labels in points (default theme().size - 1.5).
     Returns {"bars": [BarContainer per series], "texts": printed labels, "pos": group positions,
     "legend": Legend or None}."""
     t = theme()
@@ -427,27 +471,41 @@ def grouped_bars(ax, groups, series, *, log=False, horizontal=False, values=Fals
     ok = np.isfinite(V) & ((V > 0) if log else True)
     x = np.arange(n, dtype=float)
     w = width / max(m, 1)
+    lfs = label_fs or t.size - 1.5
+    # bar centres: every series in its own slot, or under pack the bars a group has centred in it
+    off = np.array([x + (k - (m - 1) / 2) * w for k in range(m)]).reshape(m, n)
+    if pack:
+        for i in range(n):
+            have = np.flatnonzero(ok[:, i])
+            off[have, i] = x[i] + (np.arange(have.size) - (have.size - 1) / 2) * w
+
+    def ratio_label(r):
+        if callable(ratio_fmt):
+            return str(ratio_fmt(r))
+        return "×" + _num(ratio_fmt or ("{:.0f}" if abs(r) >= 10 else "{:.2g}"), r)
+
     bars, texts = [], []
     fills = [_fill(k, hatches) for k in range(m)]
     for k, c in enumerate(colors or ()):
         fills[k]["color"] = _role_color(c)
     for k, name in enumerate(names):
-        off = x + (k - (m - 1) / 2) * w
         v = np.where(ok[k], V[k], 0.0)
         kw = fills[k]
-        bar = ax.barh(off, v, height=w, label=name, **kw) if horizontal else ax.bar(off, v, width=w, label=name, **kw)
+        bar = (ax.barh(off[k], v, height=w, label=name, **kw) if horizontal
+               else ax.bar(off[k], v, width=w, label=name, **kw))
         _hide_empty(bar, np.where(ok[k], V[k], np.nan))
         bars.append(bar)
         if values and not (ratios and k == m - 1 and m > 1):
-            texts += [_end_label(ax, val, p, _num(fmt, val), horizontal, fs=t.size - 1.5)
-                      for p, val, good in zip(off, V[k], ok[k]) if good]
+            texts += [_end_label(ax, val, p, _num(fmt, val), horizontal, fs=lfs)
+                      for p, val, good in zip(off[k], V[k], ok[k]) if good]
     if ratios and m > 1:
         for i in range(n):
-            a, b = V[0, i], V[-1, i]
-            if ok[0, i] and ok[-1, i] and a != 0:
-                r = b / a
-                s = "×" + _num("{:.0f}" if abs(r) >= 10 else "{:.2g}", r)
-                texts.append(_end_label(ax, b, x[i] + (m - 1) / 2 * w, s, horizontal, fs=t.size - 1.5))
+            have = np.flatnonzero(ok[:, i]) if pack else np.array([0, m - 1])
+            if have.size < 2 or not (ok[have[0], i] and ok[have[-1], i]):
+                continue
+            a, b = V[have[0], i], V[have[-1], i]
+            if a != 0:
+                texts.append(_end_label(ax, b, off[have[-1], i], ratio_label(b / a), horizontal, fs=lfs))
     _category_axis(ax, x, groups, horizontal)
     if log:
         (ax.set_xscale if horizontal else ax.set_yscale)("log")
@@ -533,21 +591,24 @@ def _bar_status(status, c):
     return {"measured": (lighten(c, 0.55), c, None, "-"), "simulated": ("white", c, None, "-"),
             "assumed": ("white", t.assumed, None, "-"), "fitted": (t.light, t.reference, None, "-"),
             "upper": ("white", c, "////", "-"), "lower": ("white", c, "////", "-"),
-            "excluded": ("white", t.reference, None, "--")}[status]
+            "excluded": ("white", t.reference, None, "--"), "inferred": (t.light, c, None, "-")}[status]
 
 
 def bar_rows(ax, labels, values, *, status=None, groups=None, base=0.0, log=False, ref=None, marks=None,
-             columns=None, color=None, width=0.55):
+             columns=None, color=None, width=0.55, end_labels=False, fmt="{:.3g}", fill=None):
     """Labelled horizontal bars, one row per label from the top, each from base to its value. status (one
     per row, or one for all) sets the fill: "measured" a tint of color (the model colour by default),
     "simulated" open, "assumed" open grey, "fitted" grey, "upper" or "lower" open and hatched (a limit),
-    "excluded" open with a dashed grey edge. log=True draws a log axis whose limits span whole decades
+    "excluded" open with a dashed grey edge, "inferred" light grey with an edge in color. fill (a theme
+    role such as "light", or a colour) replaces the tint of "measured" bars, for a fill a caption names or
+    a light fill on which the grey marks stay readable. log=True draws a log axis whose limits span whole decades
     around the values; zero, negative and NaN values draw no bar there, and bars start at the left edge
     when base is not positive. base=1 draws factors out from 1. groups adds an italic header above each
     group of rows. ref draws a guide line at that value; marks (one per row, NaN for none) draws a grey
     tick on each row at a reference value, a published scatter say. columns adds text columns right of
-    the frame. Returns {"bars": BarContainer, "pos": row positions, "headers": [Text], "marks": Line2D
-    or None, "columns": [Text lists]}."""
+    the frame; end_labels=True prints each value just beyond its bar end with fmt instead, for counts read
+    off the bars. Returns {"bars": BarContainer, "pos": row positions, "headers": [Text], "marks":
+    Line2D or None, "columns": [Text lists], "texts": the printed values}."""
     t = theme()
     c = color or t.model
     labels = list(labels)
@@ -572,6 +633,9 @@ def bar_rows(ax, labels, values, *, status=None, groups=None, base=0.0, log=Fals
         start = base if base > 0 else lim[0]
     length = np.where(good, v - start, np.nan)
     fc, ec, hatch, ls = zip(*[_bar_status(s, c) for s in st]) if n else ((), (), (), ())
+    if fill is not None:
+        face = _role_color(fill)
+        fc = tuple(face if s == "measured" else f for s, f in zip(st, fc))
     bars = ax.barh(pos, np.nan_to_num(length), left=start, height=width, color=list(fc) or None,
                    edgecolor=list(ec) or None, lw=0.6)
     for r, h, s in zip(bars, hatch, ls):
@@ -590,13 +654,14 @@ def bar_rows(ax, labels, values, *, status=None, groups=None, base=0.0, log=Fals
         log_minor(ax, "x")
         _log_ticks(ax, "x")
     cols = _columns(ax, pos, columns)
-    return {"bars": bars, "pos": pos, "headers": heads, "marks": mk, "columns": cols}
+    texts = [_end_label(ax, x, p, _num(fmt, x), True, base=start) for x, p, ok in zip(v, pos, good) if ok] if end_labels else []
+    return {"bars": bars, "pos": pos, "headers": heads, "marks": mk, "columns": cols, "texts": texts}
 
 
 # ---- points -----------------------------------------------------------------------------------
 
 def dot_rows(ax, labels, values, *, lo=None, hi=None, status=None, groups=None, connect=False, ref=None, band=None,
-             log=False, columns=None, color=None):
+             log=False, columns=None, color=None, markers=None):
     """Cleveland dot rows: one row per label from the top with a marker at each value. A row's value is
     one number or a list (two estimators, a prediction and a measurement), NaN for none. lo and hi (one
     per row, NaN for none) draw a thick range bar where hi > lo, for a value known only as a range.
@@ -605,7 +670,10 @@ def dot_rows(ax, labels, values, *, lo=None, hi=None, status=None, groups=None, 
     each row with a thin grey line. ref draws a guide line at that value (1 for a ratio), band (lo, hi)
     a tint behind the rows. log=True puts the values on a log axis and skips non-positive ones. groups
     and columns work as in bar_rows; color replaces the marker colour of every status but "assumed",
-    "fitted" and "excluded". Returns {"pos": row positions, "points": [Line2D], "ranges": [Line2D],
+    "fitted" and "excluded". markers (one shape for all, one per row, or a list per row to match its
+    values, None for the status default) sets the marker shapes, for kinds of comparison a caption
+    names by shape (squares, diamonds, circles); the status still decides fill and colour.
+    Returns {"pos": row positions, "points": [Line2D], "ranges": [Line2D],
     "arrows": [Annotation], "headers": [Text], "columns": [Text lists]}."""
     t = theme()
     labels = list(labels)
@@ -613,6 +681,8 @@ def dot_rows(ax, labels, values, *, lo=None, hi=None, status=None, groups=None, 
     _need(n, values=values, lo=lo, hi=hi)
     rowst = [status] * n if status is None or isinstance(status, str) else list(status)
     _need(n, status=rowst)
+    rowmk = [markers] * n if markers is None or isinstance(markers, str) else list(markers)
+    _need(n, markers=rowmk)
     lead = 1.0 if groups is not None else 0.0
     pos, spans = _layout(n, groups, 1.0, lead)
     if band is not None:
@@ -631,19 +701,26 @@ def dot_rows(ax, labels, values, *, lo=None, hi=None, status=None, groups=None, 
         ss = [ss or "measured"] * xs.size if ss is None or isinstance(ss, str) else list(ss)
         if len(ss) != xs.size:
             raise ValueError(f"row {labels[i]!r} has {xs.size} values and {len(ss)} statuses")
+        mm = rowmk[i]
+        mm = [mm] * xs.size if mm is None or isinstance(mm, str) else list(mm)
+        if len(mm) != xs.size:
+            raise ValueError(f"row {labels[i]!r} has {xs.size} values and {len(mm)} markers")
         keep = np.isfinite(xs) & ((xs > 0) if log else True)
         if connect and keep.sum() > 1:
             ax.plot([xs[keep].min(), xs[keep].max()], [y, y], color=t.reference, lw=0.8, zorder=2)
-        for x, s, k in zip(xs, ss, keep):
+        for x, s, k, shape in zip(xs, ss, keep, mm):
             _check_status(s)
             if not k:
                 continue
             if s in ("upper", "lower"):
-                m, a = limit_arrow(ax, x, y, "left" if s == "upper" else "right", color=color)
+                m, a = limit_arrow(ax, x, y, "left" if s == "upper" else "right", color=color, marker=shape or "o")
                 points.append(m)
                 arrows.append(a)
             else:
-                points.append(ax.plot([x], [y], **_marker(s, color))[0])
+                kw = _marker(s, color)
+                if shape:
+                    kw["marker"] = shape
+                points.append(ax.plot([x], [y], **kw)[0])
     _category_axis(ax, pos, labels, True, lead)
     heads = _headers(ax, spans, True)
     if log:
@@ -663,14 +740,15 @@ def _entries(cell):
     return [(float(cell), "measured")]
 
 
-def study_strips(axes, rows, columns, *, lims=None, log=True, missing="n.r."):
+def study_strips(axes, rows, columns, *, lims=None, log=True, missing="n.r.", color=None):
     """Cross-study dot strips: the rows (studies, devices) run down every axes in axes, one axes per
     quantity, each with a value axis of its own. columns maps each quantity's axis label to {row: entry}
     in axes order, where an entry is a number, a (number, status) pair or a list of them; the status
     picks the marker as in dot_rows, "measured" by default. A row absent from a quantity prints missing
     at the centre of that strip. NaN, and non-positive values on a log strip, are skipped. lims {label:
-    (lo, hi)} fixes a strip's range; otherwise it spans its values with a margin. Row labels go on the
-    first axes only, and the strips work with or without a shared y axis.
+    (lo, hi)} fixes a strip's range; otherwise it spans its values with a margin. color replaces the
+    marker colour of every status but "assumed", "fitted" and "excluded", as in dot_rows. Row labels go
+    on the first axes only, and the strips work with or without a shared y axis.
     Returns {"pos": {row: position}, "points": {label: [Line2D]}, "missing": [Text]}."""
     t = theme()
     axes, names, rows = list(np.ravel(axes)), list(columns), list(rows)
@@ -690,7 +768,7 @@ def study_strips(axes, rows, columns, *, lims=None, log=True, missing="n.r."):
         for r in rows:
             for x, s in (_entries(cells[r]) if r in cells else []):
                 if np.isfinite(x) and (x > 0 or not log):
-                    pts.append(ax.plot([x], [pos[r]], **_marker(s))[0])
+                    pts.append(ax.plot([x], [pos[r]], **_marker(s, color))[0])
                     drawn.append(x)
         if log:
             ax.set_xscale("log")
@@ -717,7 +795,7 @@ def study_strips(axes, rows, columns, *, lims=None, log=True, missing="n.r."):
 
 
 def ratio_strip(ax, groups, *, status=None, ref=1.0, band=None, rms=None, log=True, jitter=0.22, seed=0,
-                horizontal=False, label="predicted / measured", legend=True):
+                horizontal=False, label="predicted / measured", legend=True, markers=None, ms=None, legend_at=None):
     """Ratios such as predicted over measured as a strip (beeswarm) per category: groups {category:
     ratios}. Each point sits at its category, spread sideways by a uniform jitter of half width `jitter`
     from a generator seeded with seed, so a rebuild puts every point in the same spot. status {category:
@@ -727,13 +805,19 @@ def ratio_strip(ax, groups, *, status=None, ref=1.0, band=None, rms=None, log=Tr
     rms {category: fraction} draws a narrow grey bar of ref(1 +- rms) beside that category, for a
     published scatter. log=True puts the ratios on a log axis and skips non-positive ones. horizontal=True
     lays the categories out as rows from the top with the ratio along x. label names the ratio axis.
-    legend=True names the statuses present above the frame; a dict renames them.
+    legend=True names the statuses present above the frame; a dict renames them. markers {category: one
+    shape per ratio, None for the status default} sets the marker shapes, for kinds a caption names by
+    shape (squares for design targets, triangles for bounds); the status still decides fill and colour.
+    With markers the legend names each (status, shape) pair present, and the dict may key a label by the
+    status or by a (status, shape) pair; a label of None leaves an entry out, and entries that share a
+    label show once. ms sets the marker size, for a mini-plot. legend_at places the legend: None above
+    the frame, a location string inside it, or a dict of ax.legend keywords.
     Returns {"pos": {category: point coordinates across the strip}, "points": {category: [Line2D]},
     "legend": Legend or None}."""
     t = theme()
     cats = list(groups)
-    status, rms = status or {}, rms or {}
-    extra = [c for c in list(status) + list(rms) if c not in groups]
+    status, rms, markers = status or {}, rms or {}, markers or {}
+    extra = [c for c in list(status) + list(rms) + list(markers) if c not in groups]
     if extra:
         raise ValueError(f"categories {extra} are not in groups")
     rng = np.random.default_rng(seed)
@@ -742,25 +826,32 @@ def ratio_strip(ax, groups, *, status=None, ref=1.0, band=None, rms=None, log=Tr
         (ax.axvspan if horizontal else ax.axhspan)(b0, b1, color=t.tint, lw=0, zorder=0)
     (ax.axvline if horizontal else ax.axhline)(ref, color=t.ink, lw=0.6, zorder=2)
     down, up = ("left", "right") if horizontal else ("down", "up")
-    pos, points, present = {}, {}, set()
+    pos, points, present = {}, {}, []
     for i, c in enumerate(cats):
         r = np.asarray(groups[c], float).ravel()
         ss = list(status.get(c, ["measured"] * r.size))
         if len(ss) != r.size:
             raise ValueError(f"category {c!r} has {r.size} ratios and {len(ss)} statuses")
+        mm = list(markers.get(c, [None] * r.size))
+        if len(mm) != r.size:
+            raise ValueError(f"category {c!r} has {r.size} ratios and {len(mm)} markers")
         side = np.array([_check_status(s) == "excluded" for s in ss], bool)
         q = i + rng.uniform(-jitter, jitter, r.size)
         q[side] = i - jitter - 0.12 + rng.uniform(-0.03, 0.03, side.sum())
         pts = []
-        for qi, ri, s in zip(q, r, ss):
+        for qi, ri, s, shape in zip(q, r, ss, mm):
             if not np.isfinite(ri) or (log and ri <= 0):
                 continue
-            present.add(s)
+            if (s, shape) not in present:
+                present.append((s, shape))
             x, y = (ri, qi) if horizontal else (qi, ri)
             if s in ("upper", "lower"):
-                pts.append(limit_arrow(ax, x, y, down if s == "upper" else up)[0])
+                pts.append(limit_arrow(ax, x, y, down if s == "upper" else up, marker=shape or "o", ms=ms)[0])
             else:
-                pts.append(ax.plot([x], [y], **_marker(s))[0])
+                kw = _marker(s, ms=ms)
+                if shape:
+                    kw["marker"] = shape
+                pts.append(ax.plot([x], [y], **kw)[0])
         pos[c], points[c] = q, pts
         if c in rms:
             f, xc = rms[c], i + jitter + 0.12
@@ -776,15 +867,22 @@ def ratio_strip(ax, groups, *, status=None, ref=1.0, band=None, rms=None, log=Tr
     if label:
         (ax.set_xlabel if horizontal else ax.set_ylabel)(label)
     names = legend if isinstance(legend, Mapping) else None
-    leg = _legend(ax, _status_handles(present, names, horizontal=horizontal), True if names is not None else legend)
+    handles = (_shape_handles(present, names, horizontal) if markers
+               else _status_handles({s for s, _ in present}, names, horizontal=horizontal))
+    where = True if names is not None else legend
+    if legend_at is not None and where:
+        where = legend_at
+    leg = _legend(ax, handles, where)
     return {"pos": pos, "points": points, "legend": leg}
 
 
 def paired_stems(ax, items, a, b, *, groups=None, log=False, labels=("forecast", "measured"), markers=("D", "o"),
-                 rotation=90, legend=True):
+                 rotation=90, legend=True, colors=None, ms=None):
     """Two values per item joined by a grey stem, with the items along x: a as an open marker (proposed,
     forecast, simulated) and b as a measured one (built, measured), filled in field and open in folio;
-    markers (for a, for b) gives the two shapes, which keep them apart in folio. NaN leaves a marker
+    markers (for a, for b) gives the two shapes, which keep them apart in folio. colors (for a, for b)
+    replaces the sim and data colours, and ms (one size, or one for a and one for b) the marker sizes, a
+    larger open marker ringing the measured one where the two values agree. NaN leaves a marker
     out, and its stem. log=True puts the
     values on a log axis and skips non-positive ones; log="symlog" keeps zero on a linear stretch below
     1, for counts that can be 0. groups spaces the groups apart, labels each above the frame and
@@ -806,8 +904,10 @@ def paired_stems(ax, items, a, b, *, groups=None, log=False, labels=("forecast",
     stems = LineCollection([[(xi, ai), (xi, bi)] for xi, ai, bi in zip(x[both], A[both], B[both])],
                            colors=t.reference, linewidths=0.8, zorder=2)
     ax.add_collection(stems)
-    op, = ax.plot(x[ok(A)], A[ok(A)], label=labels[0], **sim_kw(marker=markers[0]))
-    fl, = ax.plot(x[ok(B)], B[ok(B)], label=labels[1], **data_kw(marker=markers[1]))
+    ca, cb = colors if colors is not None else (None, None)
+    sa, sb = ms if np.ndim(ms) == 1 else (ms, ms)
+    op, = ax.plot(x[ok(A)], A[ok(A)], label=labels[0], **sim_kw(ca, marker=markers[0], ms=sa))
+    fl, = ax.plot(x[ok(B)], B[ok(B)], label=labels[1], **data_kw(cb, marker=markers[1], ms=sb))
     _category_axis(ax, x, items, False)
     ax.tick_params(axis="x", labelrotation=rotation)
     heads = _headers(ax, spans, False)
@@ -824,11 +924,13 @@ def paired_stems(ax, items, a, b, *, groups=None, log=False, labels=("forecast",
 
 
 def timeline(ax, rows, events, *, kinds=None, break_at=None, compress=0.36, ncol=2, dx=None, dy=0.36, bands=True,
-             ticks=None, legend=True):
+             ticks=None, legend=True, styles=None):
     """Events in time along category rows, one marker per event. events lists (row, time) or (row, time,
     kind) tuples; rows gives the row labels from the top. Each kind takes a series colour and marker,
     filled for as many kinds as the colour cycle holds and open for the next as many; kinds sets their
-    order (first appearance otherwise). Events that share a row and a time sit side by side, ncol to a line, dx apart
+    order (first appearance otherwise). styles {kind: marker keywords} (marker, ms, color, mec, mfc, mew,
+    zorder) replaces that choice for a kind, for a marker key that a second panel or the caption shares.
+    Events that share a row and a time sit side by side, ncol to a line, dx apart
     in time (2.5 % of the time span by default) and dy rows apart, so none hides another. break_at
     compresses the times before it by the factor compress, for a sparse early record, stacks the shared
     cells there in one column and marks the break on the time axis; ticks lists the times to label
@@ -847,6 +949,10 @@ def timeline(ax, rows, events, *, kinds=None, break_at=None, compress=0.36, ncol
     unknown = sorted({str(k) for k in kind_of if k not in order})
     if unknown:
         raise ValueError(f"event kinds {unknown} are not in kinds")
+    styles = dict(styles or {})
+    extra = sorted(str(k) for k in styles if k not in order)
+    if extra:
+        raise ValueError(f"styles name kinds {extra} that are not in kinds")
     times = np.array([float(e[1]) for e in ev])
     brk = break_at if (break_at is not None and times.size and times.min() < break_at) else None
     t0, gap = (times.min() if times.size else 0.0), 0.55
@@ -875,9 +981,10 @@ def timeline(ax, rows, events, *, kinds=None, break_at=None, compress=0.36, ncol
     for j, kind in enumerate(order):
         sel = [i for i, k in enumerate(kind_of) if k == kind]
         c = t.cycle[j % nk]
-        pts[kind] = ax.plot(xs[sel], ys[sel], ls="none", marker=t.markers[j % len(t.markers)], ms=4.5, color=c, mec=c,
-                            mfc=c if (j // nk) % 2 == 0 else "white", mew=0.9, zorder=4,
-                            label=None if kind is None else str(kind))[0]
+        kw = dict(marker=t.markers[j % len(t.markers)], ms=4.5, color=c, mec=c, mfc=c if (j // nk) % 2 == 0 else "white",
+                  mew=0.9, zorder=4)
+        kw.update(styles.get(kind, {}))
+        pts[kind] = ax.plot(xs[sel], ys[sel], ls="none", label=None if kind is None else str(kind), **kw)[0]
     if bands:
         for i in range(0, len(rows), 2):
             ax.axhspan(i - 0.5, i + 0.5, color=t.tint, lw=0, zorder=0)

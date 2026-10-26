@@ -11,6 +11,7 @@ in any units."""
 from collections import namedtuple
 
 import numpy as np
+from matplotlib.colors import is_color_like
 from matplotlib.patches import Circle, Polygon, Rectangle
 from matplotlib.transforms import Affine2D
 
@@ -264,10 +265,11 @@ def double_pad(ax, u, v, *, pad=(120.0, 300.0), sep=60.0, gap=60.0, color=None, 
 
 
 def tunable_coupler(ax, u, v, *, length=560.0, width=30.0, stem=140.0, gap=24.0, color=None, angle=0.0,
-                    squid_len=None):
+                    squid_len=None, pocket=True):
     """A grounded tunable coupler: a bar of the given length (its ends face two qubits) on a stem that
-    ends in a SQUID to ground, all in a gap of bare substrate. Returns anchors: centre, the bar ends
-    (left, right), the SQUID and the ground edge."""
+    ends in a SQUID to ground, all in a gap of bare substrate. pocket=False leaves out the gap, for a
+    schematic drawn on bare substrate or under a wash. Returns anchors: centre, the bar ends (left,
+    right), the SQUID and the ground edge."""
     color = color or theme().chip["coupler"]
     L, a = length / 2, width / 2
     sl = 2.0 * width if squid_len is None else squid_len
@@ -275,7 +277,8 @@ def tunable_coupler(ax, u, v, *, length=560.0, width=30.0, stem=140.0, gap=24.0,
     g = a + gap
     hole = [(-L - gap, -g), (-g, -g), (-g, -stem - sl), (g, -stem - sl), (g, -g), (L + gap, -g), (L + gap, g),
             (-L - gap, g)]
-    _gap(ax, _place(hole, u, v, angle))
+    if pocket:
+        _gap(ax, _place(hole, u, v, angle))
     _poly(ax, _place(metal, u, v, angle), color, Z_METAL)
     out = _anchors(u, v, angle, center=(0, 0), left=(-L, 0), right=(L, 0), ground=(0, -stem - sl))
     out["squid"] = _squid(ax, u, v, angle, -stem, -stem - sl, 0.9 * width)
@@ -702,8 +705,9 @@ def cavity_plan(ax, chambers, *, block=None, wall=None, trench=None, chip=None, 
     chambers maps names to (u0, v0, w, h) rectangles, or is a list of them. block is the outer rectangle,
     by default the chambers and trench grown by `wall` (15 % of the smallest chamber side). trench is a
     rectangle drawn as vacuum joined to the chambers. chip is a dict: rect (required), pad = (length,
-    width) of each antenna pad, sep between their inner ends, at = the junction (the chip centre); the
-    pads run along the chip's long side and must fit on it. port is a dict: at (the pin tip inside a
+    width) of each antenna pad, sep between their inner ends, at = the junction (the chip centre) and
+    color, the colour of the pads and their lead (a theme().chip role such as "pad", or a plain colour;
+    the first qubit colour by default); the pads run along the chip's long side and must fit on it. port is a dict: at (the pin tip inside a
     chamber, required), side ("top", "bottom", "left" or "right", the wall it passes), stub (length
     outside the block) and label. dims=True adds width and height dimensions outside the block, labels
     names the chambers. Unknown options raise ValueError. Returns the patches, the chip and port anchors
@@ -735,7 +739,7 @@ def cavity_plan(ax, chambers, *, block=None, wall=None, trench=None, chip=None, 
     fs = t.size - 1
 
     if chip is not None:
-        c = _options(chip, "chip", ("rect", "pad", "sep", "at"), ("rect",))
+        c = _options(chip, "chip", ("rect", "pad", "sep", "at", "color"), ("rect",))
         u0, v0, w, h = _rect(c["rect"], "chip rect")
         along = np.array((1.0, 0.0) if w >= h else (0.0, 1.0))
         L, S = max(w, h), min(w, h)
@@ -748,7 +752,10 @@ def cavity_plan(ax, chambers, *, block=None, wall=None, trench=None, chip=None, 
             raise ValueError("the antenna pads do not fit on the chip; shorten pad or sep")
         ax.add_patch(Rectangle((u0, v0), w, h, fc=t.chip["substrate"], ec=t.chip["edge"], lw=0.6, zorder=2))
         across = along[::-1]
-        qc = t.qubits[0]
+        qc = c.get("color", t.qubits[0])
+        qc = t.chip.get(qc, qc) if isinstance(qc, str) else qc
+        if not is_color_like(qc):
+            raise ValueError(f"chip color {c['color']!r} is neither a theme().chip role nor a colour")
         for s in (-1, 1):
             p0 = at + s * along * sep / 2
             p1 = at + s * along * (sep / 2 + pl)
@@ -779,8 +786,9 @@ def cavity_plan(ax, chambers, *, block=None, wall=None, trench=None, chip=None, 
         ax.plot([tip[0], end[0]], [tip[1], end[1]], color=t.chip["feedline"], lw=1.6, ls="-", solid_capstyle="butt",
                 zorder=Z_METAL)
         nrm = d[::-1] * 0.25 * stub
+        # The connector body is grey like a launcher; the pad colour belongs to qubit metal.
         _poly(ax, [wall_pt - nrm + d * 0.35 * stub, end - nrm, end + nrm, wall_pt + nrm + d * 0.35 * stub],
-              t.chip["pad"], Z_METAL - 0.1)
+              t.chip["edge"], Z_METAL - 0.1)
         if p.get("label"):
             ax.text(*(end + d * 0.15 * stub), p["label"], ha={1: "left", -1: "right"}.get(int(d[0]), "center"),
                     va={1: "bottom", -1: "top"}.get(int(d[1]), "center"), fontsize=fs, color=t.ink, zorder=Z_TEXT)

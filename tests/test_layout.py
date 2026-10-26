@@ -172,12 +172,78 @@ def test_recipe_wrap_shrink_sets_every_line_whole_at_one_smaller_size():
     assert texts[lines[0]].get_window_extent(r).x1 / fig.dpi <= px0 - 0.3 + 0.01   # clear of the tick labels
 
 
+def _tools_fit(res, k):
+    """True when the tools row of step k ends inside its box (as recipe_grid checks it)."""
+    fig = res["fig"]
+    fig.canvas.draw()
+    r = fig.canvas.get_renderer()
+    x, y, w, h = res["frames"][k]
+    row = [t for t in _texts_in(res, (x, y, w, 0.25)) if t.get_text().strip()]
+    return max(t.get_window_extent(r).x1 for t in row) / fig.dpi <= x + w - 0.05 + 1e-3
+
+
+def test_recipe_wrap_shrink_also_fits_the_tools_row():
+    tools = [("pc", "a long instrument name"), ("vna", "VNA")]
+    steps = [dict(title="T", lines=["short line"], panel=_line, tools=tools)]
+    res = recipe_grid(None, steps, box=(2.4, 2.0), wrap="shrink")
+    plain = recipe_grid(None, steps, box=(2.4, 2.0))
+    assert any("tools run past" in s for s in plain["overfull"])          # at the default size they do not fit
+    assert not res["overfull"] and res["body"] < plain["body"] and _tools_fit(res, 0)
+    labels = {t.get_text(): t.get_fontsize() for t in res["background"].texts}
+    assert labels["a long instrument name"] == labels["short line"] == res["body"]
+
+
+def test_recipe_wrap_shrink_keeps_the_size_when_lines_and_tools_fit():
+    steps = [dict(title="T", lines=["short"], panel=_line, tools=["pen"])]
+    assert recipe_grid(None, steps, wrap="shrink")["body"] == pytest.approx(sq.theme().size - 0.5)
+
+
+def test_recipe_title_shrinks_until_it_fits_and_under_shrink_down_to_the_box_text():
+    title, fs = "Dark-matter coupling", sq.theme().size - 0.5
+    steps = [dict(title=title, lines=["a much longer line of box text"], panel=None)]
+    res = recipe_grid(None, steps, box=(1.3, 1.0), wrap="shrink")
+    fig = res["fig"]
+    room = 1.3 - 0.06 - 0.29                                               # right of the circled number
+    assert layout._measure(fig, title, fs, weight="bold")[0] > room        # the title does not fit at fs ...
+    assert layout._measure(fig, title, res["body"], weight="bold")[0] <= room   # ... but at the box text size
+    fig.canvas.draw()
+    r = fig.canvas.get_renderer()
+    (t,) = [t for t in res["background"].texts if t.get_text() == title]
+    x, y, w, h = res["frames"][0]
+    assert t.get_window_extent(r).x1 / fig.dpi <= x + w - 0.06 + 1e-3 and not res["overfull"]
+    assert res["body"] - 1e-9 <= t.get_fontsize() < fs
+    paragraph = recipe_grid(None, steps, box=(1.3, 1.0))                   # outside shrink the floor stays at fs
+    assert any("title wider" in s for s in paragraph["overfull"])
+
+
 def test_recipe_wrap_shrink_reports_a_line_too_long_at_the_smallest_size():
     long = "a far too long instruction that cannot fit a narrow box even at the smallest size allowed"
     res = recipe_grid(None, [dict(title="x", lines=[long], panel=None)], box=(1.6, 1.4), wrap="shrink")
     assert res["body"] == pytest.approx(sq.theme().size - 2.0)
     assert long in [t.get_text() for t in res["background"].texts]   # still one line, never wrapped
     assert any("wider than the box" in s for s in res["overfull"])
+
+
+def _panel_sizes(ax):
+    ax.figure.canvas.draw()
+    ticks = [lab for axis in (ax.xaxis, ax.yaxis) for lab in axis.get_ticklabels() if lab.get_text()]
+    return {lab.get_fontsize() for lab in ticks} | {ax.xaxis.label.get_fontsize(), ax.yaxis.label.get_fontsize()}
+
+
+def test_recipe_panel_fs_sets_tick_and_axis_label_size_only():
+    default = recipe_grid(None, _steps(2), ncol=2)
+    assert _panel_sizes(default["panels"][0]) == {sq.theme().size - 0.5}
+    small = sq.theme().size - 1.5
+    res = recipe_grid(None, _steps(2), ncol=2, panel_fs=small)
+    assert _panel_sizes(res["panels"][1]) == {small}
+    assert res["body"] == default["body"]                                # box text keeps its size
+    assert {t.get_text() for t in res["background"].texts} == {t.get_text() for t in default["background"].texts}
+
+
+@pytest.mark.parametrize("bad", [0.0, -1.0])
+def test_recipe_rejects_a_non_positive_panel_fs(bad):
+    with pytest.raises(ValueError, match="panel_fs"):
+        recipe_grid(None, _steps(1), panel_fs=bad)
 
 
 def test_recipe_reports_text_that_overflows_its_budget():
@@ -223,6 +289,13 @@ def test_recipe_rejects_bad_input(kw, msg):
     kw.setdefault("ncol", 4)
     with pytest.raises(ValueError, match=msg):
         recipe_grid(None, steps, **kw)
+
+
+def test_recipe_icon_width_table_matches_the_drawn_icons():
+    fig, ax = plt.subplots()
+    assert set(layout._ICON_W) == set(layout.TOOL_ICONS)
+    for name in layout.TOOL_ICONS:
+        assert layout._icon(ax, name, 0.0, 0.0) == pytest.approx(layout._ICON_W[name])
 
 
 def test_recipe_tool_icons_are_all_drawable():
@@ -596,6 +669,31 @@ def test_flow_pitch_sets_the_line_spacing_in_font_sizes(align):
     default = 1.75 if align == "left" else 1.45
     assert gaps() == pytest.approx([default * f] * 2, abs=0.6)
     assert gaps(pitch=1.2) == pytest.approx([1.2 * f] * 2, abs=0.6)
+
+
+def test_flow_pad_sets_the_text_inset_and_keeps_narrow_box_text_whole():
+    def draw(**kw):
+        fig, ax = plt.subplots(figsize=(3, 1.2))
+        node = dict(xy=(0, 0), w=0.6, h=0.5, title="T", lines=["resonant with cavity"], **kw.pop("node", {}))
+        out = flow_diagram(ax, {"a": node}, **kw)
+        fig.canvas.draw()
+        r = fig.canvas.get_renderer()
+        box = out["frames"]["a"].get_window_extent(r)
+        line = out["texts"]["a"][1]
+        inset = (line.get_window_extent(r).x0 - box.x0) * 72 / fig.dpi
+        plt.close(fig)
+        return line.get_fontsize(), inset
+    f0, i0 = draw()
+    f1, i1 = draw(pad=1.0)
+    f2, i2 = draw(pad=1.0, node=dict(pad=4.0))                  # a node's own pad wins
+    assert i0 == pytest.approx(5.0, abs=0.8) and i1 == pytest.approx(1.0, abs=0.8)
+    assert i2 == pytest.approx(4.0, abs=0.8)
+    assert f1 > f0                                              # a thinner inset shrinks the text less
+    with pytest.raises(ValueError, match="pad"):
+        flow_diagram(plt.subplots()[1], {"a": dict(xy=(0, 0))}, pad=-1)
+    with pytest.raises(ValueError, match="pad"):
+        flow_diagram(plt.subplots()[1], {"a": dict(xy=(0, 0), pad="wide")})
+    plt.close("all")
 
 
 @pytest.mark.parametrize("nodes, edges, kw, msg", [

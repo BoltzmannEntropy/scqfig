@@ -4,7 +4,8 @@ vacuum-Rabi avoided crossing as a map and as dressed lines."""
 import numpy as np
 
 from .. import physics as ph
-from ..core import MINUS, model_kw, note, ref_kw, series, sim_kw, theme
+from ..core import MINUS, model_kw, ref_kw, series, sim_kw, theme
+from ..core import note as _note   # parity_bands takes a `note` switch that shadows the function
 from ..schematics.motifs import well
 from ..schematics.symbols import dim
 from ._base import heatmap
@@ -65,20 +66,26 @@ def charge_dispersion(ax, ratio, nlev=3, ng=None, label=True):
 _UNITS = {"GHz": 1.0, "MHz": 1e3, "kHz": 1e6}
 
 
-def parity_bands(ax, EJ, EC, *, ng=None, level=None, unit="MHz", zero_contrast=True, mark=True, ncut=20):
+def parity_bands(ax, EJ, EC, *, ng=None, level=None, unit="MHz", zero_contrast=True, mark=True, ncut=20,
+                 colors=None, legend=True, note=True):
     """Even and odd charge-parity branches against offset charge n_g (in units of 2e), from
     physics.parity_branches. By default each branch's 0-1 frequency is drawn relative to the midpoint
     of the two branches, so the even-odd splitting that a parity measurement reads is centred on zero;
     level=m draws the energy of level m instead, relative to its own midpoint. Even parity is solid and
-    odd parity dashed. zero_contrast marks the offset charges where the branches cross and a parity
-    measurement sees nothing; mark draws the full splitting at n_g = 0 (2 chi_0 = |eps_1 - eps_0| for
-    the transition, |eps_m| for a level) and prints it. unit is "GHz", "MHz" or "kHz". Returns
-    {"ng", "even", "odd" (centred, in unit), "centre" (GHz), "splitting" (in unit)}."""
+    odd parity dashed, in the first two series colours or in colors = (even, odd). zero_contrast marks
+    the offset charges where the branches cross and a parity measurement sees nothing; mark draws the
+    full splitting at n_g = 0 (2 chi_0 = |eps_1 - eps_0| for the transition, |eps_m| for a level) and
+    note prints it. legend=False leaves out the even/odd legend, for panels that label the branches
+    themselves. unit is "GHz", "MHz" or "kHz". Returns {"ng", "even", "odd" (centred, in unit),
+    "centre" (GHz), "splitting" (in unit)}."""
     t = theme()
     if unit not in _UNITS:
         raise ValueError(f"unit must be one of {sorted(_UNITS)}, not {unit!r}")
     if level is not None and (int(level) != level or level < 0):
         raise ValueError(f"level must be a non-negative integer, not {level!r}")
+    if colors is not None and len(colors) != 2:
+        raise ValueError(f"colors takes two colours, (even, odd), not {colors!r}")
+    c_even, c_odd = (t.cycle[0], t.cycle[1]) if colors is None else colors
     s = _UNITS[unit]
     ng = np.linspace(-0.5, 0.5, 241) if ng is None else np.asarray(ng, float)
     nlev = 2 if level is None else int(level) + 1
@@ -93,19 +100,21 @@ def parity_bands(ax, EJ, EC, *, ng=None, level=None, unit="MHz", zero_contrast=T
     else:
         split = abs(ph.level_dispersion(EJ, EC, int(level), ncut)) * s
         name = rf"|\epsilon_{int(level)}|"
-    ax.plot(ng, even, color=t.cycle[0], ls="-", lw=t.lw, label="even", zorder=3)
-    ax.plot(ng, odd, color=t.cycle[1], ls=(0, (4, 2)), lw=t.lw, label="odd", zorder=3)
+    ax.plot(ng, even, color=c_even, ls="-", lw=t.lw, label="even", zorder=3)
+    ax.plot(ng, odd, color=c_odd, ls=(0, (4, 2)), lw=t.lw, label="odd", zorder=3)
     if zero_contrast:
         k = np.arange(np.ceil(ng.min() * 2 - 0.5), np.floor(ng.max() * 2 - 0.5) + 1)
         for j, x0 in enumerate(0.25 + k / 2):
             ax.axvline(x0, **ref_kw(label="zero contrast" if j == 0 else None))
     if mark and ng.min() <= 0 <= ng.max():
         dim(ax, (0.0, (o0 - centre) * s), (0.0, (e0 - centre) * s), "", color=t.ink)
-        note(ax, rf"${name}/h$ = {split:.3g} {unit}", loc="upper right")
+        if note:
+            _note(ax, rf"${name}/h$ = {split:.3g} {unit}", loc="upper right")
     A = max(np.abs(even).max(), np.abs(odd).max())
     ax.set_ylim(-1.35 * A, 2.5 * A)                                    # headroom for the legend and the note
     ax.set_xlim(ng.min(), ng.max())
-    ax.legend(loc="upper left", frameon=False)
+    if legend:
+        ax.legend(loc="upper left", frameon=False)
     ax.set_xlabel(r"offset charge $n_g$ ($2e$)")
     if level is None:
         ax.set_ylabel(rf"$f_{{01}} - \bar f_{{01}}$ ({unit})")
@@ -123,7 +132,7 @@ _RATIO = {   # y label, asymptote label, log axis
 
 
 def ratio_scaling(ax, quantity, ratios=None, *, asymptote=True, points=None, bands=None, legend=True, loc="best",
-                  ncut=15):
+                  ncut=15, color=None):
     """One transmon property against E_J/E_C, computed exactly in the charge basis (solid), with its
     large-ratio asymptote dashed. quantity "f01" draws f01/E_C with sqrt(8 E_J/E_C) - 1, "alpha" the
     anharmonicity alpha/E_C with -1 (physics.transmon_asymptotic), "dispersion" the peak-to-peak charge
@@ -135,7 +144,8 @@ def ratio_scaling(ax, quantity, ratios=None, *, asymptote=True, points=None, ban
     range otherwise). points {label: ratio} marks designs on the exact curve with open markers, and
     {label: (ratio, value)}, (ratio, value, kind) or (ratio, value, kind, style) places given values
     with the marker grammar (design._points: style sets the marker and moves the label). bands
-    {label: (lo, hi)} shades ranges of the ratio, each labelled at the top. Returns {"ratio", "exact",
+    {label: (lo, hi)} shades ranges of the ratio, each labelled at the top. color draws the exact curve
+    in another colour than the model colour (ink beside coloured study points, say). Returns {"ratio", "exact",
     "asymptote" (NaN where not drawn), "points": {label: (ratio, value)}}."""
     t = theme()
     if quantity not in _RATIO:
@@ -171,7 +181,7 @@ def ratio_scaling(ax, quantity, ratios=None, *, asymptote=True, points=None, ban
         ax.axvspan(lo, hi, fc=t.tint, ec="none", zorder=0)
         ax.text((lo + hi) / 2, 0.97, label, transform=ax.get_xaxis_transform(), ha="center", va="top",
                 fontsize=t.size - 1, color=t.ink, zorder=6)
-    ax.plot(r, y, label="exact", **model_kw())
+    ax.plot(r, y, label="exact", **model_kw(color))
     if np.isfinite(ya).any():
         ax.plot(r, ya, label=alabel, **ref_kw(lw=0.9))
     marked = {}

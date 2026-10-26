@@ -20,7 +20,7 @@ from .symbols import arrow
 __all__ = ["flow_diagram"]
 
 _NODE_KEYS = {"xy", "cell", "span", "w", "h", "title", "lines", "text", "align", "color", "fill", "ls", "shape",
-              "frame", "draw", "inset", "style", "fs", "pitch"}
+              "frame", "draw", "inset", "style", "fs", "pitch", "pad"}
 _PITCH = {"left": 1.75, "center": 1.45}     # line pitch in units of the font size, by alignment
 _EDGE_KEYS = {"src", "dst", "ls", "color", "lw", "label", "label_at", "label_side", "ports", "at", "offset", "route",
               "via", "path", "head"}
@@ -71,6 +71,8 @@ def _norm_nodes(nodes):
             raise ValueError(f"node {k!r}: draw must be a callable draw(ax, (x, y, w, h))")
         if "pitch" in v and not (isinstance(v["pitch"], (int, float)) and v["pitch"] > 0):
             raise ValueError(f"node {k!r}: pitch must be a positive number (line pitch / font size)")
+        if "pad" in v and not (isinstance(v["pad"], (int, float)) and v["pad"] >= 0):
+            raise ValueError(f"node {k!r}: pad must be a number of points, zero or more")
     return dict(items)
 
 
@@ -349,7 +351,7 @@ def _badge(ax, x, y, dx, dy, name, spec, f, ha="right"):
                    bbox=dict(boxstyle="round,pad=0.12", fc=spec["fill"], ec=spec["color"], lw=0.7))
 
 
-def _node_text(ax, v, region, lines, f, tags):
+def _node_text(ax, v, region, lines, f, tags, pad=_PAD):
     t = theme()
     x, y, w, h = region
     title = v.get("title")
@@ -358,16 +360,16 @@ def _node_text(ax, v, region, lines, f, tags):
     texts, badges = [], []
     kw = dict(color=t.ink, style=style, zorder=4)
     if align == "left":
-        pitch, y0 = v.get("pitch", _PITCH["left"]) * f, -_PAD
+        pitch, y0 = v.get("pitch", _PITCH["left"]) * f, -pad
         if title:
-            texts.append(ax.text(x, y + h, title, transform=_off(ax, _PAD, -_PAD), ha="left", va="top",
+            texts.append(ax.text(x, y + h, title, transform=_off(ax, pad, -pad), ha="left", va="top",
                                  fontsize=f + 0.9, weight="bold", **kw))
-            y0 = -(_PAD + 1.3 * (f + 0.9) + 2)
+            y0 = -(pad + 1.3 * (f + 0.9) + 2)
         for k, (s, tag) in enumerate(lines):
             yk = y0 - (k + 0.5) * pitch
-            texts.append(ax.text(x, y + h, s, transform=_off(ax, _PAD, yk), ha="left", va="center", fontsize=f, **kw))
+            texts.append(ax.text(x, y + h, s, transform=_off(ax, pad, yk), ha="left", va="center", fontsize=f, **kw))
             if tag is not None:
-                badges.append(_badge(ax, x + w, y + h, -_PAD - 1, yk, tag, tags[tag], f))
+                badges.append(_badge(ax, x + w, y + h, -pad - 1, yk, tag, tags[tag], f))
     else:
         pitch = v.get("pitch", _PITCH["center"]) * f
         block =([(title, True, None)] if title else []) + [(s, False, tag) for s, tag in lines]
@@ -377,11 +379,11 @@ def _node_text(ax, v, region, lines, f, tags):
             texts.append(ax.text(x + w / 2, y + h / 2, s, transform=_off(ax, 0, yk), ha="center", va="center",
                                  fontsize=f + (0.9 if bold else 0.0), weight="bold" if bold else "normal", **kw))
             if tag is not None:
-                badges.append(_badge(ax, x + w, y + h / 2, -_PAD - 1, yk, tag, tags[tag], f))
+                badges.append(_badge(ax, x + w, y + h / 2, -pad - 1, yk, tag, tags[tag], f))
     return texts, badges, align
 
 
-def _text_scale(ax, region, texts, badges, align, f):
+def _text_scale(ax, region, texts, badges, align, f, pad=_PAD):
     """Factor (at most 1) by which the node's font must shrink to stay inside its box."""
     fig = ax.figure
     r, k = _renderer(fig), fig.dpi / 72
@@ -392,11 +394,11 @@ def _text_scale(ax, region, texts, badges, align, f):
         return 1.0
     badge = max([b.get_window_extent(r).width for b in badges], default=0.0)
     extra = badge + (2 * 0.12 * f + 4) * k if badges else 0.0
-    need_w = max(e.width for e in ext) + extra + 2 * _PAD * k
+    need_w = max(e.width for e in ext) + extra + 2 * pad * k
     if align == "left":
-        need_h = Y1 - min(e.y0 for e in ext) + _PAD * k
+        need_h = Y1 - min(e.y0 for e in ext) + pad * k
     else:
-        need_h = max(e.y1 for e in ext) - min(e.y0 for e in ext) + 2 * _PAD * k
+        need_h = max(e.y1 for e in ext) - min(e.y0 for e in ext) + 2 * pad * k
     return min(1.0, (X1 - X0) / need_w, (Y1 - Y0) / need_h)
 
 
@@ -471,7 +473,7 @@ def _fit_limits(ax, geo, texts, margin):
 
 
 def flow_diagram(ax, nodes, edges=(), *, grid=None, size=(2.0, 1.0), tags=None, legend=False, fans=(), fs=None,
-                 fit=True, margin=0.08, min_fs=None):
+                 fit=True, margin=0.08, min_fs=None, pad=None):
     """Boxes with a bold title and short lines (each line may carry a status tag), joined by arrows.
 
     nodes: a dict {id: spec} or a list of specs with an "id". A spec places the box by xy=(x, y) (lower-left
@@ -482,7 +484,7 @@ def flow_diagram(ax, nodes, edges=(), *, grid=None, size=(2.0, 1.0), tags=None, 
     "square"), frame=False for a bare label, style (font style, e.g. "italic"), fs, pitch (line pitch in
     units of the font size, 1.75 for left-aligned and 1.45 for centred text by default), and draw, a callable
     draw(ax, (x, y, w, h)) that draws an icon in the box (in its left `inset` width when inset is set,
-    with the text centred in the rest).
+    with the text centred in the rest), and pad, the text inset from the box edge in points.
     grid: dict(w, h, gap=(gx, gy)), or widths and heights lists for uneven columns and rows, and
     col_labels, italic headings above the columns.
     edges: (src, dst), (src, dst, options) or dicts; an end is a node id or an (x, y) point. Boxes side by
@@ -497,7 +499,8 @@ def flow_diagram(ax, nodes, edges=(), *, grid=None, size=(2.0, 1.0), tags=None, 
     span=(first, last) or pitch; trunk and length set the trunk position and the arrow length, header an
     italic heading over the items.
     fit=True sets equal-aspect limits around everything drawn and shrinks box text that would overflow;
-    fit=False leaves limits, aspect and text sizes to the caller.
+    fit=False leaves limits, aspect and text sizes to the caller. pad sets the text inset of every box
+    in points (5 by default; a node's own pad wins), for narrow boxes whose text must keep its size.
 
     Returns a dict: boxes {id: (x, y, w, h)}, frames, texts and badges by node, edges (artists), labels,
     fans, legend and extent."""
@@ -510,6 +513,9 @@ def flow_diagram(ax, nodes, edges=(), *, grid=None, size=(2.0, 1.0), tags=None, 
     F = _norm_fans(fans, boxes)
     fs = fs or t.size - 0.5
     min_fs = min_fs or t.size - 2.0
+    if pad is not None and not (isinstance(pad, (int, float)) and pad >= 0):
+        raise ValueError("pad must be a number of points, zero or more")
+    pad = _PAD if pad is None else float(pad)
     gap = 0.03
     ax.axis("off")
     out = dict(boxes=boxes, frames={}, texts={}, badges={}, edges=[], labels=[], fans=[], legend=[], extent=None)
@@ -528,9 +534,10 @@ def flow_diagram(ax, nodes, edges=(), *, grid=None, size=(2.0, 1.0), tags=None, 
             v["draw"](ax, (x, y, inset if inset > 0 else w, h))
         region = (x + inset, y, w - inset, h)
         f = v.get("fs", fs)
-        texts, badges, align = _node_text(ax, v, region, lines[k], f, T)
+        p = float(v.get("pad", pad))
+        texts, badges, align = _node_text(ax, v, region, lines[k], f, T, p)
         out["texts"][k], out["badges"][k] = texts, badges
-        nodetext[k] = (region, align, f)
+        nodetext[k] = (region, align, f, p)
         if not v.get("frame", True):
             outside += texts
     for e in E:
@@ -576,11 +583,11 @@ def flow_diagram(ax, nodes, edges=(), *, grid=None, size=(2.0, 1.0), tags=None, 
         for k, v in N.items():
             if not v.get("frame", True):
                 continue
-            region, align, f = nodetext[k]
-            s = _text_scale(ax, region, out["texts"][k], out["badges"][k], align, f)
+            region, align, f, p = nodetext[k]
+            s = _text_scale(ax, region, out["texts"][k], out["badges"][k], align, f, p)
             if s < 0.995:
                 for a in out["texts"][k] + out["badges"][k]:
                     a.remove()
-                texts, badges, _ = _node_text(ax, v, region, lines[k], max(min_fs, f * s * 0.97), T)
+                texts, badges, _ = _node_text(ax, v, region, lines[k], max(min_fs, f * s * 0.97), T, p)
                 out["texts"][k], out["badges"][k] = texts, badges
     return out

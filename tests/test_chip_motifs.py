@@ -254,6 +254,55 @@ def test_cavity_plan_rejects_pads_that_overrun_the_chip():
         chip.cavity_plan(_ax(), CHAMBERS, chip=dict(rect=(0.0, 0.0, 10e3, 1e3), pad=(4e3, 0.5e3), sep=3e3))
 
 
+def _pad_patches(ax, before):
+    return [p for p in _new_patches(ax, before) if not isinstance(p, Rectangle)]   # pads are polygons
+
+
+def test_cavity_plan_pads_take_the_first_qubit_colour_by_default():
+    ax = _ax()
+    before = {id(p) for p in ax.patches}
+    chip.cavity_plan(ax, CHAMBERS, chip=CHIP, dims=False, labels=False)
+    pads = _pad_patches(ax, before)
+    assert len(pads) == 2 and all(to_hex(p.get_facecolor()) == to_hex(sq.theme().qubits[0]) for p in pads)
+
+
+def test_cavity_plan_chip_color_recolours_pads_and_lead_only():
+    ax = _ax()
+    before = {id(p) for p in ax.patches}
+    pad = sq.theme().chip["pad"]
+    chip.cavity_plan(ax, CHAMBERS, chip=dict(CHIP, color="pad"), dims=False, labels=False)
+    pads = _pad_patches(ax, before)
+    assert len(pads) == 2 and all(to_hex(p.get_facecolor()) == to_hex(pad) for p in pads)
+    lead, *cross = ax.lines
+    assert to_hex(lead.get_color()) == to_hex(pad)
+    assert all(to_hex(c.get_color()) == to_hex(sq.theme().chip["junction"]) for c in cross)
+    chip.cavity_plan(_ax(), CHAMBERS, chip=dict(CHIP, color="#123456"), dims=False)      # a plain colour works too
+
+
+def test_cavity_plan_rejects_an_invalid_chip_color():
+    with pytest.raises(ValueError):
+        chip.cavity_plan(_ax(), CHAMBERS, chip=dict(CHIP, color="not-a-colour"))
+
+
+# ---- tunable_coupler options -----------------------------------------------------------------
+
+def test_tunable_coupler_keeps_its_pocket_by_default():
+    ax = _ax()
+    chip.tunable_coupler(ax, 0.0, 0.0, length=400.0, stem=100.0)
+    gap, metal = ax.patches
+    assert to_hex(gap.get_facecolor()) == to_hex(sq.theme().chip["substrate"])
+    assert to_hex(metal.get_facecolor()) == to_hex(sq.theme().chip["coupler"])
+
+
+def test_tunable_coupler_without_pocket_draws_metal_and_squid_only():
+    ax = _ax()
+    a = chip.tunable_coupler(ax, 10.0, 20.0, length=400.0, stem=100.0, width=30.0, pocket=False)
+    (metal,) = ax.patches
+    assert to_hex(metal.get_facecolor()) == to_hex(sq.theme().chip["coupler"])
+    assert len(ax.lines) == 7                                      # SQUID: two leads, a loop, two crosses
+    assert a["left"] == pytest.approx((-190.0, 20.0)) and a["ground"] == pytest.approx((10.0, 20.0 - 160.0))
+
+
 # ---- double_pad options ----------------------------------------------------------------------
 
 def test_double_pad_defaults_keep_pocket_and_single_junction():
@@ -368,6 +417,19 @@ def test_dc_source_puts_plus_towards_the_positive_terminal(up):
 def test_dc_source_rejects_zero_radius():
     with pytest.raises(ValueError):
         symbols.dc_source(_ax(), 0.0, 0.0, r=0.0)
+
+
+def test_squid_junction_size_option():
+    def cross_halfwidths(ax):
+        return sorted({round(np.ptp(ln.get_xdata()) / 2, 6) for ln in ax.lines if len(ln.get_xdata()) == 2})
+    ax = _ax()
+    symbols.squid(ax, 0.0, 0.0, w=0.42, h=0.62)
+    assert cross_halfwidths(ax) == [0.055]                         # default junctions unchanged
+    ax = _ax()
+    symbols.squid(ax, 0.0, 0.0, w=0.42, h=0.62, s=0.09)
+    assert cross_halfwidths(ax) == [0.09]
+    with pytest.raises(ValueError):
+        symbols.squid(_ax(), 0.0, 0.0, s=0.0)
 
 
 # ---- QCircuit wire colours and windows -------------------------------------------------------

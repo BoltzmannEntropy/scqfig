@@ -123,9 +123,11 @@ def admittance_box(ax, x, y, w=0.5, h=0.36, label=r"$Y(\omega)$", color=None, lw
     return box, text
 
 
-def squid(ax, x, y, w=0.36, h=0.3, color=None, lw=0.9, tile_kind=None):
-    """dc SQUID for a vertical wire: a w by h loop with a junction on each side; the wire attaches at
-    (x, y +- h/2)."""
+def squid(ax, x, y, w=0.36, h=0.3, color=None, lw=0.9, tile_kind=None, s=0.055):
+    """dc SQUID for a vertical wire: a w by h loop with a junction of half-size s on each side; the wire
+    attaches at (x, y +- h/2)."""
+    if not s > 0:
+        raise ValueError(f"s must be positive, got {s!r}")
     kind = _kind(tile_kind, "nonlinear")
     if kind:
         tile(ax, x, y, w * 1.7, h * 1.9, kind)
@@ -133,7 +135,7 @@ def squid(ax, x, y, w=0.36, h=0.3, color=None, lw=0.9, tile_kind=None):
     ax.plot([x - w / 2, x + w / 2, x + w / 2, x - w / 2, x - w / 2], [y - h / 2, y - h / 2, y + h / 2, y + h / 2, y - h / 2],
             color=c, lw=lw, ls="-", zorder=4)
     for sx in (-1, 1):
-        junction(ax, x + sx * w / 2, y, s=0.055, tile_kind=False)
+        junction(ax, x + sx * w / 2, y, s=s, tile_kind=False)
 
 
 def inductor_v(ax, x, y0, y1, n=4, r=0.08, color=None, lw=1.0, tile_kind=None):

@@ -167,6 +167,9 @@ _LINES_TOP = {True: 0.31, False: 0.27}
 _TOOLS_Y = 0.14
 _PANEL_BOTTOM = {"below": 0.56, "right": 0.50}
 _PAD = 0.08
+# width in inches of each tool pictogram, as _icon draws it (s = 0.075)
+_ICON_W = {"pen": 0.13, "paper": 0.11, "code": 0.13, "calc": 0.12, "pc": 0.15, "em": 0.15, "probe": 0.09,
+           "vna": 0.18, "adc": 0.18, "fridge": 0.15, "stats": 0.16}
 
 
 def _icon(ax, name, x, y):
@@ -299,15 +302,40 @@ def _text_room(spec, w, mode, side, plot_w):
     return w - 0.08 - plot_w - spec.get("panel_left", 0.34) - _PAD
 
 
+def _tools_width(fig, tools, label, f):
+    """Width in inches of a tools row at f points, as _tools_row lays it out."""
+    if not tools:
+        return 0.0
+    w = _measure(fig, label, f, style="italic")[0] + 0.08 if label else 0.0
+    for name, lab in tools:
+        tw = _measure(fig, lab, f)[0]
+        w += _ICON_W[name] + 0.03 + tw + 0.09 if name else tw + 0.18
+    return w - 0.06
+
+
+def _fit_size(width, room, fs, floor):
+    """The largest size up to fs (not below floor) at which width(size) <= room, for a width in inches
+    that grows with the size. Text widths do not scale exactly with size, and fixed parts (icons) not at
+    all, so the smaller size is measured again."""
+    f = fs
+    for _ in range(6):
+        need = width(f)
+        if need <= room or f <= floor:
+            break
+        f = max(floor, f * max(room, 0.0) / need * 0.995)
+    return f
+
+
 def _shrink_body(fig, boxes, fs, floor):
     """The largest size up to fs (not below floor) at which every line of every box fits its room on
-    one line; boxes holds (lines, room in inches) pairs. Text widths do not scale exactly with size,
-    so the smaller size is measured again."""
+    one line; boxes holds (lines, room in inches) pairs, or (width function of the size, room) pairs
+    for rows that are not plain lines (a tools row). Text widths do not scale exactly with size, and
+    the icons of a tools row not at all, so the smaller size is measured again."""
     f = fs
-    for _ in range(4):
+    for _ in range(8):
         s = 1.0
         for lines, room in boxes:
-            widest = max((_measure(fig, ln, f)[0] for ln in lines), default=0.0)
+            widest = lines(f) if callable(lines) else max((_measure(fig, ln, f)[0] for ln in lines), default=0.0)
             if widest > room:
                 s = min(s, max(room, 0.0) / widest)
         if s >= 1.0 or f <= floor:
@@ -337,7 +365,10 @@ def _draw_box(ctx, spec, x, y, w, h, number, mode, side, name):
         tfs, room = t.size + 0.5, x + w - 0.06 - tx
         tw = _measure(fig, title, tfs, weight="bold")[0]
         if tw > room:
-            tfs = max(fs, tfs * room / tw)
+            if ctx["wrap"] == "shrink":     # shrink until it fits, down to the box text size
+                tfs = _fit_size(lambda f: _measure(fig, title, f, weight="bold")[0], room, tfs, min(fs, body))
+            else:
+                tfs = max(fs, tfs * room / tw)
             if _measure(fig, title, tfs, weight="bold")[0] > room:
                 ctx["overfull"].append(f"{name}: title wider than the box")
         ax.text(tx, top - _TITLE_Y[numbered], title, fontsize=tfs, weight="bold", ha="left", va="center",
@@ -379,7 +410,7 @@ def _draw_box(ctx, spec, x, y, w, h, number, mode, side, name):
         px, py, pw, ph = geom
         W, H = ctx["W"], ctx["H"]
         pax = fig.add_axes([px / W, py / H, pw / W, ph / H])
-        _style_panel(pax, fs)
+        _style_panel(pax, ctx["panel_fs"])
         if callable(panel):
             panel(pax)
     if not _tools_row(ctx, tools, x + _PAD, y + _TOOLS_Y, x + w - 0.05):
@@ -449,7 +480,7 @@ def _strip_cols(c, ncols, cols, bounds):
 
 def recipe_grid(fig, steps, *, ncol=4, order="row", box=(1.58, 2.32), gap=(0.22, 0.36), plot="below",
                 plot_size=None, text_lines=3, side=(), side_width=None, arrows=True, arrow_lw=1.1, arrow_y=0.55,
-                arrow_x=0.5, tools_label="You use:", margin=0.04, wrap="paragraph"):
+                arrow_x=0.5, tools_label="You use:", margin=0.04, wrap="paragraph", panel_fs=None):
     """A step-by-step figure: numbered rounded boxes, each with a bold title, instruction lines, a framed
     mini-axes and a row of the tools the step uses, joined by arrows; optional steps sit in dashed grey
     boxes. Everything is laid out in inches and the figure is resized to fit (fig=None makes one).
@@ -470,8 +501,10 @@ def recipe_grid(fig, steps, *, ncol=4, order="row", box=(1.58, 2.32), gap=(0.22,
     together. wrap="lines" treats each line as an instruction of its own: only a line that runs past the
     box wraps, and its continuation is set in by a hanging indent (strips "between" rows stay prose).
     wrap="shrink" never wraps: the lines and tools of every box are set at one size, the largest (up to
-    the default) at which each line fits its box, but not below theme().size - 2; a line still too wide
-    is reported in overfull.
+    the default) at which each line and each tools row fits its box, but not below theme().size - 2; a
+    line still too wide is reported in overfull. A title too wide for its box shrinks until it fits, under
+    wrap="shrink" down to that size. panel_fs sets the tick and axis labels of the mini-axes in points (by default
+    theme().size - 0.5, the size of the boxes' text), for narrow boxes whose mini-plots need smaller labels.
 
     Returns a dict: fig, panels (one Axes or None per step), side_panels, frames and side_frames
     ((x, y, w, h) in inches), background (the inch axes), overfull (boxes whose text did not fit) and
@@ -492,6 +525,8 @@ def recipe_grid(fig, steps, *, ncol=4, order="row", box=(1.58, 2.32), gap=(0.22,
     gx, gy = (float(v) for v in gap)
     if bw <= 0 or bh <= 0 or gx < 0 or gy < 0:
         raise ValueError("box sizes must be positive and gaps non-negative")
+    if panel_fs is not None and not panel_fs > 0:
+        raise ValueError(f"panel_fs must be a positive size in points, not {panel_fs!r}")
     for i, s in enumerate(steps):
         bad = set(s) - _STEP_KEYS
         if bad:
@@ -536,6 +571,12 @@ def recipe_grid(fig, steps, *, ncol=4, order="row", box=(1.58, 2.32), gap=(0.22,
                    _text_room(d, sw if d["at"] in ("left", "right") else float(d.get("width", bw)), "below", True,
                               plot_w))
                   for d in sides if d["at"] != "between"]
+        # the tools rows set at the same size must fit too (room as _tools_row checks it)
+        rooms += [(lambda f, tl=s["_tools"]: _tools_width(fig, tl, tools_label, f), wd - 0.05 - _PAD)
+                  for s, wd in [(s, bw) for s in steps]
+                  + [(d, sw if d["at"] in ("left", "right") else float(d.get("width", bw))) for d in sides
+                     if d["at"] != "between"]
+                  if s["_tools"]]
         body = _shrink_body(fig, rooms, fs, t.size - 2.0)
     bpitch, bline_h = 1.5 * body / 72, 1.2 * body / 72
 
@@ -611,7 +652,7 @@ def recipe_grid(fig, steps, *, ncol=4, order="row", box=(1.58, 2.32), gap=(0.22,
     bg.set_ylim(0, H)
     bg.axis("off")
     ctx = dict(fig=fig, bg=bg, W=W, H=H, fs=fs, body=body, pitch=bpitch, line_h=bline_h, plot_w=plot_w,
-               plot_h=plot_h, tools_label=tools_label, overfull=[], wrap=wrap)
+               plot_h=plot_h, tools_label=tools_label, overfull=[], wrap=wrap, panel_fs=panel_fs or fs)
 
     panels, frames = [], []
     for i, (st, (r, c)) in enumerate(zip(steps, cells)):

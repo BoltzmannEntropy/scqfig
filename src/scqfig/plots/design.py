@@ -278,17 +278,21 @@ def collision_map(ax, alpha, points=None, *, lim=None, windows=None, spread=None
 
 
 def junction_curve(ax, x, EC, *, kind="Rn", gap=None, points=None, spread=None, cap_spread=None, window=None,
-                   band=None, top_axis=True, ncut=30, legend=True):
+                   band=None, top_axis=True, ncut=30, legend=True, f01=None, xband=None):
     """Transmon frequency f01 against the junction's normal-state resistance (kind="Rn", x in kΩ) or
     its Josephson inductance (kind="LJ", x in nH), on the exact charge-basis spectrum: E_J from L_J
     (physics.ej_from_lj) and, for R_n, L_J from the Ambegaokar-Baratoff relation with the gap in eV
     (physics.lj_from_rn). EC (GHz) is one charging energy or {name: EC}, one curve each in its qubit
     colour with a legend (legend=False leaves it out, for curves the point labels already name).
-    points {name: x0} marks each design on its curve with an open marker and its value; with several
-    curves the names must match. spread, a relative junction scatter such as 0.03,
+    f01 (GHz on x, or {name: GHz on x}) draws curves the caller computed instead, from a lumped-circuit
+    model say; EC may then be None, and the frequencies at points and spreads are interpolated on them.
+    points {name: x0} marks each design on its curve with an open marker and its value, {name: (x0,
+    f01)} at a frequency the caller computed; with several curves the names must match. spread, a
+    relative junction scatter such as 0.03,
     adds error bars of +-spread x0 and the f01 range that scatter causes. cap_spread, a relative
     capacitance error, draws each curve again dotted for C (1 +- cap_spread). window (lo, hi) marks an
-    allowed L_J range in nH with dashed guides, and band (lo, hi) shades a specified f01 range in GHz.
+    allowed L_J range in nH with dashed guides, band (lo, hi) shades a specified f01 range in GHz and
+    xband (lo, hi) shades a range of x in light grey, a junction spread say.
     top_axis puts the other junction quantity on the top axis, which needs the gap. Returns
     {"f01": {name: GHz on x}, "points": {name: (x0, f01, (f_lo, f_hi) or None)}, "labels": {name: the
     point's label, to move where curves crowd it}}."""
@@ -300,33 +304,59 @@ def junction_curve(ax, x, EC, *, kind="Rn", gap=None, points=None, spread=None, 
     x = np.asarray(x, float)
     to_lj = (lambda v: ph.lj_from_rn(np.asarray(v, float) * 1e3, gap)) if kind == "Rn" else \
         (lambda v: np.asarray(v, float) * 1e-9)
+    given = None
+    if f01 is not None:
+        given = {k: np.asarray(v, float).ravel() for k, v in (f01.items() if isinstance(f01, dict) else [(None, f01)])}
+        for k, v in given.items():
+            if v.size != x.size:
+                raise ValueError(f"f01 curve {k!r} has {v.size} values for {x.size} x values")
+        if EC is not None and set(dict(EC) if isinstance(EC, dict) else {None: EC}) != set(given):
+            raise ValueError("EC and f01 must name the same curves")
+        if cap_spread:
+            raise ValueError("cap_spread needs EC and the charge-basis curves, not given f01 curves")
+    elif EC is None:
+        raise ValueError("give EC, or the curves themselves as f01")
 
-    def f01(v, ec):
+    def solve(v, ec):
         return np.array([ph.transmon_spectrum(ej, ec, ncut=ncut, nlev=2)[1]
                          for ej in np.atleast_1d(ph.ej_from_lj(to_lj(v)))])
 
-    ecs = dict(EC) if isinstance(EC, dict) else {None: EC}
+    if given is None:
+        ecs = dict(EC) if isinstance(EC, dict) else {None: EC}
+        curve = solve
+    else:
+        ecs = {k: k for k in given}             # a curve is looked up by its name
+
+        def curve(v, name):
+            order = np.argsort(x)
+            return np.interp(np.atleast_1d(np.asarray(v, float)), x[order], given[name][order])
     colour = {name: t.qubits[k % len(t.qubits)] for k, name in enumerate(ecs)}
     out = {"f01": {}, "points": {}, "labels": {}}
     if band:
         ax.axhspan(band[0], band[1], fc=t.tint, ec="none", zorder=0)
         ax.text(0.97, band[1], f"{band[0]:g}–{band[1]:g} GHz band", transform=ax.get_yaxis_transform(), ha="right",
                 va="top", fontsize=t.size - 1, color=t.ink, zorder=6)
+    if xband:
+        ax.axvspan(xband[0], xband[1], fc=t.light, ec="none", zorder=0)
     for name, ec in ecs.items():
-        out["f01"][name] = f = f01(x, ec)
+        out["f01"][name] = f = curve(x, ec) if given is None else given[name]
         ax.plot(x, f, label=name, **model_kw(color=colour[name]))
         if cap_spread:
             for s in (1 + cap_spread, 1 - cap_spread):
-                ax.plot(x, f01(x, ec / s), **model_kw(color=colour[name], ls=(0, (1, 1.5)), lw=0.7))
+                ax.plot(x, solve(x, ec / s), **model_kw(color=colour[name], ls=(0, (1, 1.5)), lw=0.7))
     unit = "kΩ" if kind == "Rn" else "nH"
-    for name, x0 in (points or {}).items():
+    for name, p in (points or {}).items():
         if len(ecs) > 1 and name not in ecs:
             raise ValueError(f"point {name!r} names no curve; the curves are {list(ecs)}")
         key = name if name in ecs else next(iter(ecs))
-        f0 = float(f01(x0, ecs[key])[0])
+        if np.ndim(p) == 1 and len(p) == 2:
+            x0, f0 = float(p[0]), float(p[1])
+        else:
+            x0 = float(p)
+            f0 = float(curve(x0, ecs[key])[0])
         rng = None
         if spread:
-            rng = tuple(sorted(f01([x0 * (1 - spread), x0 * (1 + spread)], ecs[key])))
+            rng = tuple(sorted(curve([x0 * (1 - spread), x0 * (1 + spread)], ecs[key])))
             _errorbar(ax, [x0], [f0], colour[key], xerr=[[spread * x0], [spread * x0]],
                       yerr=[[f0 - rng[0]], [rng[1] - f0]], capsize=1.5, zorder=4)
         ax.plot(x0, f0, **sim_kw(color=colour[key], ms=4.5, zorder=5))
@@ -713,15 +743,18 @@ _ARROWS = {"up": (0, 1), "down": (0, -1), "left": (-1, 0), "right": (1, 0)}
 
 
 def design_map(ax, x, y, Z, *, levels, fill=True, fmt=None, emphasis=None, points=None, arrows=None,
-               xscale="log", yscale="log", xlabel=None, ylabel=None):
+               xscale="log", yscale="log", xlabel=None, ylabel=None, cmap=None, label_xy=None):
     """Contours of a computed figure of merit Z (shape len(y) x len(x)) on the x-y design plane: ink
     lines at levels, each labelled inline by fmt (a format string or callable; default the value),
     over pale tints of the style's sequential map that fill the bands between them (fill=False leaves
-    the plane white). emphasis names one level drawn heavier, a break-even line, say. points
+    the plane white; cmap names another map, "Greys" where the style's colours carry a meaning of
+    their own in the figure). emphasis names one level drawn heavier, a break-even line, say. points
     {label: (x, y) or (x, y, kind)} places devices or designs with the marker grammar (kind "data" for
     measured, "sim" for designed, "assumed" for values from elsewhere), labelled beside each marker.
     arrows {label: direction or list of directions} adds an arrow from that point ("up", "down",
-    "left", "right") for a value that is only a bound. Both axes are logarithmic unless xscale or
+    "left", "right") for a value that is only a bound. Each contour label sits at the middle of its
+    longest line; label_xy {level: (x, y)} moves the label of a level to the contour point nearest (x, y),
+    to clear a marker. Both axes are logarithmic unless xscale or
     yscale say otherwise. Returns {"lines": ContourSet, "fill": ContourSet or None,
     "points": {label: Line2D}}."""
     t = theme()
@@ -734,12 +767,17 @@ def design_map(ax, x, y, Z, *, levels, fill=True, fmt=None, emphasis=None, point
     for name in arrows or {}:
         if name not in (points or {}):
             raise ValueError(f"arrow {name!r} names no point")
+    if cmap is not None and cmap not in mpl.colormaps:
+        raise ValueError(f"cmap {cmap!r} is not a registered colormap")
+    for lv in label_xy or {}:
+        if not np.isclose(levels, lv).any():
+            raise ValueError(f"label_xy names {lv!r}, which is not one of the levels {levels.tolist()}")
     ax.set_xscale(xscale)
     ax.set_yscale(yscale)
     filled = None
     if fill:
-        cmap = mpl.colormaps[t.cmap]
-        colors = [to_hex(cmap(s)) for s in np.linspace(0.0, 0.42, levels.size + 1)]
+        cm = mpl.colormaps[cmap or t.cmap]
+        colors = [to_hex(cm(s)) for s in np.linspace(0.0, 0.42, levels.size + 1)]
         filled = ax.contourf(x, y, Z, levels=levels, colors=colors, extend="both", zorder=0)
     widths = [1.1 if emphasis is not None and np.isclose(v, emphasis) else 0.6 for v in levels]
     lines = ax.contour(x, y, Z, levels=levels, colors=[t.ink], linewidths=widths, zorder=2)
@@ -749,8 +787,15 @@ def design_map(ax, x, y, Z, *, levels, fill=True, fmt=None, emphasis=None, point
         fmt = (lambda s: lambda v: s.format(v).replace("-", _MINUS))(fmt)
     ax.set_xlim(x.min(), x.max())
     ax.set_ylim(y.min(), y.max())
-    spots = [max(segs, key=len)[len(max(segs, key=len)) // 2] for segs in lines.allsegs if segs]
-    if spots:                                                       # each label mid-line, clear of the frame
+    spots = []
+    for lv, segs in zip(levels, lines.allsegs):
+        asked = [p for k, p in (label_xy or {}).items() if np.isclose(k, lv)]
+        if asked:
+            spots.append(tuple(asked[0]))
+        elif segs:                                                  # mid-line, clear of the frame
+            longest = max(segs, key=len)
+            spots.append(longest[len(longest) // 2])
+    if spots:
         ax.clabel(lines, fmt=fmt, fontsize=t.size - 1.5, inline=True, manual=spots)
     handles = _points(ax, points, zorder=5)
     for name, dirs in (arrows or {}).items():

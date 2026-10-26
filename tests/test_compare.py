@@ -478,3 +478,204 @@ def test_limit_arrow_rejects_unknown_direction():
     with pytest.raises(ValueError):
         sq.plots.limit_arrow(ax, 1.0, 1.0, "sideways")
     plt.close(fig)
+
+
+# ---- options added for the tutorial figures ---------------------------------------------------
+
+def test_stacked_colors_fill_segments_and_a_legend_mapping_places_the_key(style):
+    from matplotlib.colors import to_rgba
+    fig, ax = axes()
+    r = sq.plots.stacked_bars(ax, ["A", "B"], {"fixed": [3, 1], "tunable": [0, 2], "none": [1, 1]},
+                              colors=["ink", style.accent, "white"], hatches=["", "", "////"],
+                              legend=dict(loc="upper left", bbox_to_anchor=(1.0, 1.0), ncol=2, frameon=False))
+    assert all(p.get_facecolor() == to_rgba(style.ink) for p in r["bars"][0])
+    assert r["bars"][1][1].get_facecolor() == to_rgba(style.accent)
+    assert r["bars"][2][0].get_facecolor() == to_rgba("white") and r["bars"][2][0].get_hatch() == "////"
+    leg = r["legend"]
+    assert leg._ncols == 2 and not leg.get_frame_on()
+    assert [p.get_facecolor() for p in leg.get_patches()] == [to_rgba(style.ink), to_rgba(style.accent),
+                                                                to_rgba("white")]
+    clean(fig)
+    with pytest.raises(ValueError):
+        sq.plots.stacked_bars(axes()[1], ["A"], {"a": [1], "b": [2]}, colors=["light"])
+    with pytest.raises(ValueError):
+        sq.plots.stacked_bars(axes()[1], ["A"], {"a": [1]}, colors=["no-such-role"])
+    plt.close("all")
+
+
+def test_factor_bars_colors_fill_each_series_with_an_ink_edge(style):
+    from matplotlib.colors import to_rgba
+    fig, ax = axes()
+    r = sq.plots.factor_bars(ax, ["C", "d"], {"Q1": [0.65, 4.8], "Q3": [0.65, 4.8]}, colors=["light", "light"],
+                             hatches=["", "///"], legend="lower right")
+    for bar in r["bars"]:
+        assert all(p.get_facecolor() == to_rgba(style.light) for p in bar)
+        assert all(p.get_edgecolor() == to_rgba(style.ink) for p in bar)
+    assert r["bars"][1][0].get_hatch() == "///" and r["bars"][0][0].get_hatch() in (None, "")
+    one = sq.plots.factor_bars(axes()[1], ["C", "d"], [0.5, 2.0], colors=["light"])      # no sign colours
+    assert all(p.get_facecolor() == to_rgba(style.light) for p in one["bars"][0])
+    clean(fig)
+    plt.close("all")
+
+
+def test_bar_rows_end_labels_print_each_value_beyond_its_bar(style):
+    fig, ax = axes()
+    r = sq.plots.bar_rows(ax, ["a", "b", "c", "d"], [8, 12, 0, np.nan], end_labels=True, fmt="{:.0f}")
+    assert [t.get_text() for t in r["texts"]] == ["8", "12", "0"]
+    assert r["texts"][1].xy == (12.0, r["pos"][1]) and r["texts"][1].get_ha() == "left"
+    log = sq.plots.bar_rows(axes()[1], ["a", "b"], [1e-4, 0.0], log=True, end_labels=True)
+    assert [t.get_text() for t in log["texts"]] == ["0.0001"]                    # no label where no bar
+    assert sq.plots.bar_rows(axes()[1], ["a"], [1.0])["texts"] == []
+    clean(fig)
+    plt.close("all")
+
+
+def test_dot_rows_markers_set_shapes_per_row_and_per_value(style):
+    fig, ax = axes()
+    r = sq.plots.dot_rows(ax, ["design", "two", "ours", "bound"], [1.4, [0.95, 0.77], 0.53, 2.0],
+                          status=["measured", "measured", "simulated", "upper"],
+                          markers=["s", ["s", "^"], "D", "v"], log=True)
+    assert [p.get_marker() for p in r["points"]] == ["s", "s", "^", "D", "v"]
+    assert r["points"][3].get_markerfacecolor() in ("white", (1.0, 1.0, 1.0, 1.0))   # the status keeps the fill
+    assert len(r["arrows"]) == 1
+    same = sq.plots.dot_rows(axes()[1], ["a", "b"], [1.0, 2.0], markers="D")
+    assert [p.get_marker() for p in same["points"]] == ["D", "D"]
+    plain = sq.plots.dot_rows(axes()[1], ["a"], [1.0])
+    assert plain["points"][0].get_marker() == "o"
+    clean(fig)
+    with pytest.raises(ValueError, match="markers"):
+        sq.plots.dot_rows(axes()[1], ["a", "b"], [1.0, [2.0, 3.0]], markers=["s", ["s"]])
+    with pytest.raises(ValueError):
+        sq.plots.dot_rows(axes()[1], ["a", "b"], [1.0, 2.0], markers=["s"])
+    plt.close("all")
+
+
+def test_paired_stems_colors_and_sizes(style):
+    from matplotlib.colors import to_rgba
+    fig, ax = axes()
+    r = sq.plots.paired_stems(ax, ["a", "b", "c"], [100, np.nan, 1], [0, 1, 1], log="symlog", markers=("o", "o"),
+                              colors=(style.ink, style.ink), ms=(5.2, 4.4))
+    assert to_rgba(r["open"].get_markeredgecolor()) == to_rgba(style.ink)
+    assert r["open"].get_markersize() == 5.2 and r["filled"].get_markersize() == 4.4
+    assert r["open"].get_markerfacecolor() in ("white", (1.0, 1.0, 1.0, 1.0))
+    one = sq.plots.paired_stems(axes()[1], ["a"], [2.0], [1.0], ms=6)
+    assert one["open"].get_markersize() == 6 and one["filled"].get_markersize() == 6
+    assert to_rgba(one["open"].get_markeredgecolor()) == to_rgba(sq.theme().sim)        # default colours stay
+    clean(fig)
+    plt.close("all")
+
+
+def test_timeline_styles_replace_the_marker_of_a_kind(style):
+    fig, ax = axes()
+    ev = [("R1", 2007, "theory"), ("R1", 2020, "search"), ("R2", 2020, "search"), ("R2", 2024, "support")]
+    styles = {"search": dict(marker="*", ms=6.3, color=style.accent, mec=style.accent, mfc=style.accent),
+              "support": dict(marker="o", ms=4.4, color=style.reference, mec=style.reference, mfc="white",
+                              zorder=3)}
+    r = sq.plots.timeline(ax, ["R1", "R2"], ev, kinds=["search", "theory", "support"], break_at=2018, dx=0.36,
+                          styles=styles, legend=False)
+    s = r["points"]["search"]
+    assert s.get_marker() == "*" and s.get_markersize() == 6.3 and len(s.get_xdata()) == 2
+    assert r["points"]["support"].get_zorder() == 3
+    assert r["points"]["theory"].get_marker() == sq.theme().markers[1]          # unstyled kinds keep the cycle
+    assert r["xmap"](2020) == pytest.approx(11 * 0.36 + 0.55 + 2)
+    clean(fig)
+    with pytest.raises(ValueError, match="styles"):
+        sq.plots.timeline(axes()[1], ["R1"], [("R1", 2020, "a")], styles={"b": dict(marker="s")})
+    plt.close("all")
+
+
+def test_study_strips_color_replaces_the_marker_colour(style):
+    from matplotlib.colors import to_rgba
+    fig, axs = axes(ncols=2)
+    cols = {"a": {"R1": [(2.0, "measured"), (3.0, "simulated")]}, "b": {"R1": 1.0, "R2": (0.5, "assumed")}}
+    r = sq.plots.study_strips(axs, ["R1", "R2"], cols, color=style.ink)
+    meas, sim = r["points"]["a"]
+    assert to_rgba(sim.get_markeredgecolor()) == to_rgba(style.ink)
+    assert sim.get_markerfacecolor() in ("white", (1.0, 1.0, 1.0, 1.0))
+    assert to_rgba(r["points"]["b"][1].get_markeredgecolor()) == to_rgba(style.assumed)    # assumed stays grey
+    plain = sq.plots.study_strips(axes(ncols=2)[1], ["R1", "R2"], cols)
+    assert to_rgba(plain["points"]["a"][1].get_markeredgecolor()) == to_rgba(style.sim)
+    clean(fig)
+    plt.close("all")
+
+
+def test_inferred_status_is_a_light_filled_marker_and_a_light_bar(style):
+    from matplotlib.colors import to_rgba
+    fig, (a, b) = axes(2)
+    r = sq.plots.dot_rows(a, ["m", "i"], [2.0, 3.0], status=["measured", "inferred"], color=style.ink)
+    meas, inf = r["points"]
+    assert to_rgba(inf.get_markerfacecolor()) == to_rgba(style.light)
+    assert to_rgba(inf.get_markeredgecolor()) == to_rgba(style.ink)
+    assert to_rgba(meas.get_markerfacecolor()) != to_rgba(style.light)
+    r = sq.plots.bar_rows(b, ["m", "i"], [2.0, 3.0], status=["measured", "inferred"], color=style.ink)
+    assert r["bars"][1].get_facecolor() == to_rgba(style.light)
+    assert "inferred" in C.STATUSES and C._WORDS["inferred"] == "inferred"
+    clean(fig)
+
+
+def test_bar_rows_fill_replaces_the_tint_of_measured_bars_only(style):
+    from matplotlib.colors import to_rgba
+    fig, ax = axes()
+    r = sq.plots.bar_rows(ax, ["a", "b"], [5.0, 3.0], status=["measured", "simulated"], color=style.ink,
+                          fill="light")
+    assert r["bars"][0].get_facecolor() == to_rgba(style.light)
+    assert r["bars"][0].get_edgecolor() == to_rgba(style.ink)
+    assert r["bars"][1].get_facecolor() == to_rgba("white")         # an open bar stays open
+    clean(fig)
+    with pytest.raises(ValueError):
+        sq.plots.bar_rows(ax, ["a"], [1.0], fill="no-such-role")
+
+
+def test_grouped_bars_pack_centres_the_bars_a_group_has(style):
+    fig, ax = axes()
+    r = sq.plots.grouped_bars(ax, ["MA", "MS", "total"],
+                              {"3D": [1e-5, 3e-7, np.nan], "hybrid": [9e-5, 4.6e-5, np.nan],
+                               "other": [np.nan, np.nan, 4e-4]},
+                              log=True, pack=True, ratios=True, width=1.08, legend=False,
+                              ratio_fmt=lambda q: rf"$\times${q:.0f}" if q > 3 else rf"$\times${q:.2f}", label_fs=7.5)
+    c = lambda bar: bar.get_x() + bar.get_width() / 2
+    assert c(r["bars"][0][0]) == pytest.approx(-0.18) and c(r["bars"][1][0]) == pytest.approx(0.18)
+    assert c(r["bars"][2][2]) == pytest.approx(2.0)                  # a lone bar sits at its group's centre
+    assert r["bars"][0][0].get_width() == pytest.approx(0.36)
+    assert [t.get_text() for t in r["texts"]] == [r"$\times$9", r"$\times$153"]
+    assert all(t.get_fontsize() == 7.5 for t in r["texts"])
+    assert r["legend"] is None
+    clean(fig)
+
+
+def test_grouped_bars_ratio_fmt_string_and_unchanged_default(style):
+    fig, (a, b) = axes(2)
+    r = sq.plots.grouped_bars(a, ["g"], {"A": [2.0], "B": [2.7]}, ratios=True, ratio_fmt="{:.2f}")
+    assert [t.get_text() for t in r["texts"]] == ["×1.35"]
+    r = sq.plots.grouped_bars(b, ["g"], {"A": [2.0], "B": [2.7]}, ratios=True)
+    assert [t.get_text() for t in r["texts"]] == ["×1.4"]
+    assert r["texts"][0].get_fontsize() == pytest.approx(style.size - 1.5)
+    clean(fig)
+
+
+def test_ratio_strip_markers_size_and_legend_placement(style):
+    fig, ax = axes()
+    groups = {"Q": [1.1, 0.7, 6.0, 1.3], "T1": [4.8, 8.0]}
+    status = {"Q": ["measured", "simulated", "lower", "simulated"], "T1": ["simulated", "upper"]}
+    markers = {"Q": [None, "s", "^", None], "T1": [None, "v"]}
+    r = sq.plots.ratio_strip(ax, groups, status=status, markers=markers, ms=3.0,
+                             legend={"measured": "calibrated", ("simulated", None): "forecast",
+                                     ("simulated", "s"): "target", "upper": "bound", "lower": "bound"},
+                             legend_at=dict(loc="lower right", ncol=4))
+    shapes = [p.get_marker() for p in r["points"]["Q"]]
+    assert shapes == ["o", "s", "^", "o"]
+    assert r["points"]["T1"][1].get_marker() == "v"
+    assert all(p.get_markersize() == 3.0 for p in r["points"]["Q"])
+    labels = [t.get_text() for t in r["legend"].get_texts()]
+    assert labels == ["calibrated", "forecast", "target", "bound"]   # the two bounds share one entry
+    assert r["legend"]._loc == 4                                     # placed inside, lower right
+    clean(fig)
+
+
+def test_ratio_strip_markers_reject_mismatch():
+    fig, ax = axes()
+    with pytest.raises(ValueError):
+        sq.plots.ratio_strip(ax, {"f": [1.0, 2.0]}, markers={"f": ["s"]})
+    with pytest.raises(ValueError):
+        sq.plots.ratio_strip(ax, {"f": [1.0]}, markers={"g": ["s"]})
+    plt.close(fig)

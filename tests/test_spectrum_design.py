@@ -226,6 +226,70 @@ def test_parity_bands_units_levels_and_bad_input():
     plt.close("all")
 
 
+def test_parity_bands_colours_legend_and_note_options():
+    from matplotlib.colors import to_hex
+    blue, orange = sq.PALETTE["blue"], sq.PALETTE["orange"]
+    out, fig = draw(sq.plots.parity_bands, 16.3, 0.78, level=1, colors=(blue, orange), legend=False, note=False)
+    ax = fig.axes[0]
+    even, odd = ax.lines[0], ax.lines[1]
+    assert (to_hex(even.get_color()), to_hex(odd.get_color())) == (blue, orange)
+    assert ax.get_legend() is None
+    assert not [t for t in ax.texts if "epsilon" in t.get_text()]      # the arrow stays, its note does not
+    assert any(p.get_arrowstyle() for p in ax.patches)
+    plt.close(fig)
+    _, fig = draw(sq.plots.parity_bands, 16.3, 0.78, level=1)       # defaults unchanged: legend and note
+    ax = fig.axes[0]
+    assert ax.get_legend() is not None and [t for t in ax.texts if "epsilon" in t.get_text()]
+    plt.close(fig)
+    with pytest.raises(ValueError):
+        draw(sq.plots.parity_bands, 16.3, 0.78, colors=(blue,))
+    plt.close("all")
+
+
+def test_design_map_fill_takes_another_colormap():
+    from matplotlib.colors import to_hex
+    x, y = np.logspace(-3, 1, 30), np.logspace(-2, 0, 20)
+    Z = y[:, None] ** 2 / x[None, :]
+    out, fig = draw(sq.plots.design_map, x, y, Z, levels=[1.0, 2.0, 3.0], cmap="Greys")
+    fills = [to_hex(c) for c in out["fill"].get_facecolor()]
+    assert len(fills) == 4 and fills[0] == "#ffffff"
+    assert all(h[1:3] == h[3:5] == h[5:7] for h in fills)           # every band a grey
+    assert not violations(fig)
+    plt.close(fig)
+    default, fig = draw(sq.plots.design_map, x, y, Z, levels=[1.0, 2.0, 3.0])
+    assert [to_hex(c) for c in default["fill"].get_facecolor()] != fills    # default: the style's map
+    plt.close(fig)
+    with pytest.raises(ValueError):
+        draw(sq.plots.design_map, x, y, Z, levels=[1.0, 2.0], cmap="no_such_map")
+    plt.close("all")
+
+
+def test_design_map_places_a_contour_label_where_asked():
+    x, y = np.logspace(-3, 1, 60), np.logspace(-2, 0, 40)
+    Z = y[:, None] ** 2 / x[None, :]
+    out, fig = draw(sq.plots.design_map, x, y, Z, levels=[1.0, 10.0], fill=False, label_xy={1.0: (1e-2, 0.1)})
+    ax = fig.axes[0]
+    labels = {t.get_text(): t.get_position() for t in ax.texts}
+    lx, ly = labels["1"]
+    assert lx == pytest.approx(1e-2, rel=0.15) and ly == pytest.approx(0.1, rel=0.15)   # on R = 1 nearest the spot
+    assert "10" in labels                                                               # the other keeps its default
+    plt.close(fig)
+    with pytest.raises(ValueError):
+        draw(sq.plots.design_map, x, y, Z, levels=[1.0, 10.0], label_xy={5.0: (1e-2, 0.1)})
+    plt.close("all")
+
+
+def test_ratio_scaling_colour_of_the_exact_curve():
+    from matplotlib.colors import to_hex
+    ink = sq.PALETTE["ink"]
+    _, fig = draw(sq.plots.ratio_scaling, "parity", np.linspace(8, 60, 27), color=ink, legend=False)
+    assert to_hex(fig.axes[0].lines[0].get_color()) == ink
+    plt.close(fig)
+    _, fig = draw(sq.plots.ratio_scaling, "parity", np.linspace(8, 60, 27))     # default: the model colour
+    assert to_hex(fig.axes[0].lines[0].get_color()) == to_hex(sq.FIELD.model)
+    plt.close(fig)
+
+
 def test_flux_tuning_curves_and_marks():
     out, fig = draw(sq.plots.flux_tuning, 22.0, 0.24, d=(0.0, 0.2), detune=(0.5, 1.0))
     plt.close(fig)
@@ -288,6 +352,41 @@ def test_junction_curve_rejects_bad_input():
         draw(sq.plots.junction_curve, [5.0, 6.0], 0.2, kind="Ic", gap=1.8e-4)
     with pytest.raises(ValueError):
         draw(sq.plots.junction_curve, [5.0, 6.0], {"A": 0.2, "B": 0.3}, gap=1.8e-4, points={"C": 5.5})
+    plt.close("all")
+
+
+def test_junction_curve_draws_given_curves_and_points_and_shades_an_x_band():
+    from matplotlib.colors import to_rgba
+    from matplotlib.patches import Rectangle
+    LJ = np.linspace(7.0, 15.0, 9)
+    f = 5.0 * np.sqrt(10.0 / LJ)                                    # a curve the caller computed
+    out, fig = draw(sq.plots.junction_curve, LJ, None, kind="LJ", f01=f, points={"design": (10.0, 5.01)},
+                    xband=(9.2, 10.8), spread=0.08)
+    ax = fig.axes[0]
+    np.testing.assert_allclose(out["f01"][None], f)                 # drawn as given, not solved
+    x0, f0, (lo, hi) = out["points"]["design"]
+    assert (x0, f0) == (10.0, 5.01)                                 # the caller's frequency, not interpolated
+    assert lo == pytest.approx(np.interp(10.8, LJ, f)) and hi == pytest.approx(np.interp(9.2, LJ, f))
+    band = [p for p in ax.patches if isinstance(p, Rectangle) and p.get_facecolor() == to_rgba(sq.theme().light)]
+    assert len(band) == 1
+    assert not violations(fig)
+    plt.close(fig)
+    out, fig = draw(sq.plots.junction_curve, LJ, None, kind="LJ", f01={"A": f, "B": f - 0.3}, points={"B": 12.0},
+                    legend=False)
+    assert out["points"]["B"][1] == pytest.approx(np.interp(12.0, LJ, f - 0.3))   # interpolated on its curve
+    plt.close(fig)
+
+
+def test_junction_curve_given_curves_reject_bad_input():
+    LJ = np.linspace(7.0, 15.0, 9)
+    with pytest.raises(ValueError):
+        draw(sq.plots.junction_curve, LJ, None, kind="LJ")                          # neither EC nor f01
+    with pytest.raises(ValueError):
+        draw(sq.plots.junction_curve, LJ, None, kind="LJ", f01=LJ[:4])              # wrong length
+    with pytest.raises(ValueError):
+        draw(sq.plots.junction_curve, LJ, {"A": 0.2}, kind="LJ", f01={"B": LJ})     # names differ
+    with pytest.raises(ValueError):
+        draw(sq.plots.junction_curve, LJ, None, kind="LJ", f01=LJ, cap_spread=0.05)
     plt.close("all")
 
 
