@@ -4,7 +4,9 @@ large-E_J/E_C asymptotes, SQUID tuning, junction inductance from normal-state re
 Jaynes-Cummings, dispersive formulas and the exact dressed transmon-resonator spectrum, the Purcell
 limit, notch-resonator scattering, TLS-limited quality factors, normal modes and black-box
 quantization of lumped circuits, Fock-space states with their Wigner functions, Bloch-vector
-dynamics, thermal occupation and the mass-frequency conversion of dark-matter searches.
+dynamics, thermal occupation, and the dark-matter wave: the mass-frequency conversion, the field
+amplitude, the occupation number, the coherence time, the line shape, a field trace and a model
+rotation curve.
 
 Units: energies and frequencies in GHz (E/h), times in the reciprocal unit (ns), except purcell_t1,
 which returns microseconds. Flux is in units of the flux quantum. Circuit elements (capacitance,
@@ -250,6 +252,72 @@ def mass_from_frequency(f):
 def frequency_from_mass(m):
     """Compton frequency (GHz) of a boson of rest energy m (µeV); the inverse of mass_from_frequency."""
     return np.asarray(m, float) * 1e-6 * _E / _H / 1e9
+
+
+_C, _EPS0 = 299792458.0, 8.8541878128e-12
+_G_KPC = 4.30091727e-6                                    # G in kpc (km/s)^2 per solar mass
+
+
+def dm_field(eps, rho=0.45):
+    """Amplitude (V/m) of the electric field eps sqrt(2 rho / eps0) that dark-photon dark matter of
+    kinetic mixing eps and local density rho (GeV/cm^3) makes in free space. The mass drops out."""
+    u = np.asarray(rho, float) * 1e9 * _E * 1e6          # J/m^3
+    return np.asarray(eps, float) * np.sqrt(2 * u / _EPS0)
+
+
+def occupation_number(m, rho=0.45, v=220.0):
+    """Mean number of dark-matter particles of rest energy m (µeV) in a cube whose side is their de
+    Broglie wavelength h / (m v), (rho / m c^2) (h / m v)^3, for local density rho (GeV/cm^3) and speed
+    v (km/s). It falls as m^-4, and above one the particles act together as one classical wave."""
+    E = np.asarray(m, float) * 1e-6 * _E                 # rest energy in J
+    n = np.asarray(rho, float) * 1e9 * _E * 1e6 / E      # particles per m^3
+    lam = _H * _C / (E * np.asarray(v, float) * 1e3 / _C)
+    return n * lam ** 3
+
+
+def coherence_time(f, Q=1e6, angular=False):
+    """Coherence time (µs) of a dark-matter wave at frequency f (GHz) whose line has quality factor Q,
+    about c^2 / v^2: Q / f, or Q / (2 pi f) with angular=True. Sources use both, so a quoted value must
+    say which."""
+    return np.asarray(Q, float) / (np.asarray(f, float) * 1e9 * (2 * np.pi if angular else 1.0)) * 1e6
+
+
+def dm_lineshape(df, f, v0=220.0):
+    """Line shape (per unit of df) of a dark-matter wave at rest frequency f against the offset df above
+    it, in the unit of f, for isotropic Maxwell speeds p(v) ~ v^2 exp(-v^2 / v0^2) with v0 in km/s:
+    (2 / sqrt(pi)) sqrt(df) df0^(-3/2) exp(-df / df0), with df0 = f v0^2 / (2 c^2). It integrates to one,
+    and its mean offset is 1.5 df0."""
+    df = np.asarray(df, float)
+    d0 = np.asarray(f, float) * (v0 * 1e3) ** 2 / (2 * _C ** 2)
+    with np.errstate(invalid="ignore"):
+        return np.where(df > 0, 2 / np.sqrt(np.pi) * np.sqrt(np.clip(df, 0, None)) / d0 ** 1.5
+                        * np.exp(-df / d0), 0.0)
+
+
+def dm_field_trace(t, f, v0=220.0, n=400, seed=0):
+    """Complex envelope of a dark-matter wave at rest frequency f (GHz) over times t (µs). It sums n tones
+    with random phases whose offsets f |v|^2 / (2 c^2) come from isotropic Gaussian velocities of spread
+    v0 / sqrt(2) per axis (v0 in km/s), and divides by sqrt(n) so that its mean power is one. The phase
+    runs against a tone at the mean offset, so it wanders instead of drifting. Seeded, so a figure
+    redraws the same halo."""
+    rng = np.random.default_rng(seed)
+    v = rng.normal(scale=v0 * 1e3 / np.sqrt(2), size=(n, 3))
+    df = f * 1e9 * (np.sum(v ** 2, axis=1) - 1.5 * (v0 * 1e3) ** 2) / (2 * _C ** 2)     # Hz
+    phi = rng.uniform(0, 2 * np.pi, n)
+    ts = np.asarray(t, float) * 1e-6
+    return np.exp(1j * (2 * np.pi * np.outer(ts, df) + phi)).sum(axis=1) / np.sqrt(n)
+
+
+def rotation_curve(r, m_visible=7e10, a=3.0, v_halo=220.0, r_core=5.0):
+    """Circular speeds (km/s) at radii r (kpc) of a model galaxy, from v^2 = G M(<r) / r. The visible
+    matter, of total mass m_visible (solar masses), sits in a Plummer sphere of scale a (kpc) that encloses
+    M r^3 / (r^2 + a^2)^(3/2). A cored isothermal halo adds v_halo^2 (1 - (r_core / r) arctan(r / r_core)),
+    which tends to v_halo (km/s) far out. Returns (visible, halo, total) with total^2 = visible^2 + halo^2.
+    An illustrative model, not a fit to a galaxy."""
+    r = np.asarray(r, float)
+    vis = np.sqrt(_G_KPC * m_visible * r ** 2 / (r ** 2 + a ** 2) ** 1.5)
+    halo = v_halo * np.sqrt(np.clip(1 - r_core / r * np.arctan(r / r_core), 0, None))
+    return vis, halo, np.hypot(vis, halo)
 
 
 # ---- circuits: normal modes and black-box quantization ----------------------------------------
