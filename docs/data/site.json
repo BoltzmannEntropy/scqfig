@@ -1,7 +1,12 @@
 {
  "version": "0.1.0",
- "build": "d07d957537",
+ "build": "238d8df00c",
  "families": [
+  {
+   "name": "Dark matter",
+   "color": "#d473b1",
+   "text": "Rotation curves, the occupation number, line shape and field trace of the dark-matter wave, and the coupling reach with measured limits and a dark-photon mass axis."
+  },
   {
    "name": "Spectrum",
    "color": "#628fd2",
@@ -31,11 +36,6 @@
    "name": "Noise and errors",
    "color": "#e09bc7",
    "text": "Noise spectra, error budgets, correlated bursts and correlations."
-  },
-  {
-   "name": "Dark matter",
-   "color": "#d473b1",
-   "text": "Coupling reach against frequency, measured limits, dark-photon mass axis."
   },
   {
    "name": "Processor",
@@ -1339,6 +1339,130 @@
    "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure}[t]\n  \\centering\n  \\scqgraphics[width=\\columnwidth]{53_error_correlation}   % figures/<style>/53_error_correlation.pdf\n  \\caption{Pairwise correlation of error detections across a 24-qubit chain; bursts correlate neighbours (synthetic data from a toy burst model).}\n  \\label{fig:error-correlation}\n\\end{figure}\n"
   },
   {
+   "id": "55_rotation_curve",
+   "num": "55",
+   "title": "Rotation curve",
+   "family": "Dark matter",
+   "caption": "Rotation curve of a model spiral galaxy: the speed that the visible matter alone would give falls off outside the disk, while a dark halo keeps the total flat near 220 km/s (illustrative model, synthetic points).",
+   "code": "\"\"\"Rotation curve of a model spiral galaxy: the speed that the visible matter alone would give falls off outside the disk, while a dark halo keeps the total flat near 220 km/s (illustrative model, synthetic points).\"\"\"\nimport numpy as np\n\nimport scqfig as sq\nfrom scqfig import physics as ph\n\nTITLE = \"Rotation curve\"\nFAMILY = \"Dark matter\"\n\n\ndef build():\n    rng = np.random.default_rng(55)\n    r = np.linspace(0.2, 30, 300)                                   # kpc\n    vis, halo, _ = ph.rotation_curve(r)\n    ro = np.linspace(2, 28, 14)\n    vo = ph.rotation_curve(ro)[2] + rng.normal(0, 6, ro.size)\n    fig, ax = sq.figure(\"column\", aspect=0.68)\n    sq.plots.rotation_curve(ax, r, vis, halo, observed=(ro, vo, np.full(ro.size, 8.0)))\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "rotation_curve"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/55_rotation_curve.png",
+     "pdf": "figures/field/55_rotation_curve.pdf",
+     "thumb": "thumbs/field/55_rotation_curve.jpg",
+     "w": 671,
+     "h": 453,
+     "width_in": 3.35
+    },
+    "folio": {
+     "png": "figures/folio/55_rotation_curve.png",
+     "pdf": "figures/folio/55_rotation_curve.pdf",
+     "thumb": "thumbs/folio/55_rotation_curve.jpg",
+     "w": 671,
+     "h": 453,
+     "width_in": 3.35
+    }
+   },
+   "page": false,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure}[t]\n  \\centering\n  \\scqgraphics[width=\\columnwidth]{55_rotation_curve}   % figures/<style>/55_rotation_curve.pdf\n  \\caption{Rotation curve of a model spiral galaxy: the speed that the visible matter alone would give falls off outside the disk, while a dark halo keeps the total flat near 220 km/s (illustrative model, synthetic points).}\n  \\label{fig:rotation-curve}\n\\end{figure}\n"
+  },
+  {
+   "id": "56_occupation_number",
+   "num": "56",
+   "title": "Occupation number",
+   "family": "Dark matter",
+   "caption": "Dark-matter particles per de Broglie volume against rest energy for 0.45 GeV/cm\u00b3 and 220 km/s: below about 40 eV each cell holds many particles and the dark matter acts as one classical wave, which covers the 1 to 10 GHz band of qubit searches (computed).",
+   "code": "\"\"\"Dark-matter particles per de Broglie volume against rest energy for 0.45 GeV/cm\u00b3 and 220 km/s: below about 40 eV each cell holds many particles and the dark matter acts as one classical wave, which covers the 1 to 10 GHz band of qubit searches (computed).\"\"\"\nimport numpy as np\n\nimport scqfig as sq\nfrom scqfig import physics as ph\n\nTITLE = \"Occupation number\"\nFAMILY = \"Dark matter\"\n\n\ndef build():\n    m = np.logspace(-22, 12, 300)                                   # eV\n    N = ph.occupation_number(m * 1e6)\n    band = tuple(ph.mass_from_frequency([1.0, 10.0]) * 1e-6)        # 1 to 10 GHz in eV\n    fig, ax = sq.figure(\"column\", aspect=0.72)\n    sq.plots.occupation(ax, m, N, band=band, band_label=\"1 to 10 GHz\")\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "occupation"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/56_occupation_number.png",
+     "pdf": "figures/field/56_occupation_number.pdf",
+     "thumb": "thumbs/field/56_occupation_number.jpg",
+     "w": 671,
+     "h": 480,
+     "width_in": 3.35
+    },
+    "folio": {
+     "png": "figures/folio/56_occupation_number.png",
+     "pdf": "figures/folio/56_occupation_number.pdf",
+     "thumb": "thumbs/folio/56_occupation_number.jpg",
+     "w": 671,
+     "h": 480,
+     "width_in": 3.35
+    }
+   },
+   "page": false,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure}[t]\n  \\centering\n  \\scqgraphics[width=\\columnwidth]{56_occupation_number}   % figures/<style>/56_occupation_number.pdf\n  \\caption{Dark-matter particles per de Broglie volume against rest energy for 0.45 GeV/cm\u00b3 and 220 km/s: below about 40 eV each cell holds many particles and the dark matter acts as one classical wave, which covers the 1 to 10 GHz band of qubit searches (computed).}\n  \\label{fig:occupation-number}\n\\end{figure}\n"
+  },
+  {
+   "id": "57_dm_lineshape",
+   "num": "57",
+   "title": "Dark-matter line shape",
+   "family": "Dark matter",
+   "caption": "Line shape of a 5 GHz dark-matter wave for isotropic Maxwell speeds with v0 = 220 km/s: the line is a few kHz wide, one part in a million of its frequency, with a mean offset of 2.0 kHz (computed).",
+   "code": "\"\"\"Line shape of a 5 GHz dark-matter wave for isotropic Maxwell speeds with v0 = 220 km/s: the line is a few kHz wide, one part in a million of its frequency, with a mean offset of 2.0 kHz (computed).\"\"\"\nimport numpy as np\n\nimport scqfig as sq\nfrom scqfig import physics as ph\n\nTITLE = \"Dark-matter line shape\"\nFAMILY = \"Dark matter\"\n\n\ndef build():\n    df = np.linspace(0, 8.0, 400)                                    # kHz\n    g = ph.dm_lineshape(df, 5e6)                                     # f in kHz\n    fig, ax = sq.figure(\"column\", aspect=0.62)\n    sq.plots.lineshape(ax, df, g, mean=float((g * df).sum() / g.sum()))\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "lineshape"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/57_dm_lineshape.png",
+     "pdf": "figures/field/57_dm_lineshape.pdf",
+     "thumb": "thumbs/field/57_dm_lineshape.jpg",
+     "w": 671,
+     "h": 412,
+     "width_in": 3.35
+    },
+    "folio": {
+     "png": "figures/folio/57_dm_lineshape.png",
+     "pdf": "figures/folio/57_dm_lineshape.pdf",
+     "thumb": "thumbs/folio/57_dm_lineshape.jpg",
+     "w": 671,
+     "h": 412,
+     "width_in": 3.35
+    }
+   },
+   "page": false,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure}[t]\n  \\centering\n  \\scqgraphics[width=\\columnwidth]{57_dm_lineshape}   % figures/<style>/57_dm_lineshape.pdf\n  \\caption{Line shape of a 5 GHz dark-matter wave for isotropic Maxwell speeds with v0 = 220 km/s: the line is a few kHz wide, one part in a million of its frequency, with a mean offset of 2.0 kHz (computed).}\n  \\label{fig:dm-lineshape}\n\\end{figure}\n"
+  },
+  {
+   "id": "58_dm_field_trace",
+   "num": "58",
+   "title": "Dark-matter field trace",
+   "family": "Dark matter",
+   "caption": "Amplitude and phase of a 5 GHz dark-matter wave built from 400 tones with standard-halo velocities: both wander on the 200 \u00b5s coherence time, twice the length of the shaded 100 \u00b5s qubit shot (simulated, seeded).",
+   "code": "\"\"\"Amplitude and phase of a 5 GHz dark-matter wave built from 400 tones with standard-halo velocities: both wander on the 200 \u00b5s coherence time, twice the length of the shaded 100 \u00b5s qubit shot (simulated, seeded).\"\"\"\nimport numpy as np\n\nimport scqfig as sq\nfrom scqfig import physics as ph\n\nTITLE = \"Dark-matter field trace\"\nFAMILY = \"Dark matter\"\n\n\ndef build():\n    t = np.linspace(0, 3000, 1501)                                   # \u00b5s\n    A = ph.dm_field_trace(t, 5.0, seed=7)\n    fig, ax = sq.figure(\"column\", aspect=0.62)\n    sq.plots.field_trace(ax, t, A, window=(1900, 2000), window_label=\"100 \u00b5s shot\")\n    return fig\n\n\nif __name__ == \"__main__\":\n    sq.demo_main(build, __file__)\n",
+   "functions": [
+    "field_trace"
+   ],
+   "images": {
+    "field": {
+     "png": "figures/field/58_dm_field_trace.png",
+     "pdf": "figures/field/58_dm_field_trace.pdf",
+     "thumb": "thumbs/field/58_dm_field_trace.jpg",
+     "w": 671,
+     "h": 412,
+     "width_in": 3.35
+    },
+    "folio": {
+     "png": "figures/folio/58_dm_field_trace.png",
+     "pdf": "figures/folio/58_dm_field_trace.pdf",
+     "thumb": "thumbs/folio/58_dm_field_trace.jpg",
+     "w": 671,
+     "h": 412,
+     "width_in": 3.35
+    }
+   },
+   "page": false,
+   "latex": "% preamble: pick the style once for the whole paper\n\\usepackage[field,figdir=figures]{scqfig}   % or [folio,...]\n\n\\begin{figure}[t]\n  \\centering\n  \\scqgraphics[width=\\columnwidth]{58_dm_field_trace}   % figures/<style>/58_dm_field_trace.pdf\n  \\caption{Amplitude and phase of a 5 GHz dark-matter wave built from 400 tones with standard-halo velocities: both wander on the 200 \u00b5s coherence time, twice the length of the shaded 100 \u00b5s qubit shot (simulated, seeded).}\n  \\label{fig:dm-field-trace}\n\\end{figure}\n"
+  },
+  {
    "id": "59_reach",
    "num": "59",
    "title": "Dark-photon reach",
@@ -2524,7 +2648,7 @@
  "readme": {
   "why": [
    {
-    "text": "A superconducting-chip paper draws the same figures again and again:\n- spectroscopy against flux, avoided crossings and T1 decays;\n- IQ blobs, frequency plans and chip layouts;\n- wiring diagrams and pulse sequences."
+    "text": "A dark-matter search with superconducting qubits draws the same figures again and again:\n- the signal, with rotation curves, occupation numbers, line shapes and reach plots;\n- the chip, with spectroscopy against flux, avoided crossings, frequency plans and chip layouts;\n- the measurement, with T1 decays, IQ blobs, wiring diagrams and pulse sequences."
    },
    {
     "text": "Each group restyles them by hand, and the restyling rarely survives the next paper."
